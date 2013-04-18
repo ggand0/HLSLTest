@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HLSLTest", "HLSLTest\HLSLTest\HLSLTest.csproj", "{716ED720-08DF-4D30-82C9-556F40ECC4D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HLSLTestContent", "HLSLTest\HLSLTestContent\HLSLTestContent.contentproj", "{95346E69-0FCC-406C-A088-4284AF64C583}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|x86.ActiveCfg = Debug|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|x86.Build.0 = Debug|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|x86.ActiveCfg = Release|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|x86.Build.0 = Release|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Debug|x86.ActiveCfg = Debug|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
