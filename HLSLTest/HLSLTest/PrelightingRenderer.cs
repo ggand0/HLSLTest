@@ -45,7 +45,8 @@ namespace HLSLTest
 		Effect shadowDepthEffect;
 		// Depth texture parameters
 		int shadowMapSize = 2048;
-		int shadowFarPlane = 10000;//10000;
+		//int shadowFarPlane = 10000;//10000;
+		int shadowFarPlane = 2000;//10000;
 		// Shadow light view and projection
 		Matrix shadowView, shadowProjection;
 		// Shadow properties
@@ -247,8 +248,6 @@ namespace HLSLTest
 				using (Stream stream = File.OpenWrite("shadowDepth.png")) {
 					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
 					stream.Position = 0;
-					//MediaLibrary media = new MediaLibrary();
-					//media.SavePicture("shadowDepth.jpg", stream);
 					hasSaved = true;
 				}
 			}
@@ -300,8 +299,8 @@ namespace HLSLTest
 			drawLightMap();
 			if (DoShadowMapping) {
 				drawShadowDepthMap();
-				//blurShadow(shadowBlurTarg, shadowDepthTarg, 0);
-				//blurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
+				blurShadow(shadowBlurTarg, shadowDepthTarg, 0);
+				blurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
 			}
 			prepareMainPass();
 		}
