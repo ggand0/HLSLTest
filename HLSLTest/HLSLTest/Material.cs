@@ -182,15 +182,13 @@ namespace HLSLTest
 			-100000, 100000);
 
 			// Calculate view matrix as usual
-			Matrix view = Matrix.CreateLookAt(ProjectorPosition,// viewがNANになってた
-			ProjectorTarget, Vector3.UnitX);//Vector3.Up);
+			Matrix view = Matrix.CreateLookAt(ProjectorPosition,// viewがNANになってたのでVector3.UnitXとかにする？
+			ProjectorTarget, Vector3.UnitX);//Vector3.UnitX);//Vector3.Up);
 
 			if (effect.Parameters["ProjectorViewProjection"] != null)
-				effect.Parameters["ProjectorViewProjection"].SetValue(
-				view * projection);
+				effect.Parameters["ProjectorViewProjection"].SetValue(view * projection);
 			if (effect.Parameters["ProjectedTexture"] != null)
-				effect.Parameters["ProjectedTexture"].SetValue(
-				ProjectedTexture);
+				effect.Parameters["ProjectedTexture"].SetValue(ProjectedTexture);
 		}
 
 	}

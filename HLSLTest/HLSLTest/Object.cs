@@ -317,7 +317,7 @@ namespace HLSLTest
 		/// <summary>
 		/// カスタムエフェクトを使用したDraw
 		/// </summary>
-		public void Draw()
+		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
@@ -328,22 +328,22 @@ namespace HLSLTest
 					Effect effect = meshPart.Effect;
 					if (effect is BasicEffect) {
 						((BasicEffect)effect).World = localWorld;
-						((BasicEffect)effect).View = game.camera.View;
-						((BasicEffect)effect).Projection = game.camera.Projection;
+						((BasicEffect)effect).View = View;
+						((BasicEffect)effect).Projection = Projection;
 						((BasicEffect)effect).EnableDefaultLighting();
 					} else {
 						setEffectParameter(effect, "World", localWorld);
-						setEffectParameter(effect, "View", game.camera.View);
-						setEffectParameter(effect, "Projection", game.camera.Projection);
-						setEffectParameter(effect, "CameraPosition", game.camera.CameraPosition);
-						setEffectParameter(effect, "TextureEnabled", true);// どうやらデフォルトでtrueらしい
+						setEffectParameter(effect, "View", View);
+						setEffectParameter(effect, "Projection", Projection);
+						setEffectParameter(effect, "CameraPosition", CameraPosition);
+						//setEffectParameter(effect, "TextureEnabled", true);// どうやらデフォルトでtrueらしい
 
-						//setEffectParameter(effect, "ProjectorEnabled", true);// どうやらデフォルトでtrueらしい
+						//setEffectParameter(effect, "ProjectorEnabled", true);
 					}
 					if (Material is ProjectedTextureMaterial) {
 						int d = 0;
 					}
-					Material.SetEffectParameters(effect);// light mapだけの時は消すべき？
+					//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
 				}
 				mesh.Draw();
 			}

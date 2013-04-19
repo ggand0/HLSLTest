@@ -1,3 +1,5 @@
+//#define DEBUG_MODE
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,8 +70,8 @@ namespace HLSLTest
 			Target.Scale = 0.1f;
 			Ground.Scale = 0.05f;
 			models = new List<Object>();
-			models.Add(Target);
-			models.Add(Ground);
+			models.Add(Ground);models.Add(Target);
+			
 			camera.Initialize(this, Target);
 
 			base.Initialize();
@@ -85,10 +87,11 @@ namespace HLSLTest
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			Debug.game = this;
 			Debug.spriteBatch = this.spriteBatch;
+			PrelightingRenderer._gameInstance = this;
 			debug = new Debug();
 
 			// projection
-			Effect effect = Content.Load<Effect>("TextureProjectionEffect");
+			/*Effect effect = Content.Load<Effect>("TextureProjectionEffect");
 			models[0].SetModelEffect(effect, true);
 			models[1].SetModelEffect(effect, true);
 			//t = Content.Load<Texture2D>("Checker");//("projectedTexture");
@@ -99,25 +102,40 @@ namespace HLSLTest
 			mat.ProjectorTarget = new Vector3(0, 0, 0);
 			mat.Scale = 0.05f;//2
 			models[0].Material = mat;
-			models[1].Material = mat;
+			models[1].Material = mat;*/
 
 			// light map
+			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffect");
 			Effect lightingEffect = Content.Load<Effect>("PPModel");// load Prelighting Effect
 			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
 			//models[1].SetModelEffect(lightingEffect, true);
+			models[0].SetModelEffect(shadowEffect, true);			// set effect to each modelmeshpart
+			models[1].SetModelEffect(shadowEffect, true);
+
 			renderer = new PrelightingRenderer(GraphicsDevice, Content);
 			renderer.Models = models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PPPointLight>() {
-				new PPPointLight(new Vector3(-100, 100, 0), Color.Red * .85f,
+				/*new PPPointLight(new Vector3(-100, 100, 0), Color.Red * .85f,
 				200),
 				new PPPointLight(new Vector3(100, 100, 0), Color.Blue * .85f,
 				200),
 				new PPPointLight(new Vector3(0, 100, 100), Color.Green * .85f,
-				200),
-				new PPPointLight(new Vector3(0, 100, -100), Color.White * .85f,
-				200)
+				200),*/
+				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				20000)
 			};
+			// setup shadows
+			renderer.ShadowLightPosition = new Vector3(500, 500, 0);//new Vector3(1500, 1500, 2000);
+			renderer.ShadowLightTarget = new Vector3(0, 300, 0);//new Vector3(0, 150, 0)
+			//renderer.ShadowLightPosition = new Vector3(200, 100, 0);//new Vector3(1500, 1500, 2000);
+			//renderer.ShadowLightTarget = new Vector3(-50, -50, 0);//new Vector3(0, 150, 0)
+			//renderer.ShadowLightPosition = new Vector3(0, 150, 0);//new Vector3(1500, 1500, 2000);
+			//renderer.ShadowLightTarget = new Vector3(0, 0, 0);//new Vector3(0, 150, 0)
+			
+			renderer.DoShadowMapping = true;
+			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
+
 
 			// TODO: this.Content クラスを使用して、ゲームのコンテンツを読み込みます。
 			/*effect = Content.Load<Effect>("textureEffect");
@@ -170,6 +188,7 @@ namespace HLSLTest
 			JoyStick.Update(1);
 			Target.Update(gameTime);
 			Ground.Update(gameTime);
+			renderer.Update();
 			camera.UpdateChaseTarget(Target);
 			camera.Update(gameTime);
 
@@ -213,14 +232,20 @@ namespace HLSLTest
 		/// <param name="gameTime">ゲームの瞬間的なタイミング情報</param>
 		protected override void Draw(GameTime gameTime)
 		{
+#if DEBUG_MODE			
+			GraphicsDevice.Clear(Color.CornflowerBlue);
 			renderer.Draw();
-
-			GraphicsDevice.Clear(Color.CadetBlue);
+			
+#else
+			
+			renderer.Draw();
+			GraphicsDevice.Clear(Color.CornflowerBlue);
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
-					o.Draw();
-				
+					o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
+#endif
+
 
 			// TODO: ここに描画コードを追加します。
 			/*foreach (var pass in effect.CurrentTechnique.Passes) {

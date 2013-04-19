@@ -242,8 +242,14 @@ namespace HLSLTest
 			/*camera.ChasePosition = ship.Position;
 			camera.ChaseDirection = ship.Direction;
 			camera.Up = ship.Up;*/
-			ChasePosition = target.Position;
+
+			/*ChasePosition = target.Position;
 			ChaseDirection = target.Direction;
+			ChaseDirection = target.Position - Position;
+			Up = target.Up;*/
+
+			// ActionGameと違って今は対象の方向と一致していない
+			ChasePosition = target.Position;
 			ChaseDirection = target.Position - Position;
 			Up = target.Up;
 		}
