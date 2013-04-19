@@ -13,12 +13,14 @@ Content\Lights\PointLightEffect.xnb
 Content\Lights\SpotLightEffect.xnb
 Content\Lights\MultiLightingEffect.xnb
 Content\PPDepthNormal.xnb
-Content\CreateShadowMap.xnb
+Content\GaussianBlur.xnb
 Content\PPLight.xnb
 Content\PPModel.xnb
 Content\TextureProjectionEffect.xnb
 Content\ShadowDepthEffect.xnb
 Content\ProjectShadowDepthEffect.xnb
+Content\ShadowDepthEffectV2.xnb
+Content\ProjectShadowDepthEffectV2.xnb
 Content\Models\Ground.xnb
 Content\Models\engine_diff_tex_0.xnb
 Content\Models\turret_alt_diff_tex_0.xnb
@@ -26,3 +28,4 @@ Content\Models\ShipDiffuse_0.xnb
 Content\Models\teapottex1_0.xnb
 Content\Models\White_0.xnb
 Content\Models\Checker_0.xnb
+Content\ProjectShadowDepthEffectV3.xnb

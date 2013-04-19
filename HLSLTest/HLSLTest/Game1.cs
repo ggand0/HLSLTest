@@ -105,7 +105,7 @@ namespace HLSLTest
 			models[1].Material = mat;*/
 
 			// light map
-			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffect");
+			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffectV3");
 			Effect lightingEffect = Content.Load<Effect>("PPModel");// load Prelighting Effect
 			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
 			//models[1].SetModelEffect(lightingEffect, true);
@@ -135,7 +135,6 @@ namespace HLSLTest
 			
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
-
 
 			// TODO: this.Content クラスを使用して、ゲームのコンテンツを読み込みます。
 			/*effect = Content.Load<Effect>("textureEffect");

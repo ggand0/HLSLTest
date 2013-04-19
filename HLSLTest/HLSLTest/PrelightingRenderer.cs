@@ -45,12 +45,17 @@ namespace HLSLTest
 		Effect shadowDepthEffect;
 		// Depth texture parameters
 		int shadowMapSize = 2048;
-		int shadowFarPlane = 10000;
+		int shadowFarPlane = 10000;//10000;
 		// Shadow light view and projection
 		Matrix shadowView, shadowProjection;
 		// Shadow properties
 		public bool DoShadowMapping { get; set; }
 		public float ShadowMult { get; set; }
+
+		// VSM関係
+		SpriteBatch spriteBatch;
+		RenderTarget2D shadowBlurTarg;
+		Effect shadowBlurEffect;
 
 		void drawDepthNormalMap()
 		{
@@ -135,7 +140,7 @@ namespace HLSLTest
 			// Un-set the render target
 			graphicsDevice.SetRenderTarget(null);
 
-			if (!hasSaved) {
+			/*if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("lightmap.png")) {
 					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
 					stream.Position = 0;
@@ -143,7 +148,7 @@ namespace HLSLTest
 					//media.SavePicture("shadowDepth.jpg", stream);
 					//hasSaved = true; // 下でfalseに
 				}
-			}
+			}*/
 		}
 		void prepareMainPass()
 		{
@@ -248,6 +253,38 @@ namespace HLSLTest
 				}
 			}
 		}
+		void blurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
+		{
+			// Set the target render target
+			graphicsDevice.SetRenderTarget(to);
+			graphicsDevice.Clear(Color.Black);
+
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+			// Start the Gaussian blur effect
+			shadowBlurEffect.CurrentTechnique.Passes[dir].Apply();
+			// Draw the contents of the source render target so they can
+			// be blurred by the gaussian blur pixel shader
+			spriteBatch.Draw(from, Vector2.Zero, Color.White);
+			spriteBatch.End();
+
+			// Clean up after the sprite batch
+			graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+			// Remove the render target
+			graphicsDevice.SetRenderTarget(null);
+
+			if (dir == 1 && !hasSaved) {// 2パス目時にだけ出力
+				using (Stream stream = File.OpenWrite("bluredShadowDepth.png")) {
+					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
+					stream.Position = 0;
+					//MediaLibrary media = new MediaLibrary();
+					//media.SavePicture("shadowDepth.jpg", stream);
+					hasSaved = true;
+				}
+			}
+		}
+
 		public void Update()
 		{
 			bool d = JoyStick.onStickDirectionChanged;
@@ -263,6 +300,8 @@ namespace HLSLTest
 			drawLightMap();
 			if (DoShadowMapping) {
 				drawShadowDepthMap();
+				//blurShadow(shadowBlurTarg, shadowDepthTarg, 0);
+				//blurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
 			}
 			prepareMainPass();
 		}
@@ -294,11 +333,16 @@ namespace HLSLTest
 
 
 			// shadow関係
-			shadowDepthTarg = new RenderTarget2D(GraphicsDevice, shadowMapSize,
-				shadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24);
-			shadowDepthEffect = Content.Load<Effect>("ShadowDepthEffect");
-			//shadowDepthEffect = Content.Load<Effect>("CreateShadowMap");
+			//shadowDepthTarg = new RenderTarget2D(GraphicsDevice, shadowMapSize, shadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24);
+			shadowDepthTarg = new RenderTarget2D(GraphicsDevice, shadowMapSize, shadowMapSize, false, SurfaceFormat.HalfVector2, DepthFormat.Depth24);
+			shadowDepthEffect = Content.Load<Effect>("ShadowDepthEffectV2");
 			shadowDepthEffect.Parameters["FarPlane"].SetValue(shadowFarPlane);
+
+			// VSM
+			spriteBatch = new SpriteBatch(GraphicsDevice);
+			shadowBlurEffect = Content.Load<Effect>("GaussianBlur");
+			shadowBlurTarg = new RenderTarget2D(GraphicsDevice, shadowMapSize,
+			shadowMapSize, false, SurfaceFormat.Color, DepthFormat.Depth24);
 		}
 	}
 }
