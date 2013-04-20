@@ -251,7 +251,8 @@ namespace HLSLTest
 			// ActionGameと違って今は対象の方向と一致していない
 			ChasePosition = target.Position;
 			ChaseDirection = target.Position - Position;
-			Up = target.Up;
+			//Up = target.Up;
+			Up = target.RotationMatrix.Up;
 		}
 		/// <summary>
 		/// カメラの現在位置から、追跡されるオブジェクトの背後の目的のオフセットに向かって

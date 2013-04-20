@@ -52,16 +52,23 @@ namespace HLSLTest
 			//Target = new Object("Models\\UtahTeapotDef");
 			Target = new Object("Models\\tank");
 			Ground = new Object("Models\\ground");
-			Teapot = new Object(new Vector3(300, 0, 0), "Models\\UtahTeapot");
+			Teapot = new Object(new Vector3(-100, 0, 0), "Models\\UtahTeapotDef");
 			//Target.Scale = 10f;
 			Target.Scale = 0.1f;
+			Target.Direction = Vector3.UnitX;
+			//Target.RotationMatrix.Forward = Vector3.UnitX;
 			Ground.Scale = 0.05f;
 			Teapot.Scale = 10;
+			//Teapot.RotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-180));
+			Teapot.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
+				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 			models = new List<Object>();
 			models.Add(Ground);
 			models.Add(Target);
 			models.Add(Teapot);
 			camera.Initialize(this, Target);
+
+			//foreach (Object o in models) o.Up = Vector3.Up;
 
 			base.Initialize();
 		}
@@ -80,10 +87,12 @@ namespace HLSLTest
 			debug = new Debug();
 
 			// skymap reflect
-			/*Effect cubeMapEffect = Content.Load<Effect>("CubeMapReflect");
+			Effect cubeMapEffect = Content.Load<Effect>("CubeMapReflect");
 			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("Cross"));
-			Teapot.SetModelEffect(cubeMapEffect, false);
-			Teapot.Material = cubeMat;*/
+			//Teapot.SetModelEffect(cubeMapEffect, false);
+			//Teapot.Material = cubeMat;/**/
+			models[2].SetModelEffect(cubeMapEffect, false);
+			models[2].Material = cubeMat;
 
 			// projection
 			/*Effect effect = Content.Load<Effect>("TextureProjectionEffect");
@@ -156,14 +165,6 @@ namespace HLSLTest
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				this.Exit();
 
-			// TODO: ここにゲームのアップデート ロジックを追加します。
-			// 回転の中心はウィンドウの中心。
-			//エフェクトファイルで三角形のオフセットを表すグローバル変数を宣言して、
-			// それをC#側から連続して変更していき、回転させている
-			/*double angle = gameTime.TotalGameTime.TotalSeconds;
-			effect.Parameters["offset"].SetValue(
-				new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0)
-			);*/
 			JoyStick.Update(1);
 			sky.Update(gameTime);
 
@@ -226,8 +227,10 @@ namespace HLSLTest
 
 			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
+			
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
+				string s = o.Scale.ToString();
 					o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 #endif

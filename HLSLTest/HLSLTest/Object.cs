@@ -131,17 +131,28 @@ namespace HLSLTest
 				new Vector3(0.5f, 0.5f, 0.5f) };
 			Material = mat;*/
 		}
+		/// <summary>
+		/// ワールド行列を再構築する
+		/// </summary>
 		protected virtual void UpdateWorldMatrix()
 		{
-			//world = Matrix.CreateTranslation(Position) * scale;// * Matrix.CreateRotationZ(MathHelper.PiOver2);
-
-			// ワールド行列を再構築する
-			_world = Matrix.Identity;
+			/*_world = Matrix.Identity;
 			_world.Forward = Direction;		// 前方ベクトル：向いている方向
 			_world.Up = Up;					// 上方ベクトル：頭頂部方向
 			_world.Right = Right;			// 右ベクトル：右側面方向
 			_world.Translation = Position;	// 平行移動ベクトル：位置
 			_world *= Matrix.CreateScale(Scale);
+			_world *= RotationMatrix;*/
+
+			/*Direction = Vector3.UnitX;
+			Up = Vector3.UnitY;
+			Up.Normalize();
+			Right = Vector3.Cross(Direction, Up);
+			Up = Vector3.Cross(Right, Direction);
+			RotationMatrix.Forward = Direction;
+			RotationMatrix.Up = Up;
+			RotationMatrix.Right = Right;*/
+			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 		}
 
 		/// <summary>
@@ -213,20 +224,7 @@ namespace HLSLTest
 		}
 		public virtual void Update(GameTime gameTime)
 		{
-			//ApplyPhysicalEffect();
-			/*Position += Velocity;
-			Velocity *= 0.90f;		// braking
-			Position = new Vector3(Position.X, Math.Max(Position.Y, MinimumAltitude), Position.Z);
-
-			UpdateWorldMatrix();*/
-
-			
-			Direction = Vector3.UnitX;
-			Up = Vector3.UnitY;
-			Up.Normalize();
-			Right = Vector3.Cross(Direction, Up);
-			Up = Vector3.Cross(Right, Direction);
-			UpdateWorldMatrix();
+			//UpdateWorldMatrix();
 
 			// Bounding Sphereを更新：_worldの更新後に行うこと。
 			transformedBoundingSphere = new BoundingSphere(
@@ -321,6 +319,7 @@ namespace HLSLTest
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
+			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 
 			foreach (ModelMesh mesh in Model.Meshes) {
 				Matrix localWorld = modelTransforms[mesh.ParentBone.Index] * _world;
@@ -340,10 +339,12 @@ namespace HLSLTest
 
 						//setEffectParameter(effect, "ProjectorEnabled", true);
 					}
-					if (Material is ProjectedTextureMaterial) {
+					if (Material is CubeMapReflectMaterial) {//ProjectedTextureMaterial) {
 						int d = 0;
 					}
-					//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
+					if (Material != null) {
+						Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
+					}
 				}
 				mesh.Draw();
 			}
@@ -356,6 +357,7 @@ namespace HLSLTest
 		{
 			Material = new HLSLTest.Material();
 			IsActive = true;
+			RotationMatrix = Matrix.Identity;
 			Load();
 			_boundingSphereRenderer = new BoundingSphereRenderer(game);
 			_boundingSphereRenderer.OnCreateDevice();
@@ -370,6 +372,7 @@ namespace HLSLTest
 		{
 			IsActive = true;
 			Load(fileName);
+			RotationMatrix = Matrix.Identity;
 			_boundingSphereRenderer = new BoundingSphereRenderer(game);
 			_boundingSphereRenderer.OnCreateDevice();
 		}

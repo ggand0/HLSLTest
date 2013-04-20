@@ -5,9 +5,9 @@ float3 CameraPosition;
 
 texture CubeMap;
 float4 ClipPlane;
-bool ClipPlaneEnabled = false;
+bool ClipPlaneEnabled = true;
 samplerCUBE CubeMapSampler = sampler_state {
-texture = <CubeMap>;
+	texture = <CubeMap>;
 	minfilter = anisotropic;
 	magfilter = anisotropic;
 };
@@ -22,7 +22,6 @@ struct VertexShaderOutput
     float4 Position : POSITION0;
 	float3 WorldPosition : TEXCOORD0;
 	float3 Normal : TEXCOORD1;
-
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -31,8 +30,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     float4 worldPosition = mul(input.Position, World);
 	output.WorldPosition = worldPosition;
-    
-    output.Position = mul(worldPosition, mul(View, Projection));
+
+	output.Position = mul(worldPosition, mul(View, Projection));
 	output.Normal = mul(input.Normal, World);
 
     return output;
@@ -46,6 +45,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 viewDirection = normalize(input.WorldPosition - CameraPosition);
 	float3 normal = normalize(input.Normal);
 
+	// Reflect around normal
 	float3 reflection = reflect(viewDirection, normal);
 	return texCUBE(CubeMapSampler, reflection);
 }
