@@ -38,3 +38,7 @@ Content\Cross.xnb
 Content\Models\SphereHighPoly.xnb
 Content\SkySphere.xnb
 Content\CubeMapReflect.xnb
+Content\WaterEffect.xnb
+Content\Models\WaterMesh.xnb
+Content\Models\WaterMeshRotated.xnb
+Content\ProjectShadowDepthEffectV4.xnb

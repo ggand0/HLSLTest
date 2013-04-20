@@ -4,13 +4,16 @@ float4x4 Projection;
 float3 CameraPosition;
 
 texture CubeMap;
-float4 ClipPlane;
-bool ClipPlaneEnabled = true;
 samplerCUBE CubeMapSampler = sampler_state {
 	texture = <CubeMap>;
 	minfilter = anisotropic;
 	magfilter = anisotropic;
 };
+
+float4 ClipPlane;
+bool ClipPlaneEnabled = false;
+
+
 struct VertexShaderInput
 {
     float4 Position : POSITION0;

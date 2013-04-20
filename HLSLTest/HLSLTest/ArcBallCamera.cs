@@ -285,5 +285,22 @@ namespace HLSLTest
 			UpdateMatrices();
 		}
 		#endregion
+
+		public ArcBallCamera(Vector3 Position, Vector3 Target, Vector3 up)
+		{
+			this.Position = Position;
+			this.ChasePosition = Target;
+			this.Up = up;
+
+			LookAt = Target + LookAtOffset;
+			View = Matrix.CreateLookAt(this.Position, this.LookAt, this.Up);
+			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.t);
+			Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView,
+				AspectRatio, NearPlaneDistance, FarPlaneDistance);
+		}
+		public ArcBallCamera()
+		{
+		}
+
 	}
 }

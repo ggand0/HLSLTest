@@ -1,3 +1,5 @@
+// VSMはV3で完結しているが、waterエフェクト用に少し改変したもの
+
 // ライトマップを使用して、モデルを描画するための色を計算するエフェクト
 float4x4 World;
 float4x4 View;
@@ -27,7 +29,7 @@ float3 DiffuseColor;
 #include "PPShared.vsi"
 
 // shadow関係
-bool DoShadowMapping = true;
+bool DoShadowMapping = false;
 float4x4 ShadowView;
 float4x4 ShadowProjection;
 texture2D ShadowMap;
@@ -46,7 +48,7 @@ float ShadowBias =  0.001f;
 
 // water関係
 float4 ClipPlane;
-bool ClipPlaneEnabled = false;
+bool ClipPlaneEnabled = true;
 
 struct VertexShaderInput
 {
@@ -59,10 +61,15 @@ struct VertexShaderOutput
 	float2 UV : TEXCOORD0;
 	float4 PositionCopy : TEXCOORD1;
 	float4 ShadowScreenPosition : TEXCOORD2;
+
+	float3 WorldPosition : TEXCOORD3;
 };
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
+	// water用
+	float4 worldPosition = mul(input.Position, World);
+	output.WorldPosition = worldPosition;
 
 	float4x4 worldViewProjection = mul(World, mul(View, Projection));
 	output.Position = mul(input.Position, worldViewProjection);
@@ -99,9 +106,13 @@ float2 sampleShadowMap(float2 UV)
 }*/
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	/*if (ClipPlaneEnabled) {
+	if (ClipPlaneEnabled) {
+	 // >指定された値が 0 より小さい場合に、現在のピクセルを破棄します
 		clip(dot(float4(input.WorldPosition, 1), ClipPlane));
-	}*/
+	}// このモデルは全部>waterplane.heightだから実は今は関係ないな
+
+
+	//return float4(1,1,1,1);
 
 	// ライトマップから輝度値を取得して、元のテクスチャの色と合成する
     // Sample model's texture
@@ -116,13 +127,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	light += AmbientColor;
 
 
-	// previous ver
-	/*float shadow = 1;
-	float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane;
-	if (realDepth < 1 && realDepth - 0.0005f > mapDepth) {
-		shadow = ShadowMult;
-	}*/
-	
 	float shadow = 1;
 	if (DoShadowMapping) {
 		float2 shadowTexCoord = postProjToScreen(input.ShadowScreenPosition)

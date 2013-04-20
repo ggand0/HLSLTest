@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class Object
+	public class Object : IRenderable
 	{
 		public static Game1 game;
 		public static ContentManager content;
@@ -86,6 +86,8 @@ namespace HLSLTest
 		}
 		public bool IsActive { get; set; }
 		public float Scale;
+		public Vector3 ScaleVector { get; set; }
+
 		/// <summary>
 		/// エフェクトのパラメータを設定・保持する
 		/// </summary>
@@ -225,6 +227,7 @@ namespace HLSLTest
 		public virtual void Update(GameTime gameTime)
 		{
 			//UpdateWorldMatrix();
+			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 
 			// Bounding Sphereを更新：_worldの更新後に行うこと。
 			transformedBoundingSphere = new BoundingSphere(
@@ -319,8 +322,8 @@ namespace HLSLTest
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
-			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 
+			
 			foreach (ModelMesh mesh in Model.Meshes) {
 				Matrix localWorld = modelTransforms[mesh.ParentBone.Index] * _world;
 				foreach (ModelMeshPart meshPart in mesh.MeshParts) {
@@ -351,6 +354,21 @@ namespace HLSLTest
 
 			//DrawBoundingSphere();
 		}
+		public void SetClipPlane(Vector4? Plane)
+		{
+			foreach (ModelMesh mesh in Model.Meshes) {
+				foreach (ModelMeshPart part in mesh.MeshParts) {
+					if (part.Effect.Parameters["ClipPlaneEnabled"] != null) {
+						part.Effect.Parameters["ClipPlaneEnabled"].SetValue(Plane.HasValue);
+					}
+					if (Plane.HasValue) {// 値があれば
+						if (part.Effect.Parameters["ClipPlane"] != null)
+							part.Effect.Parameters["ClipPlane"].SetValue(Plane.Value);
+					}
+				}
+			}
+		}
+
 
 		// Constructor
 		public Object()

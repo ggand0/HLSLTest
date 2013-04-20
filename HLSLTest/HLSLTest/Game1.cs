@@ -28,6 +28,8 @@ namespace HLSLTest
 		PrelightingRenderer renderer;
 		List<Object> models;
 		SkySphere sky;
+		Water water;
+
 
 		public Game1()
 		{
@@ -63,12 +65,15 @@ namespace HLSLTest
 			Teapot.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 			models = new List<Object>();
-			models.Add(Ground);
+			//models.Add(Ground);
 			models.Add(Target);
 			models.Add(Teapot);
 			camera.Initialize(this, Target);
 
+			
+
 			//foreach (Object o in models) o.Up = Vector3.Up;
+			/**/
 
 			base.Initialize();
 		}
@@ -89,10 +94,10 @@ namespace HLSLTest
 			// skymap reflect
 			Effect cubeMapEffect = Content.Load<Effect>("CubeMapReflect");
 			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("Cross"));
-			//Teapot.SetModelEffect(cubeMapEffect, false);
-			//Teapot.Material = cubeMat;/**/
-			models[2].SetModelEffect(cubeMapEffect, false);
-			models[2].Material = cubeMat;
+			Teapot.SetModelEffect(cubeMapEffect, false);
+			Teapot.Material = cubeMat;/**/
+			//models[2].SetModelEffect(cubeMapEffect, false);
+			//models[2].Material = cubeMat;
 
 			// projection
 			/*Effect effect = Content.Load<Effect>("TextureProjectionEffect");
@@ -109,7 +114,7 @@ namespace HLSLTest
 			models[1].Material = mat;*/
 
 			// light map
-			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffectV3");
+			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffectV4");
 			Effect lightingEffect = Content.Load<Effect>("PPModel");	// load Prelighting Effect
 			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
 			//models[1].SetModelEffect(lightingEffect, true);
@@ -143,6 +148,11 @@ namespace HLSLTest
 
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
+
+			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
+			water.Objects.Add(sky);
+			water.Objects.Add(models[0]);
+			water.Objects.Add(models[1]);
 		}
 
 		/// <summary>
@@ -175,6 +185,7 @@ namespace HLSLTest
 			renderer.Update();
 			camera.UpdateChaseTarget(Target);
 			camera.Update(gameTime);
+			water.Update();
 
 			base.Update(gameTime);
 		}
@@ -223,15 +234,15 @@ namespace HLSLTest
 #else
 			
 			renderer.Draw();
-			GraphicsDevice.Clear(Color.CornflowerBlue);
-
-			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-
+			water.PreDraw(camera, gameTime);
+			//GraphicsDevice.Clear(Color.CornflowerBlue);
+			//sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//water.Draw(camera.View, camera.Projection, (camera).Position);
 			
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				string s = o.Scale.ToString();
-					o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 #endif
 

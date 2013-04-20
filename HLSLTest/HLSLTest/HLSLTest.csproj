@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="ArcBallCamera.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="CubeMapReflectMaterial.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="IRenderable.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="SkySphere.cs" />
+    <Compile Include="Water.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
