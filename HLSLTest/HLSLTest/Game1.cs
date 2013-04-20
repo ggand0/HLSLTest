@@ -20,28 +20,14 @@ namespace HLSLTest
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-
-		Effect effect;
-		
-		/*VertexPositionColor[] vertices = {
-			new VertexPositionColor(new Vector3(0, 1, 0), Color.White),
-			new VertexPositionColor(new Vector3(1, 0, 0), Color.Blue),
-			new VertexPositionColor(new Vector3(-1, 0, 0), Color.Red),
-		};*/
-		//Viewport viewport = GraphicsDevice.Viewport;
-		VertexPositionTexture[] vertices = {
-			new VertexPositionTexture(new Vector3(0, 1, 0), new Vector2(0.5f, 0)),
-			new VertexPositionTexture(new Vector3(1, 0, 0), new Vector2(1, 1)),
-			new VertexPositionTexture(new Vector3(-1, 0, 0), new Vector2(0, 1))
-		};
-		Matrix view;
-		Matrix projection;
 		public Object Target { get; private set; }
 		public Object Ground { get; private set; }
+		public Object Teapot { get; private set; }
 		public ArcBallCamera camera { get; private set; }
 		Debug debug;
 		PrelightingRenderer renderer;
 		List<Object> models;
+		SkySphere sky;
 
 		public Game1()
 		{
@@ -66,12 +52,15 @@ namespace HLSLTest
 			//Target = new Object("Models\\UtahTeapotDef");
 			Target = new Object("Models\\tank");
 			Ground = new Object("Models\\ground");
+			Teapot = new Object(new Vector3(300, 0, 0), "Models\\UtahTeapot");
 			//Target.Scale = 10f;
 			Target.Scale = 0.1f;
 			Ground.Scale = 0.05f;
+			Teapot.Scale = 10;
 			models = new List<Object>();
-			models.Add(Ground);models.Add(Target);
-			
+			models.Add(Ground);
+			models.Add(Target);
+			models.Add(Teapot);
 			camera.Initialize(this, Target);
 
 			base.Initialize();
@@ -90,6 +79,12 @@ namespace HLSLTest
 			PrelightingRenderer._gameInstance = this;
 			debug = new Debug();
 
+			// skymap reflect
+			/*Effect cubeMapEffect = Content.Load<Effect>("CubeMapReflect");
+			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("Cross"));
+			Teapot.SetModelEffect(cubeMapEffect, false);
+			Teapot.Material = cubeMat;*/
+
 			// projection
 			/*Effect effect = Content.Load<Effect>("TextureProjectionEffect");
 			models[0].SetModelEffect(effect, true);
@@ -106,10 +101,10 @@ namespace HLSLTest
 
 			// light map
 			Effect shadowEffect = Content.Load<Effect>("ProjectShadowDepthEffectV3");
-			Effect lightingEffect = Content.Load<Effect>("PPModel");// load Prelighting Effect
+			Effect lightingEffect = Content.Load<Effect>("PPModel");	// load Prelighting Effect
 			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
 			//models[1].SetModelEffect(lightingEffect, true);
-			models[0].SetModelEffect(shadowEffect, true);			// set effect to each modelmeshpart
+			models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
 			models[1].SetModelEffect(shadowEffect, true);
 
 			renderer = new PrelightingRenderer(GraphicsDevice, Content);
@@ -136,24 +131,9 @@ namespace HLSLTest
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
 
-			// TODO: this.Content クラスを使用して、ゲームのコンテンツを読み込みます。
-			/*effect = Content.Load<Effect>("textureEffect");
 
-			view = Matrix.CreateLookAt(
-				new Vector3(1, 0, 1),//new Vector3(2, 0, 3),
-				new Vector3(),
-				new Vector3(0, 1, 0)
-			);
-			projection = Matrix.CreatePerspectiveFieldOfView(
-				MathHelper.ToRadians(90),
-				GraphicsDevice.Viewport.AspectRatio,
-				0.1f,
-				100
-			);
-			//effect.Parameters["Transform"].SetValue(view * projection);
-			effect.Parameters["View"].SetValue(view);
-			effect.Parameters["Projection"].SetValue(projection);
-			effect.Parameters["testTexture"].SetValue(Content.Load<Texture2D>("Xnalogo"));*/
+			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
+			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
 		}
 
 		/// <summary>
@@ -185,8 +165,12 @@ namespace HLSLTest
 				new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0)
 			);*/
 			JoyStick.Update(1);
-			Target.Update(gameTime);
-			Ground.Update(gameTime);
+			sky.Update(gameTime);
+
+			foreach (Object o in models) {
+				o.Update(gameTime);
+			}
+
 			renderer.Update();
 			camera.UpdateChaseTarget(Target);
 			camera.Update(gameTime);
@@ -239,34 +223,14 @@ namespace HLSLTest
 			
 			renderer.Draw();
 			GraphicsDevice.Clear(Color.CornflowerBlue);
+
+			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 					o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 #endif
-
-
-			// TODO: ここに描画コードを追加します。
-			/*foreach (var pass in effect.CurrentTechnique.Passes) {
-				pass.Apply();
-				// ReachだとNotSupportedException
-				GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3);// <VertexPositionColor>
-			}*/
-			// モデルの描画
-			/*Matrix[] transforms = new Matrix[model.Bones.Count];
-			model.CopyAbsoluteBoneTransformsTo(transforms);
-			foreach (ModelMesh mesh in model.Meshes) {
-				foreach (BasicEffect effect in mesh.Effects) {
-					effect.EnableDefaultLighting();
-					// "ワールド座標を使用してモデルの位置を変更する場合に、この行列を使用します。"
-					effect.World = transforms[mesh.ParentBone.Index] * Matrix.Identity * Matrix.CreateScale(0.003f);
-					// 追尾カメラによって提供される行列を使用します : ビュー変換と射影変換はcameraに任せる
-					effect.View = camera.View;
-					effect.Projection = camera.Projection;
-				}
-				mesh.Draw();
-			}*/
-
 
 			/*ResetGraphicDevice();
 			Ground.Draw();
@@ -276,11 +240,6 @@ namespace HLSLTest
 			ResetGraphicDevice();
 			//Target.World *= Matrix.CreateRotationZ(MathHelper.ToRadians(-90));
 			Target.Draw();*/
-			/*ResetGraphicDevice();
-			spriteBatch.Begin();
-			spriteBatch.Draw(t, Vector2.Zero, Color.White);
-			spriteBatch.End();
-			ResetGraphicDevice();*/
 
 			base.Draw(gameTime);
 		}

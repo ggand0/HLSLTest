@@ -74,7 +74,9 @@
   <ItemGroup>
     <Compile Include="ArcBallCamera.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
+    <Compile Include="CubeMapReflectMaterial.cs" />
     <Compile Include="Debug.cs" />
+    <Compile Include="IRenderable.cs" />
     <Compile Include="JoyStick.cs" />
     <Compile Include="JoyStickInput.cs" />
     <Compile Include="Material.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="SkySphere.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

@@ -189,7 +189,7 @@ namespace HLSLTest
 		/// <summary>
 		/// モデルがビルトインなBounding Sphereを描画する
 		/// </summary>
-		protected void DrawBoundingSphere()
+		public void DrawBoundingSphere()
 		{
 			BoundingSphere defBS = new BoundingSphere(Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world), Model.Meshes[0].BoundingSphere.Radius);
 			defBS.Radius = defBS.Radius * _world.Forward.Length();

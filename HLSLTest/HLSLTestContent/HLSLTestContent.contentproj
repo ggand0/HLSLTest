@@ -131,6 +131,26 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="OutputCube0.dds">
+      <Name>OutputCube0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\SkySphereMesh.fbx">
+      <Name>SkySphereMesh</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\SkySphereMeshLarge.fbx">
+      <Name>SkySphereMeshLarge</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Cross.dds">
+      <Name>Cross</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
     <None Include="PPshared.vsi">
       <Name>PPshared</Name>
       <Importer>EffectImporter</Importer>
@@ -173,6 +193,31 @@
     </Compile>
     <Compile Include="ProjectShadowDepthEffectV3.fx">
       <Name>ProjectShadowDepthEffectV3</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="SkySphereEffect.fx">
+      <Name>SkySphereEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="SkyBoxTex.dds">
+      <Name>SkyBoxTex</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\SphereHighPoly.fbx">
+      <Name>SphereHighPoly</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="SkySphere.fx">
+      <Name>SkySphere</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="CubeMapReflect.fx">
+      <Name>CubeMapReflect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>

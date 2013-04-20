@@ -1,5 +1,7 @@
 Content\Xnalogo.xnb
 Content\xna_logo.xnb
+Content\OutputCube0.xnb
+Content\SkyBoxTex.xnb
 Content\projectedTexture.xnb
 Content\Checker.xnb
 Content\Models\tank.xnb
@@ -7,6 +9,8 @@ Content\Models\Ship.xnb
 Content\Models\UtahTeapot.xnb
 Content\Models\UtahTeapotDef.xnb
 Content\Models\PPLightMesh.xnb
+Content\Models\SkySphereMesh.xnb
+Content\Models\SkySphereMeshLarge.xnb
 Content\Lights\SimpleEffect.xnb
 Content\Lights\LightingEffect.xnb
 Content\Lights\PointLightEffect.xnb
@@ -21,6 +25,8 @@ Content\ShadowDepthEffect.xnb
 Content\ProjectShadowDepthEffect.xnb
 Content\ShadowDepthEffectV2.xnb
 Content\ProjectShadowDepthEffectV2.xnb
+Content\ProjectShadowDepthEffectV3.xnb
+Content\SkySphereEffect.xnb
 Content\Models\Ground.xnb
 Content\Models\engine_diff_tex_0.xnb
 Content\Models\turret_alt_diff_tex_0.xnb
@@ -28,4 +34,7 @@ Content\Models\ShipDiffuse_0.xnb
 Content\Models\teapottex1_0.xnb
 Content\Models\White_0.xnb
 Content\Models\Checker_0.xnb
-Content\ProjectShadowDepthEffectV3.xnb
+Content\Cross.xnb
+Content\Models\SphereHighPoly.xnb
+Content\SkySphere.xnb
+Content\CubeMapReflect.xnb
