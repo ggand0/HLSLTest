@@ -57,6 +57,7 @@ namespace HLSLTest
 			model.World = Matrix.CreateScale(model.Scale) * Matrix.CreateTranslation(model.Position);//p19
 			model.Draw(View, Projection, CameraPosition); // debug
 			graphics.DepthStencilState = DepthStencilState.Default;
+			//graphics.RasterizerState = RasterizerState.CullCounterClockwise;
 			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
 		}
 		public void ResetGraphicDevice()

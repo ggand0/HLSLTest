@@ -45,7 +45,7 @@ namespace HLSLTest
 			//Vector3 reflectedCameraTarget = (camera).Target;
 			Vector3 reflectedCameraTarget = camera.ChasePosition;
 			//reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMesh.Position.Y * 2;
-			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - camera.LookAtOffset.Y + waterMesh.Position.Y * 2;
+			reflectedCameraTarget.Y = -reflectedCameraTarget.Y /*+ camera.LookAtOffset.Y*/ + waterMesh.Position.Y * 2;
 
 			// Create a temporary camera to render the reflected scene
 			// ArcBallCameraのLookAtOffsetの関係でずれたりするから、出来れば同じ型のクラスのほうがいいだろう
@@ -53,8 +53,13 @@ namespace HLSLTest
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた/**/
 			//ArcBallCamera reflectionCamera = new ArcBallCamera(reflectedCameraPosition, reflectedCameraTarget, Vector3.Down);
 			// reflectionのviewがおかしいのか...??
-			Matrix reflectionMatrix = Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f)
-				* Matrix.CreateScale(1f, -1f, 1f) * Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f);
+
+			// これ、ネットから拾ってきたmatrixだったのを忘れてた
+			Matrix reflectionMatrix = Matrix.Identity
+				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f) * 
+				//Matrix.CreateScale(1f, -1f, 1f)	 
+				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f)
+				;
 			Matrix reflectedViewMatrix = reflectionMatrix * camera.View;
 
 			// Set the reflection camera's view matrix to the water effect
@@ -67,37 +72,47 @@ namespace HLSLTest
 			
 
 			// lt, stを使うmodelsのために初期化
+			// light map, shadow mapを作り直す。（めんどくさい）
+			models[1].RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
+				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
+			// あー分かった、モデルの回転が異常なのではなくて、BlendStateなどがおかしい！（だから透過して見えるので、表面が見えて回転しているようにみえる）
 			var depthNormal = renderer.drawDepthNormalMap(models
-						, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
+						//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
+						, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
 			RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt
-				//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
 				, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+				//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
 			//RenderTarget2D st = renderer.drawShadowDepthMap(models);
+			renderer.drawShadowDepthMap();
 			renderer.prepareMainPass(models, lt);
 
 			// Set the render target
 			graphics.SetRenderTarget(reflectionTarg);
 			graphics.Clear(Color.Black);
+			//graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			//graphics.RasterizerState = RasterizerState.CullClockwise;
 			// Draw all objects with clip plane
 			// ここを弄ると面白い演出が出来るかも
 			foreach (IRenderable renderable in Objects) {
 				renderable.SetClipPlane(clipPlane);
 
+				string cullState = graphics.RasterizerState.ToString();
 				if (renderable is Object) {
 					(renderable as Object).Update(new GameTime());
-					// light map, shadow mapを作り直す。（めんどくさい）
-
 				}
 				// ここでreflectionCameraを設定しているはずなのだが... 
-				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
+				//renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
 				//renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
-				//renderable.Draw(reflectedViewMatrix, camera.Projection, reflectedCameraPosition);
+				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
 
 				renderable.SetClipPlane(null);
 			}
 			graphics.SetRenderTarget(null);
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
 
-			// Set the render target
+
+
+			/*// Set the render target
 			//graphics.SetRenderTarget(reflectionTarg);
 			graphics.Clear(Color.Black);
 			foreach (IRenderable renderable in Objects) {
@@ -108,13 +123,12 @@ namespace HLSLTest
 					//continue;
 				}
 				// ここでreflectionCameraを設定しているはずなのだが... 
-				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
+				//renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
 				//renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
-				//renderable.Draw(reflectedViewMatrix, camera.Projection, reflectedCameraPosition);
+				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
 
 				renderable.SetClipPlane(null);
-			}
-			graphics.SetRenderTarget(null);/**/
+			}*/
 
 			if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflection_map.png")) {
@@ -173,6 +187,10 @@ namespace HLSLTest
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width,
 				graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+
+			/*if (renderer == null) {
+				renderer = new PrelightingRenderer(graphics, content);
+			}*/
 		}
 		public Water(ContentManager content, GraphicsDevice graphics,
 			Vector3 position, Vector2 size, PrelightingRenderer renderer)

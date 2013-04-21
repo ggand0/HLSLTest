@@ -52,7 +52,7 @@ namespace HLSLTest
 
 
 			//Target = new Object("Models\\UtahTeapotDef");
-			Target = new Object("Models\\tank");
+			Target = new Object(new Vector3(0, 0, 0), "Models\\tank");
 			Ground = new Object("Models\\ground");
 			Teapot = new Object(new Vector3(-100, 0, 0), "Models\\UtahTeapotDef");
 			//Target.Scale = 10f;
@@ -134,7 +134,7 @@ namespace HLSLTest
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),
 				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
-				20000)
+				20000)/**/
 			};
 			// setup shadows
 			renderer.ShadowLightPosition = new Vector3(500, 500, 0);//new Vector3(1500, 1500, 2000);
@@ -236,17 +236,29 @@ namespace HLSLTest
 			renderer.Draw();
 			
 #else
-			
+			//ResetGraphicDevice();
+			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう
+
+			string belndState = GraphicsDevice.BlendState.ToString();
+			string depthState = GraphicsDevice.DepthStencilState.ToString();
+			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
+
 			renderer.Draw();
-			water.PreDraw(camera, gameTime);
-			//GraphicsDevice.Clear(Color.CornflowerBlue);
-			//sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			//water.Draw(camera.View, camera.Projection, (camera).Position);
-			
+
+			GraphicsDevice.Clear(Color.CornflowerBlue);
+
+			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			water.Draw(camera.View, camera.Projection, (camera).Position);
+
+			belndState = GraphicsDevice.BlendState.ToString();
+			depthState = GraphicsDevice.DepthStencilState.ToString();
+			rasterizerState = GraphicsDevice.RasterizerState.ToString();
+
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				string s = o.Scale.ToString();
-				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				
+				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 #endif
 

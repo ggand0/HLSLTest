@@ -12,9 +12,11 @@ namespace HLSLTest
 		public Matrix View { get; set; }
 		public Matrix Projection { get; set; }
 		protected GraphicsDevice GraphicsDevice { get; set; }
+		protected float FarPlaneDistance = 1000000.0f;
 
 		public Camera(GraphicsDevice graphicsDevice)
 		{
+			//FarPlaneDistance = 2000;
 			this.GraphicsDevice = graphicsDevice;
 			generatePerspectiveProjectionMatrix(MathHelper.PiOver4);
 		}
@@ -25,7 +27,7 @@ namespace HLSLTest
 			(float)pp.BackBufferHeight;
 
 			this.Projection = Matrix.CreatePerspectiveFieldOfView(
-				MathHelper.ToRadians(45), aspectRatio, 0.1f, 1000000.0f);
+				MathHelper.ToRadians(45), aspectRatio, 0.1f, FarPlaneDistance);
 		}
 		public virtual void Update()
 		{
@@ -37,11 +39,12 @@ namespace HLSLTest
 		public Vector3 Position { get; set; }
 		public Vector3 Target { get; set; }
 		public TargetCamera(Vector3 Position, Vector3 Target,
-		GraphicsDevice graphicsDevice)
+			GraphicsDevice graphicsDevice)
 			: base(graphicsDevice)
 		{
 			this.Position = Position;
 			this.Target = Target;
+			
 		}
 		public override void Update()
 		{
