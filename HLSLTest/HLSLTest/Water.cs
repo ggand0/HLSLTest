@@ -152,6 +152,7 @@ namespace HLSLTest
 		public void PreDraw(ArcBallCamera camera, GameTime gameTime)
 		{
 			renderReflection(camera);
+			waterEffect.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
 		}
 		/// <summary>
 		/// カスタムエフェクトを使用したDraw
@@ -175,7 +176,7 @@ namespace HLSLTest
 			waterMesh.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 
-			waterEffect = content.Load<Effect>("WaterEffect");
+			waterEffect = content.Load<Effect>("WaterEffectV2");
 			waterMesh.SetModelEffect(waterEffect, false);
 			waterEffect.Parameters["viewportWidth"].SetValue(graphics.Viewport.Width);
 			waterEffect.Parameters["viewportHeight"].SetValue(graphics.Viewport.Height);
@@ -186,6 +187,9 @@ namespace HLSLTest
 			//PresentationParameters pp = graphics.PresentationParameters;
 			//reflectionTarg = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//reflectionTarg = new RenderTarget2D(graphics, 2048, 2048, false, SurfaceFormat.Color, DepthFormat.Depth24);
+
+			waterEffect.Parameters["WaterNormalMap"].SetValue(
+				content.Load<Texture2D>("waterbump"));
 
 
 			/**/if (renderer == null) {
