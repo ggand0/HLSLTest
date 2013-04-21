@@ -132,6 +132,8 @@ namespace HLSLTest
 				new PPPointLight(new Vector3(0, 100, 100), Color.Green * .85f,
 				200),*/
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				20000),
+				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000)
 			};
 			// setup shadows
@@ -149,10 +151,12 @@ namespace HLSLTest
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
 
-			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
+			//water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
+			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(sky);
 			water.Objects.Add(models[0]);
 			water.Objects.Add(models[1]);
+			water.Initialize();
 		}
 
 		/// <summary>

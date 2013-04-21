@@ -19,6 +19,20 @@ namespace HLSLTest
 		public List<IRenderable> Objects = new List<IRenderable>();
 		bool hasSaved;
 
+		PrelightingRenderer renderer;
+		List<Object> models;
+
+		public void Initialize()
+		{
+			// Objectsのうち、Objectクラスのみのリストを作っておく
+			// 厳密に言うと「Prelighting及びShadowMappingを使うエフェクトで描画するオブジェクト」。
+			models = new List<Object>();
+			foreach (IRenderable renderable in Objects) {
+				if (renderable is Object) {
+					models.Add(renderable as Object);
+				}
+			}
+		}
 		/// <summary>
 		/// 
 		/// </summary>
@@ -30,9 +44,11 @@ namespace HLSLTest
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMesh.Position.Y * 2;
 			//Vector3 reflectedCameraTarget = (camera).Target;
 			Vector3 reflectedCameraTarget = camera.ChasePosition;
-			reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMesh.Position.Y * 2;
+			//reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMesh.Position.Y * 2;
+			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - camera.LookAtOffset.Y + waterMesh.Position.Y * 2;
 
 			// Create a temporary camera to render the reflected scene
+			// ArcBallCameraのLookAtOffsetの関係でずれたりするから、出来れば同じ型のクラスのほうがいいだろう
 			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた/**/
 			//ArcBallCamera reflectionCamera = new ArcBallCamera(reflectedCameraPosition, reflectedCameraTarget, Vector3.Down);
@@ -48,6 +64,16 @@ namespace HLSLTest
 			// Create the clip plane
 			Vector4 clipPlane = new Vector4(0, 1, 0, -waterMesh.Position.Y);// w成分は法線方向を表す？
 
+			
+
+			// lt, stを使うmodelsのために初期化
+			var depthNormal = renderer.drawDepthNormalMap(models
+						, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
+			RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt
+				//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
+				, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+			//RenderTarget2D st = renderer.drawShadowDepthMap(models);
+			renderer.prepareMainPass(models, lt);
 
 			// Set the render target
 			graphics.SetRenderTarget(reflectionTarg);
@@ -59,7 +85,6 @@ namespace HLSLTest
 
 				if (renderable is Object) {
 					(renderable as Object).Update(new GameTime());
-					
 					// light map, shadow mapを作り直す。（めんどくさい）
 
 				}
@@ -148,6 +173,12 @@ namespace HLSLTest
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width,
 				graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+		}
+		public Water(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, Vector2 size, PrelightingRenderer renderer)
+			:this(content, graphics, position, size)
+		{
+			this.renderer = renderer;
 		}
 	}
 	
