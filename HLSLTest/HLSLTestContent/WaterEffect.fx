@@ -16,11 +16,13 @@ sampler2D reflectionSampler = sampler_state {
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
+	//float2 UV : TEXCOORD0;// テクスチャ座標
 };
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
-	float4 ReflectionPosition : TEXCOORD1;
+	float4 ReflectionPosition : TEXCOORD0;
+	//float2 UV : TEXCOORD0;// テクスチャ座標
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -34,6 +36,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	// from the reflected camera's point of view
 	float4x4 rwvp = mul(World, mul(ReflectedView, Projection));
 	output.ReflectionPosition = mul(input.Position, rwvp);
+	//output.UV = input.UV;
 
 	return output;
 }
@@ -43,6 +46,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     float2 reflectionUV = postProjToScreen(input.ReflectionPosition) +
 		halfPixel();
 	float3 reflection = tex2D(reflectionSampler, reflectionUV);
+	//float3 reflection = tex2D(reflectionSampler, input.UV);
 
 	return float4(reflection, 1);
 }

@@ -26,7 +26,7 @@ namespace HLSLTest
 		public ArcBallCamera camera { get; private set; }
 		Debug debug;
 		PrelightingRenderer renderer;
-		List<Object> models;
+		public List<Object> models { get; private set; }
 		SkySphere sky;
 		Water water;
 
@@ -151,8 +151,9 @@ namespace HLSLTest
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
 
-			//water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
-			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
+			Water.game = this;
+			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
+			//water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(sky);
 			water.Objects.Add(models[0]);
 			water.Objects.Add(models[1]);
@@ -243,13 +244,16 @@ namespace HLSLTest
 			string depthState = GraphicsDevice.DepthStencilState.ToString();
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
-			renderer.Draw();
 
+			renderer.Draw();
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			water.Draw(camera.View, camera.Projection, (camera).Position);
 
+			//water.Draw(camera.View, camera.Projection, (camera).Position);
+			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+
+			//renderer.Draw();
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();

@@ -11,6 +11,7 @@ namespace HLSLTest
 {
 	public class Water
 	{
+		public static Game1 game;
 		Object waterMesh;
 		Effect waterEffect;
 		ContentManager content;
@@ -42,39 +43,35 @@ namespace HLSLTest
 			// Reflect the camera's properties across the water plane
 			Vector3 reflectedCameraPosition = camera.Position;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMesh.Position.Y * 2;
-			//Vector3 reflectedCameraTarget = (camera).Target;
 			Vector3 reflectedCameraTarget = camera.ChasePosition;
-			//reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMesh.Position.Y * 2;
-			reflectedCameraTarget.Y = -reflectedCameraTarget.Y /*+ camera.LookAtOffset.Y*/ + waterMesh.Position.Y * 2;
+			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - camera.LookAtOffset.Y/**/ + waterMesh.Position.Y * 2;
 
 			// Create a temporary camera to render the reflected scene
 			// ArcBallCameraのLookAtOffsetの関係でずれたりするから、出来れば同じ型のクラスのほうがいいだろう
 			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
-			reflectionCamera.Update();// 上方ベクトルは-Yになってた/**/
+			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 			//ArcBallCamera reflectionCamera = new ArcBallCamera(reflectedCameraPosition, reflectedCameraTarget, Vector3.Down);
 			// reflectionのviewがおかしいのか...??
 
 			// これ、ネットから拾ってきたmatrixだったのを忘れてた
-			Matrix reflectionMatrix = Matrix.Identity
+			/*Matrix reflectionMatrix = Matrix.Identity
 				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f) * 
 				//Matrix.CreateScale(1f, -1f, 1f)	 
 				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f)
 				;
-			Matrix reflectedViewMatrix = reflectionMatrix * camera.View;
+			Matrix reflectedViewMatrix = reflectionMatrix * camera.View;*/
+
 
 			// Set the reflection camera's view matrix to the water effect
-			//waterEffect.Parameters["ReflectedView"].SetValue(reflectionCamera.View);
-			waterEffect.Parameters["ReflectedView"].SetValue(reflectedViewMatrix);
+			waterEffect.Parameters["ReflectedView"].SetValue(reflectionCamera.View);
+			//waterEffect.Parameters["ReflectedView"].SetValue(reflectedViewMatrix);
 
 			// Create the clip plane
 			Vector4 clipPlane = new Vector4(0, 1, 0, -waterMesh.Position.Y);// w成分は法線方向を表す？
-
 			
 
-			// lt, stを使うmodelsのために初期化
-			// light map, shadow mapを作り直す。（めんどくさい）
-			models[1].RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
-				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
+			// lt, stを使うmodelsのために初期化:light map, shadow mapを作り直す。（めんどくさい）
+			//models[1].RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 			// あー分かった、モデルの回転が異常なのではなくて、BlendStateなどがおかしい！（だから透過して見えるので、表面が見えて回転しているようにみえる）
 			var depthNormal = renderer.drawDepthNormalMap(models
 						//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
@@ -89,14 +86,13 @@ namespace HLSLTest
 			// Set the render target
 			graphics.SetRenderTarget(reflectionTarg);
 			graphics.Clear(Color.Black);
-			//graphics.RasterizerState = RasterizerState.CullCounterClockwise;
-			//graphics.RasterizerState = RasterizerState.CullClockwise;
+
 			// Draw all objects with clip plane
 			// ここを弄ると面白い演出が出来るかも
 			foreach (IRenderable renderable in Objects) {
 				renderable.SetClipPlane(clipPlane);
-
 				string cullState = graphics.RasterizerState.ToString();
+
 				if (renderable is Object) {
 					(renderable as Object).Update(new GameTime());
 				}
@@ -109,7 +105,6 @@ namespace HLSLTest
 			}
 			graphics.SetRenderTarget(null);
 			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
-
 
 
 			/*// Set the render target
@@ -129,6 +124,7 @@ namespace HLSLTest
 
 				renderable.SetClipPlane(null);
 			}*/
+
 
 			if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflection_map.png")) {
@@ -151,6 +147,7 @@ namespace HLSLTest
 			if (JoyStick.onStickDirectionChanged) {
 				hasSaved = false;
 			}
+			renderer.Update();
 		}
 		public void PreDraw(ArcBallCamera camera, GameTime gameTime)
 		{
@@ -173,7 +170,6 @@ namespace HLSLTest
 			this.graphics = graphics;
 			//waterMesh = new Object(content.Load<Model>("plane"), position, Vector3.Zero, new Vector3(size.X, 1, size.Y), graphics);
 			waterMesh = new Object(position, "Models\\WaterMesh");
-			//Vector3.Zero
 			//waterMesh.ScaleVector = new Vector3(size.X, 1, size.Y);
 			waterMesh.ScaleVector = new Vector3(size.X, size.Y, 1);// 元々Blenderで作成した素材なので傾いている。それに合わせて、rescaleする成分を調整
 			waterMesh.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
@@ -185,12 +181,31 @@ namespace HLSLTest
 			waterEffect.Parameters["viewportHeight"].SetValue(graphics.Viewport.Height);
 
 
-			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width,
-				graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			//reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			//PresentationParameters pp = graphics.PresentationParameters;
+			//reflectionTarg = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			//reflectionTarg = new RenderTarget2D(graphics, 2048, 2048, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
-			/*if (renderer == null) {
+
+			/**/if (renderer == null) {
 				renderer = new PrelightingRenderer(graphics, content);
-			}*/
+			}
+			renderer = new PrelightingRenderer(graphics, content);
+			renderer.Models = game.models;
+			renderer.Lights = new List<PPPointLight>() {
+				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				20000),
+				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				20000)/**/
+			};
+			// setup shadows
+			renderer.ShadowLightPosition = new Vector3(500, 500, 0);//new Vector3(1500, 1500, 2000);
+			renderer.ShadowLightTarget = new Vector3(0, 300, 0);//new Vector3(0, 150, 0)
+
+
+			renderer.DoShadowMapping = true;
+			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
 		}
 		public Water(ContentManager content, GraphicsDevice graphics,
 			Vector3 position, Vector2 size, PrelightingRenderer renderer)

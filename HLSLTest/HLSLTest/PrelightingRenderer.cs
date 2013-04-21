@@ -269,6 +269,7 @@ namespace HLSLTest
 			// Clean up after the sprite batch
 			graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
 			// Remove the render target
 			graphicsDevice.SetRenderTarget(null);
@@ -296,9 +297,6 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTargets(nt, dt);
 			// Clear the render target to 1 (infinite depth)
 			graphicsDevice.Clear(Color.White);
-			//graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-			//graphicsDevice.DepthStencilState = DepthStencilState.None;
-			//graphicsDevice.BlendState = BlendState.Additive;
 			// Draw each model with the PPDepthNormal effect
 			// 法線マップと深度マップをDrawするエフェクトをセットしてそれぞれ書き込む
 			foreach (Object o in models) {
@@ -310,9 +308,6 @@ namespace HLSLTest
 			}
 			// Un-set the render targets
 			graphicsDevice.SetRenderTargets(null);
-			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-			//graphicsDevice.BlendState = BlendState.Opaque;
-			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 
 			if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflected lighdepthtmap.png")) {
