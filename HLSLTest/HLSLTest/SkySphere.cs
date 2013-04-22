@@ -22,7 +22,7 @@ namespace HLSLTest
 			model.Scale = 0.5f;*/
 			model = new Object(new Vector3(0, 0, 0), "Models\\SphereHighPoly");// "Models\\SkySphereMesh");//Model Model, Vector3 Position, Vector3 Rotation,Vector3 Scale,
 			//model.Scale = 1000;
-			model.Scale = 1000;
+			model.Scale = 10000;
 
 			textureCube = Texture;
 			effect = content.Load<Effect>("SkySphereEffect");

@@ -25,7 +25,9 @@ namespace HLSLTest
 		// Chased object properties
 		public Vector3 ChasePosition { get; set; }
 		public Vector3 ChaseDirection { get; set; }
-		public Vector3 Up { get; set; }
+		public Vector3 Up { get; private set; }
+		public Vector3 Right { get; private set; }
+		public Vector3 Direction { get; private set; }
 
 		// Desired camera pos
 		public Vector3 DesiredPositionOffset { get; set; }
@@ -153,9 +155,10 @@ namespace HLSLTest
 		{
 			// オブジェクト(のローカル)空間からワールド空間にトランスフォームする行列を構築する
 			Matrix transform = Matrix.Identity;
+			ChaseDirection = Vector3.Normalize(ChaseDirection);
 			transform.Forward = ChaseDirection;
 			transform.Up = Up;
-			transform.Right = Vector3.Cross(Up, ChaseDirection);
+			
 
 			// ワールド空間における目的のカメラ プロパティを計算する
 			/*DesiredPosition = ChasePosition +
@@ -176,10 +179,30 @@ namespace HLSLTest
 
 			LookAt = ChasePosition +
 				Vector3.TransformNormal(LookAtOffset, transform);
+
+			
+			/*this.Direction = LookAt - CameraPosition;
+			Right = Vector3.Cross(Up, Direction);
+			Right = Vector3.Normalize(Right);
+			transform.Right = Right;//Vector3.Cross(Up, ChaseDirection);*/
+			//this.Direction = LookAt - Position;
+			/*this.Direction = ChasePosition - Position;
+			Direction = Vector3.Normalize(Direction);
+			Right = Vector3.Cross(this.Direction, Vector3.Up);
+			Right = Vector3.Normalize(Right);
+			Up = Vector3.Cross(Direction, Right);
+			Up = Vector3.Normalize(Up);*/
+			Direction = LookAt - CameraPosition;
+			Up = Vector3.Up;
+			Direction = Vector3.Normalize(Direction);
+			Right = Vector3.Normalize(Right);
+			Right = Vector3.Cross(this.Direction, Vector3.Up);
+			Right = Vector3.Normalize(Right);
 		}
 		private void UpdateMatrices()
 		{
-			View = Matrix.CreateLookAt(this.Position, this.LookAt, this.Up);
+			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.Up);
+			View = Matrix.CreateLookAt(this.Position, this.LookAt, Vector3.Up);
 			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.t);
 			Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView,
 				AspectRatio, NearPlaneDistance, FarPlaneDistance);

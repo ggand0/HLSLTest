@@ -126,7 +126,7 @@ namespace HLSLTest
 			}*/
 
 
-			if (!hasSaved) {
+			/*if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflection_map.png")) {
 					reflectionTarg.SaveAsPng(stream, reflectionTarg.Width, reflectionTarg.Height);
 					stream.Position = 0;
@@ -134,7 +134,7 @@ namespace HLSLTest
 					//media.SavePicture("shadowDepth.jpg", stream);
 					hasSaved = true; // 下でfalseに
 				}
-			}
+			}*/
 
 			// Set the reflected scene to its effect parameter in
 			// the water effect

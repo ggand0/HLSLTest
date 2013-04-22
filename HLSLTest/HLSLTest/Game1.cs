@@ -29,6 +29,7 @@ namespace HLSLTest
 		public List<Object> models { get; private set; }
 		SkySphere sky;
 		Water water;
+		BillboardSystem trees;
 
 
 		public Game1()
@@ -70,10 +71,18 @@ namespace HLSLTest
 			models.Add(Teapot);
 			camera.Initialize(this, Target);
 
-			
 
-			//foreach (Object o in models) o.Up = Vector3.Up;
-			/**/
+
+			// Generate random tree positions
+			Random r = new Random();
+			Vector3[] positions = new Vector3[100];
+			for (int i = 0; i < positions.Length; i++) {
+				//positions[i] = new Vector3((float)r.NextDouble() * 20000 - 10000, 400, (float)r.NextDouble() * 20000 - 10000);
+				//positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 256, (float)r.NextDouble() * 200 - 100);
+				positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 50, (float)r.NextDouble() * 200 - 100);
+			}
+			//trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(800), positions);
+			trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
 
 			base.Initialize();
 		}
@@ -248,10 +257,8 @@ namespace HLSLTest
 			renderer.Draw();
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-
-			//water.Draw(camera.View, camera.Projection, (camera).Position);
-			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 			//renderer.Draw();
 			belndState = GraphicsDevice.BlendState.ToString();
@@ -264,6 +271,10 @@ namespace HLSLTest
 				
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
+
+			TargetCamera c = new TargetCamera(camera.Position, camera.LookAt, GraphicsDevice);
+			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//trees.Draw(c.View, c.Projection, c.Up, c.Right);
 #endif
 
 			/*ResetGraphicDevice();
