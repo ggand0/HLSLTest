@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArcBallCamera.cs" />
+    <Compile Include="BillboardCross.cs" />
     <Compile Include="BlillboardSystem.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
     <Compile Include="Camera.cs" />
@@ -85,6 +86,8 @@
     <Compile Include="Material.cs" />
     <Compile Include="MeshTag.cs" />
     <Compile Include="Object.cs" />
+    <Compile Include="ParticleSystem.cs" />
+    <Compile Include="ParticleVertex.cs" />
     <Compile Include="PPPointLight.cs" />
     <Compile Include="PrelightingRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

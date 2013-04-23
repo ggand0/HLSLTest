@@ -309,13 +309,13 @@ namespace HLSLTest
 			// Un-set the render targets
 			graphicsDevice.SetRenderTargets(null);
 
-			if (!hasSaved) {
+			/*if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflected lighdepthtmap.png")) {
 					dt.SaveAsPng(stream, dt.Width, dt.Height);
 					stream.Position = 0;
 					hasSaved = true;
 				}
-			}
+			}*/
 
 			return new {
 				dt, nt

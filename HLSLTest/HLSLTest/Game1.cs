@@ -30,7 +30,9 @@ namespace HLSLTest
 		SkySphere sky;
 		Water water;
 		BillboardSystem trees;
-
+		BillboardSystem clouds;
+		ParticleSystem ps;
+		Random r = new Random();
 
 		public Game1()
 		{
@@ -79,10 +81,25 @@ namespace HLSLTest
 			for (int i = 0; i < positions.Length; i++) {
 				//positions[i] = new Vector3((float)r.NextDouble() * 20000 - 10000, 400, (float)r.NextDouble() * 20000 - 10000);
 				//positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 256, (float)r.NextDouble() * 200 - 100);
-				positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 50, (float)r.NextDouble() * 200 - 100);
+				positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 10, (float)r.NextDouble() * 200 - 100);
 			}
 			//trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(800), positions);
 			trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
+
+			// Generate clouds
+			Vector3[] cloudPositions = new Vector3[350];
+			for (int i = 0; i < cloudPositions.Length; i++) {
+				cloudPositions[i] = new Vector3(
+					//r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
+					r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
+			}
+
+			clouds = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\cloud"), new Vector2(500), cloudPositions);
+			clouds.EnsureOcclusion = false;
+
+			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"),	400, new Vector2(40), 1, Vector3.Zero, 0.5f);
+			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 400, new Vector2(10), 1, Vector3.Zero, 0.5f);
+			ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
 
 			base.Initialize();
 		}
@@ -102,7 +119,7 @@ namespace HLSLTest
 
 			// skymap reflect
 			Effect cubeMapEffect = Content.Load<Effect>("CubeMapReflect");
-			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("Cross"));
+			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("SkyBoxTex"));
 			Teapot.SetModelEffect(cubeMapEffect, false);
 			Teapot.Material = cubeMat;/**/
 			//models[2].SetModelEffect(cubeMapEffect, false);
@@ -129,6 +146,8 @@ namespace HLSLTest
 			//models[1].SetModelEffect(lightingEffect, true);
 			models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
 			models[1].SetModelEffect(shadowEffect, true);
+			Ground.SetModelEffect(shadowEffect, true);
+			
 
 			renderer = new PrelightingRenderer(GraphicsDevice, Content);
 			renderer.Models = models;
@@ -152,13 +171,14 @@ namespace HLSLTest
 			//renderer.ShadowLightTarget = new Vector3(-50, -50, 0);//new Vector3(0, 150, 0)
 			//renderer.ShadowLightPosition = new Vector3(0, 150, 0);//new Vector3(1500, 1500, 2000);
 			//renderer.ShadowLightTarget = new Vector3(0, 0, 0);//new Vector3(0, 150, 0)
-			
+
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
 
 
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
-			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
+			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
+			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("SkyBoxTex"));
 
 			Water.game = this;
 			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
@@ -200,8 +220,40 @@ namespace HLSLTest
 			camera.UpdateChaseTarget(Target);
 			camera.Update(gameTime);
 			water.Update();
+			//Ground.Update(gameTime);
+
+
+			// Particleの挙動を決定する
+			// Generate a direction within 15 degrees of (0, 1, 0)
+			//Vector3 offset = new Vector3(MathHelper.ToRadians(10.0f));
+			Vector3 offset = new Vector3(MathHelper.ToRadians(20.0f));
+			Vector3 randAngle = Vector3.Up + randVec3(-offset, offset);
+
+			// Generate a position between (-400, 0, -400) and (400, 0, 400)
+			//Vector3 randPosition = randVec3(new Vector3(-400), new Vector3(400));
+			Vector3 randPosition = randVec3(new Vector3(-100), new Vector3(100));
+
+			// Generate a speed between 600 and 900
+			//float randSpeed = (float)r.NextDouble() * 300 + 600;
+			float randSpeed = (float)r.NextDouble() * 30 + 60;
+
+			ps.AddParticle(randPosition, randAngle, randSpeed);// １つ分しかaddしてない
+			/*while (ps.canAddParticle()) {// 1フレームに１つのペースじゃないと固まってspawnしてしまう
+				ps.AddParticle(randPosition, randAngle, randSpeed);
+			}*/
+
+			ps.Update();
+
 
 			base.Update(gameTime);
+		}
+		// Returns a random Vector3 between min and max
+		Vector3 randVec3(Vector3 min, Vector3 max)
+		{
+			return new Vector3(
+			min.X + (float)r.NextDouble() * (max.X - min.X),
+			min.Y + (float)r.NextDouble() * (max.Y - min.Y),
+			min.Z + (float)r.NextDouble() * (max.Z - min.Z));
 		}
 
 		/// <summary>
@@ -246,8 +298,7 @@ namespace HLSLTest
 			renderer.Draw();
 			
 #else
-			//ResetGraphicDevice();
-			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう
+			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 
 			string belndState = GraphicsDevice.BlendState.ToString();
 			string depthState = GraphicsDevice.DepthStencilState.ToString();
@@ -255,7 +306,8 @@ namespace HLSLTest
 
 
 			renderer.Draw();
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			//GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			//sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -265,16 +317,17 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
+			//Ground.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				string s = o.Scale.ToString();
-				
-				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+
+				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			TargetCamera c = new TargetCamera(camera.Position, camera.LookAt, GraphicsDevice);
 			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			//trees.Draw(c.View, c.Projection, c.Up, c.Right);
+			clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 #endif
 
 			/*ResetGraphicDevice();

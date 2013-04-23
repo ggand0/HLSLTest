@@ -142,6 +142,20 @@ namespace HLSLTest
 		/// ジョイスティックコントローラがあるか
 		/// </summary>
 		public static bool hasaJoyStick { get; private set; }
+		static void UpdateVectorOther(xnainput.KeyboardState newstate)
+		{
+			int horizontal = 0;
+			if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.L)) horizontal++;
+			if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.J)) horizontal--;
+			int vertical = 0;
+			if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.I)) vertical++;
+			if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.K)) vertical--;
+			V_other.X = (float)horizontal;
+			V_other.Y = (float)-vertical;//2DでY軸が下向きのためそれの補正
+			if (V_other.LengthSquared() != 0)
+				V_other = Vector2.Normalize(V_other);
+
+		}
         static void KeyboardUpdate(double dt)
         {
             xnainput.KeyboardState newstate = xnainput.Keyboard.GetState();
@@ -170,6 +184,9 @@ namespace HLSLTest
                     Key[i] = false;
                 }
             }
+
+			// stickのupdate
+			UpdateVectorOther(newstate);
             int horizontal = 0;
             if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right)) horizontal++;
             if (newstate.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left)) horizontal--;

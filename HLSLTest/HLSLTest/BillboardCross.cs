@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class BillboardSystem
+	public class BillboardCross
 	{
 		// Vertex buffer and index buffer, particle
 		// and index arrays
@@ -130,7 +130,7 @@ namespace HLSLTest
 		}
 
 
-		public BillboardSystem(GraphicsDevice graphicsDevice,
+		public BillboardCross(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3[] particlePositions)
 		{
 			this.nBillboards = particlePositions.Length;
