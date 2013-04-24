@@ -92,13 +92,14 @@ namespace HLSLTest
 		}
 
 		void setEffectParameters(Matrix View, Matrix Projection, Vector3 Up,
-			Vector3 Right)
+			Vector3 Right, Vector3 CameraPosition)
 		{
 			effect.Parameters["ParticleTexture"].SetValue(texture);
 			effect.Parameters["View"].SetValue(View);
 			effect.Parameters["Projection"].SetValue(Projection);
-			//effect.Parameters["Size"].SetValue(billboardSize / 2f);
-			effect.Parameters["Size"].SetValue(new Vector2(billboardSize.X / 2f, (End - Start).Length() ));
+			
+			//effect.Parameters["Size"].SetValue(new Vector2(billboardSize.X / 2f, (End - Start).Length() ));
+			effect.Parameters["Size"].SetValue(billboardSize / 2f);
 
 			//effect.Parameters["Up"].SetValue(Up);
 			effect.Parameters["Up"].SetValue(Mode == BillboardMode.Spherical ? Up : Vector3.Up);
@@ -111,21 +112,34 @@ namespace HLSLTest
 			//effect.Parameters["theta"].SetValue(AxisAngleOnAxisPlane(End, (Start - End), (End + Up * 5) - End, Vector3.Cross(Up, Right)));
 			Vector3 debug =  Vector3.Cross(Up, Right);
 			Vector3 d = AxisProjectedVectorAxisPlane(Up, (Start - End), debug);
+			Vector3 pv = AxisProjectedVectorAxisPlane(Up, (End - Start), debug);
+
+			Viewport view = graphicsDevice.Viewport;
+			Vector3 v3 = view.Project(End - Start,
+								Projection,
+								View,
+								Matrix.Identity);
 			//effect.Parameters["ProjectedVector"].SetValue(new Vector4(AxisProjectedVectorAxisPlane(Up, (Start - End), debug), 1));
-			effect.Parameters["ProjectedVector"].SetValue(AxisProjectedVectorAxisPlane(Up, (End - Start), debug));
+			effect.Parameters["ProjectedVector"].SetValue(v3);// ktkr!!!!!!!!!!!!!!!!!!!!!!
 
 			effect.Parameters["World"].SetValue(World);
+			effect.Parameters["theta"].SetValue(45f);
+			effect.Parameters["CameraDir"].SetValue(Vector3.Normalize(CameraPosition - Start));
 
 			effect.CurrentTechnique.Passes[0].Apply();
+
 		}
 
 		Matrix World;
 		public void Update(Vector3 Up,
-			Vector3 Right)
+			Vector3 Right, Vector3 CameraPosition)
 		{
 			Vector3 dir = End - Start;
+			//Vector3 dir = Start - End;
 			dir.Normalize();
-			Vector3 right = Vector3.Cross(dir, Vector3.Cross(Up, Right));
+			Vector3 toCamera = CameraPosition - Start;
+			//Vector3 right = Vector3.Cross(dir, Vector3.Cross(Up, Right));
+			Vector3 right = Vector3.Cross(dir, toCamera);
 			right.Normalize();
 			Vector3 up = Vector3.Cross(right, dir);
 			
@@ -134,15 +148,20 @@ namespace HLSLTest
 			World.Forward = dir;
 			World.Right = right;
 			World.Up = up;
-			World.Translation = Start;
+			//World.Translation = Start;
+			World.Translation = Vector3.Zero;
+
+
+			World = Matrix.CreateFromAxisAngle(toCamera, 10);
+			World.Translation = Vector3.Zero;
 		}
-		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(verts);
 			graphicsDevice.Indices = ints;
 
-			setEffectParameters(View, Projection, Up, Right);
+			setEffectParameters(View, Projection, Up, Right, CameraPosition);
 
 			// Enable alpha blending
 			graphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -188,6 +207,7 @@ namespace HLSLTest
 
 		public Vector3 Start { get; set; }
 		public Vector3 End { get; set; }
+		//public Vector3 CameraPos { get44
 		public LaserBillboard(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Vector3[] particlePositions)
 		{
@@ -197,7 +217,7 @@ namespace HLSLTest
 			this.texture = texture;
 			this.Start = start;
 			this.End = end;
-			effect = content.Load<Effect>("LaserBillboardEffect");
+			effect = content.Load<Effect>("LaserBillboardEffectV2");
 
 			generateParticles(particlePositions);
 		}

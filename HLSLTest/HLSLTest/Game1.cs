@@ -110,8 +110,10 @@ namespace HLSLTest
 			discoid = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, Vector3.Zero, 5f, 1);
 			ls = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, Vector3.Zero, 0.1f, 2);// 0.1f
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
-			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 10),
+			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(5, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });
+			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 10)
+				, new Vector3(0, 50, 60), new Vector3(0, -50, -50), new Vector3[] { Vector3.Zero });*/
 			s = new Object(new Vector3(50, 50, 0), "Models\\UtahTeapot");
 			e = new Object(new Vector3(-50, -50, 0), "Models\\UtahTeapot");
 			s.Scale = 10; e.Scale = 10;
@@ -244,7 +246,7 @@ namespace HLSLTest
 			eps.Update();
 			ls.Update();
 			s.Update(gameTime); e.Update(gameTime);
-			lb.Update(camera.Up, camera.Right);
+			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
 
 			base.Update(gameTime);
 		}
@@ -327,7 +329,7 @@ namespace HLSLTest
 			eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//ls.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 			s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
 
 			debug.Draw(gameTime);

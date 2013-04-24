@@ -17,6 +17,7 @@ float4 StartPos;
 float4 EndPos;
 float theta;
 float3 ProjectedVector;// End - Startをスクリーン平面に射影したベクトル
+float3 CameraDir;
 // 流石にこれは予め計算させておいたほうがいいか→関数化で
 //float2x2 rotate = { {cos(theta), -sin(theta)}, { sin(theta), cos(theta) } };
 
@@ -76,6 +77,12 @@ float4x4 ArbitraryRotateMatrix(float3 axis, float angle)
 
 	return C + T + S;
 }
+float3 projectPoint(float3 normal, float3 pos)
+{
+	//float dis = (pos - StartPos) * normal;
+	float dis = dot((pos - StartPos), normal);
+	return normal * dis + pos;
+}
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
 	VertexShaderOutput output;
@@ -85,39 +92,28 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	float2 offset = float2((input.UV.x - 0.5f) * 2.0f, -(input.UV.y - 0.5f) * 2.0f);
 
 	// Move the vertex along the camera's 'plane' to its corner
-	//position += offset.x * Size.x * Side + offset.y * Size.y * Up;
-	//position += offset.x * Size.x * Side + offset.y * Size.y * Up;// size.yに毎フレームlengthを与えれば良いだろう
+	//position = (float3)mul(input.Position, World);
 
-	// 始点と終点から得た角度に基づいて回転させる
-	//position = mul(position, ArbitraryRotateMatrix(cross(Up, Side), theta));
+	//float4 tmp = mul(input.Position, World);// input.posが0なので0になっちゃう
+	//position = float3(tmp.x, tmp.y, tmp.z);
 
-	// UpとSideからなる平面上にあって、かつProjectedVectorに直交するベクトルを求める。
-	//float4 verticalVector = cross(ProjectedVector, cross(Up, Side)));
-	/*float3 verticalVector = cross(
-		ProjectedVector, cross(Up, Side)
-	);
-	float4 pv = float4(ProjectedVector, 1);
-	float4 vv = float4(verticalVector, 1);
+	float3 pvUp = normalize(cross(ProjectedVector, cross(Up, Side)));
+	position += offset.x * Size.x * ProjectedVector + offset.y * Size.y * pvUp;
+	//position += offset.x * Size.x * pvUp + offset.y * Size.y * ProjectedVector;
+	//position += StartPos + offset.x * Size.x * ProjectedVector + offset.y * Size.y * pvUp;
 
-	// 新しいベクトルを使って、今までと同様に計算
-	//position = mul(float4(position, 1), World);
-	position += offset.x * Size.x * Side + offset.y * Size.y * Up;
-	//position += offset.x * Size.x * pv + offset.y * Size.y * vv;// size.yに毎フレームlengthを与えれば良いだろう*/
-	//position = mul(position, World);
+	/*position += offset.x * Size.x * Side + offset.y * Size.y * Up;// まずは４点構成
+	float4 tmp = mul(float4(position, 1), World);
+	position = float3(tmp.x, tmp.y, tmp.z);*/
+	//position = projectPoint(cross(Up, Side), position);
 
-	/*float4 sv = normalize(mul(float4(Side, 1), World));
-	float uv = normalize(mul(float4(Up, 1), World));
-
-	// 先にpositionを計算してから、endとstartをworldでtransformし、回転角を求める、とか？
-	position += offset.x * Size.x * sv + offset.y * Size.y * uv;
-	// Worldで回転させるだけ！
-	//float4x4 worldViewProjection = mul(World, mul(View, Projection));
-	//output.Position = mul(float4(position, 1), worldViewProjection);*/
 
 	// new start and new end
-	float4 ns = normalize(mul(StartPos, World));
-	float4 es = normalize(mul(EndPos, World));
+	//float4 ns = normalize(mul(StartPos, World));
+	//float4 es = normalize(mul(EndPos, World));
 	//position = mul(position, ArbitraryRotateMatrix(cross(Up, Side), theta));
+	//position = mul(position, ArbitraryRotateMatrix(CameraDir, theta));
+
 
 	// Transform the position by view and projection
 	output.Position = mul(float4(position, 1), mul(View, Projection));
@@ -125,7 +121,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 	return output;
 }
-
 
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
