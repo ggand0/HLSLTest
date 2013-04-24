@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class ExplosionParticleSystem
+	public class ParticleSystem
 	{
 		VertexBuffer vertexBuffers;
 		IndexBuffer indexBuffers;
@@ -32,6 +32,7 @@ namespace HLSLTest
 
 		// Time particle system was created
 		DateTime start;
+		Random rand = new Random();
 
 
 		void generateParticles()
@@ -44,8 +45,8 @@ namespace HLSLTest
 
 			// Initialize particle settings and fill index and vertex arrays
 			for (int i = 0; i < nParticles * 4; i += 4) {
-				particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0), z, 0, -1);
-				particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1), z, 0, -1);
+				particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0),	z, 0, -1);
+				particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1),	z, 0, -1);
 				particles[i + 2] = new ParticleVertex(z, new Vector2(1, 1), z, 0, -1);
 				particles[i + 3] = new ParticleVertex(z, new Vector2(1, 0), z, 0, -1);
 				indices[x++] = i + 0;
@@ -55,6 +56,83 @@ namespace HLSLTest
 				indices[x++] = i + 1;
 				indices[x++] = i + 0;
 			}
+		}
+
+		public int EffectType { get; private set; }
+		int emitNumPerFrame = 20;
+		int maxEmitFrameCount;
+		int frameCount;
+		public void MakeDiscoid(Vector3 position)
+		{
+			var speed = 4.0f;
+			var innerRadius = 0.5f;
+			var outerRadius = 1.5f;
+			
+			//thickness
+
+			if (frameCount <= maxEmitFrameCount) {
+				for (int i = 0; i < emitNumPerFrame; i++) {
+					Vector3 ruv = RandomUnitVectorInPlane(Matrix.CreateTranslation(position), Vector3.Up);// 方向を決める
+					Vector3 newPos = position + ((ruv * innerRadius) + (ruv * (float)NextDouble(rand, innerRadius, outerRadius)));
+					Vector3 pos = newPos;
+					Vector3 velocity = ruv * speed;
+					AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
+				}
+			}
+		}
+		Vector3 RandomUnitVectorInPlane(Matrix xform, Vector3 axis)
+		{
+			xform *= Matrix.CreateFromAxisAngle(axis, (float)NextDouble(rand, 0.0, 360.0));
+			Vector3 ruv = xform.Right;
+			ruv.Normalize();
+			return ruv;
+		}
+		private double NextDouble(Random r, double min, double max)
+		{
+			return min + r.NextDouble() * (max - min);
+		}
+		public void MakeFlame()
+		{
+			// Particleの挙動を決定する
+			// Generate a direction within 15 degrees of (0, 1, 0)
+			//Vector3 offset = new Vector3(MathHelper.ToRadians(10.0f));
+			Vector3 offset = new Vector3(MathHelper.ToRadians(20.0f));
+			Vector3 randAngle = Vector3.Up + randVec3(-offset, offset);
+			// Generate a position between (-400, 0, -400) and (400, 0, 400)
+			//Vector3 randPosition = randVec3(new Vector3(-400), new Vector3(400));
+			Vector3 randPosition = randVec3(new Vector3(-100), new Vector3(100));
+			// Generate a speed between 600 and 900
+			//float randSpeed = (float)r.NextDouble() * 300 + 600;
+			float randSpeed = (float)rand.NextDouble() * 30 + 60;
+
+			AddParticle(randPosition, randAngle, randSpeed);// １つ分しかaddしてない
+			/*while (ps.canAddParticle()) {// 1フレームに１つのペースじゃないと固まってspawnしてしまう
+				ps.AddParticle(randPosition, randAngle, randSpeed);
+			}*/
+		}
+		public void MakeLaser(Vector3 position)
+		{
+			var speed = 0.1f;
+
+			if (frameCount <= maxEmitFrameCount) {
+				for (int i = 0; i < emitNumPerFrame; i++) {
+					//Vector3 ruv = RandomUnitVectorInPlane(Matrix.CreateTranslation(position), Vector3.Up);// 方向を決める
+					//Vector3 newPos = position + ((ruv * innerRadius) + (ruv * (float)NextDouble(rand, innerRadius, outerRadius)));
+
+					Vector3 dir = (rand.NextDouble() <= 0.5) ? new Vector3(0, 1, 0) : new Vector3(0, -1, 0);
+					Vector3 pos = position;
+					Vector3 velocity = dir * speed;
+					AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
+				}
+			}
+		}
+		// Returns a random Vector3 between min and max
+		Vector3 randVec3(Vector3 min, Vector3 max)
+		{
+			return new Vector3(
+			min.X + (float)rand.NextDouble() * (max.X - min.X),
+			min.Y + (float)rand.NextDouble() * (max.Y - min.Y),
+			min.Z + (float)rand.NextDouble() * (max.Z - min.Z));
 		}
 		public void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
@@ -98,6 +176,18 @@ namespace HLSLTest
 
 		public void Update()
 		{
+			switch (EffectType) {
+				default:
+					MakeFlame();
+					break;
+				case 1:
+					MakeDiscoid(Vector3.Zero);
+					break;
+				case 2:
+					MakeLaser(Vector3.Zero);
+					break;
+			}
+
 			float now = (float)(DateTime.Now - start).TotalSeconds;
 			int startIndex = activeStart;
 			int end = nActive;
@@ -168,8 +258,8 @@ namespace HLSLTest
 
 
 		// Constructor
-		public ExplosionParticleSystem(GraphicsDevice graphicsDevice, ContentManager content, Texture2D tex, int nParticles,
-			Vector2 particleSize, float lifespan, Vector3 wind, float FadeInTime)
+		public ParticleSystem(GraphicsDevice graphicsDevice, ContentManager content, Texture2D tex, int nParticles,
+			Vector2 particleSize, float lifespan, Vector3 wind, float FadeInTime, int particleType)
 		{
 			this.nParticles = nParticles;
 			this.particleSize = particleSize;
@@ -189,6 +279,10 @@ namespace HLSLTest
 			generateParticles();
 			effect = content.Load<Effect>("ParticleEffect");
 			start = DateTime.Now;
+
+			this.EffectType = particleType;
+			this.emitNumPerFrame = EffectType == 1 ? 100 : 1;//50;
+			this.maxEmitFrameCount = nParticles / emitNumPerFrame;
 		}
 	}
 

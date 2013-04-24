@@ -33,6 +33,12 @@ namespace HLSLTest
 		BillboardSystem clouds;
 		ParticleSystem ps;
 		Random r = new Random();
+		ExplosionParticleSystem eps;
+		ParticleSystem discoid;
+		ExplosionParticleSystem ls;
+		BillboardSystem lbs;
+		LaserBillboard lb;
+		Object s, e;
 
 		public Game1()
 		{
@@ -99,7 +105,16 @@ namespace HLSLTest
 
 			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"),	400, new Vector2(40), 1, Vector3.Zero, 0.5f);
 			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 400, new Vector2(10), 1, Vector3.Zero, 0.5f);
-			ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
+			ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f, 0);// 0.1f
+			eps = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), 2000, new Vector2(50), 20, Vector3.Zero, 5f, 1);// 0.1f
+			discoid = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, Vector3.Zero, 5f, 1);
+			ls = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, Vector3.Zero, 0.1f, 2);// 0.1f
+			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
+			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 10),
+				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });
+			s = new Object(new Vector3(50, 50, 0), "Models\\UtahTeapot");
+			e = new Object(new Vector3(-50, -50, 0), "Models\\UtahTeapot");
+			s.Scale = 10; e.Scale = 10;
 
 			base.Initialize();
 		}
@@ -223,38 +238,17 @@ namespace HLSLTest
 			//Ground.Update(gameTime);
 
 
-			// Particleの挙動を決定する
-			// Generate a direction within 15 degrees of (0, 1, 0)
-			//Vector3 offset = new Vector3(MathHelper.ToRadians(10.0f));
-			Vector3 offset = new Vector3(MathHelper.ToRadians(20.0f));
-			Vector3 randAngle = Vector3.Up + randVec3(-offset, offset);
-
-			// Generate a position between (-400, 0, -400) and (400, 0, 400)
-			//Vector3 randPosition = randVec3(new Vector3(-400), new Vector3(400));
-			Vector3 randPosition = randVec3(new Vector3(-100), new Vector3(100));
-
-			// Generate a speed between 600 and 900
-			//float randSpeed = (float)r.NextDouble() * 300 + 600;
-			float randSpeed = (float)r.NextDouble() * 30 + 60;
-
-			ps.AddParticle(randPosition, randAngle, randSpeed);// １つ分しかaddしてない
-			/*while (ps.canAddParticle()) {// 1フレームに１つのペースじゃないと固まってspawnしてしまう
-				ps.AddParticle(randPosition, randAngle, randSpeed);
-			}*/
-
+			
 			ps.Update();
-
+			discoid.Update();
+			eps.Update();
+			ls.Update();
+			s.Update(gameTime); e.Update(gameTime);
+			lb.Update(camera.Up, camera.Right);
 
 			base.Update(gameTime);
 		}
-		// Returns a random Vector3 between min and max
-		Vector3 randVec3(Vector3 min, Vector3 max)
-		{
-			return new Vector3(
-			min.X + (float)r.NextDouble() * (max.X - min.X),
-			min.Y + (float)r.NextDouble() * (max.Y - min.Y),
-			min.Z + (float)r.NextDouble() * (max.Z - min.Z));
-		}
+		
 
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
@@ -298,14 +292,15 @@ namespace HLSLTest
 			renderer.Draw();
 			
 #else
-			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
+			
+			//water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 
 			string belndState = GraphicsDevice.BlendState.ToString();
 			string depthState = GraphicsDevice.DepthStencilState.ToString();
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
 
-			renderer.Draw();
+			//renderer.Draw();
 			//GraphicsDevice.Clear(Color.CornflowerBlue);
 			GraphicsDevice.Clear(Color.Black);
 
@@ -320,14 +315,22 @@ namespace HLSLTest
 			//Ground.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
-				string s = o.Scale.ToString();
+				//string s = o.Scale.ToString();
 
 				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//ls.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
+
+			debug.Draw(gameTime);
 #endif
 
 			/*ResetGraphicDevice();
