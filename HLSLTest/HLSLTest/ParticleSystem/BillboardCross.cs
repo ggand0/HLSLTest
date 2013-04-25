@@ -27,65 +27,80 @@ namespace HLSLTest
 		public enum BillboardMode { Cylindrical, Spherical };
 		public BillboardMode Mode = BillboardMode.Spherical;
 
+		private int crossBillboardNum = 2;
 		void generateParticles(Vector3[] particlePositions)
 		{
 			// Create vertex and index arrays
-			particles = new VertexPositionTexture[nBillboards * 4];
-			indices = new int[nBillboards * 6];
+			particles = new VertexPositionTexture[nBillboards * crossBillboardNum * 4];
+			indices = new int[nBillboards * crossBillboardNum * 6];
+
 			int x = 0;
 			// For each billboard...
-			for (int i = 0; i < nBillboards * 4; i += 4) {
-				Vector3 pos = particlePositions[i / 4];
-				// Add 4 vertices at the billboard's position
-				particles[i + 0] = new VertexPositionTexture(pos,
-					new Vector2(0, 0));
-				particles[i + 1] = new VertexPositionTexture(pos,
-					new Vector2(0, 1));
+			for (int i = 0; i < nBillboards * 4 * crossBillboardNum; i += 4 * crossBillboardNum) {
+				Vector3 pos = particlePositions[i / (4 * crossBillboardNum)];
+				Vector3 offsetX = new Vector3(billboardSize.X / 2.0f,
+					billboardSize.Y / 2.0f, 0);
+				Vector3 offsetZ = new Vector3(0, offsetX.Y, offsetX.X);
 
-				particles[i + 2] = new VertexPositionTexture(pos,
-					new Vector2(1, 1));
-				particles[i + 3] = new VertexPositionTexture(pos,
-					new Vector2(1, 0));
-				// Add 6 indices to form two triangles
+				// Add 4 vertices per rectangle
+				particles[i + 0] = new VertexPositionTexture(pos +
+				new Vector3(-1, 1, 0) * offsetX, new Vector2(0, 0));
+				particles[i + 1] = new VertexPositionTexture(pos +
+				new Vector3(-1, -1, 0) * offsetX, new Vector2(0, 1));
+				particles[i + 2] = new VertexPositionTexture(pos +
+				new Vector3(1, -1, 0) * offsetX, new Vector2(1, 1));
+				particles[i + 3] = new VertexPositionTexture(pos +
+				new Vector3(1, 1, 0) * offsetX, new Vector2(1, 0));
+				particles[i + 4] = new VertexPositionTexture(pos +
+				new Vector3(0, 1, -1) * offsetZ, new Vector2(0, 0));
+				particles[i + 5] = new VertexPositionTexture(pos +
+				new Vector3(0, -1, -1) * offsetZ, new Vector2(0, 1));
+				particles[i + 6] = new VertexPositionTexture(pos +
+				new Vector3(0, -1, 1) * offsetZ, new Vector2(1, 1));
+				particles[i + 7] = new VertexPositionTexture(pos +
+				new Vector3(0, 1, 1) * offsetZ, new Vector2(1, 0));
+
+
+				// Add 6 indices per rectangle to form four triangles
 				indices[x++] = i + 0;
 				indices[x++] = i + 3;
 				indices[x++] = i + 2;
 				indices[x++] = i + 2;
 				indices[x++] = i + 1;
 				indices[x++] = i + 0;
+				indices[x++] = i + 0 + 4;
+				indices[x++] = i + 3 + 4;
+				indices[x++] = i + 2 + 4;
+				indices[x++] = i + 2 + 4;
+				indices[x++] = i + 1 + 4;
+				indices[x++] = i + 0 + 4;
 			}
 
 			// Create and set the vertex buffer
 			verts = new VertexBuffer(graphicsDevice,
 				typeof(VertexPositionTexture),
-				nBillboards * 4, BufferUsage.WriteOnly);
+				nBillboards * 4 * crossBillboardNum, BufferUsage.WriteOnly);
 			verts.SetData<VertexPositionTexture>(particles);
 			// Create and set the index buffer
 			ints = new IndexBuffer(graphicsDevice,
 			IndexElementSize.ThirtyTwoBits,
-			nBillboards * 6, BufferUsage.WriteOnly);
+			nBillboards * 6 * crossBillboardNum, BufferUsage.WriteOnly);
 			ints.SetData<int>(indices);
 		}
 
-		void setEffectParameters(Matrix View, Matrix Projection, Vector3 Up,
-			Vector3 Right)
+		void setEffectParameters(Matrix View, Matrix Projection)//, Vector3 Up, Vector3 Right)
 		{
 			effect.Parameters["ParticleTexture"].SetValue(texture);
 			effect.Parameters["View"].SetValue(View);
 			effect.Parameters["Projection"].SetValue(Projection);
-			effect.Parameters["Size"].SetValue(billboardSize / 2f);
-			//effect.Parameters["Up"].SetValue(Up);
-			effect.Parameters["Up"].SetValue(Mode == BillboardMode.Spherical ? Up : Vector3.Up);
-			effect.Parameters["Side"].SetValue(Right);
-			effect.CurrentTechnique.Passes[0].Apply();
 		}
-		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public void Draw(Matrix View, Matrix Projection)//, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(verts);
 			graphicsDevice.Indices = ints;
 
-			setEffectParameters(View, Projection, Up, Right);
+			setEffectParameters(View, Projection);
 
 			// Enable alpha blending
 			graphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -119,7 +134,7 @@ namespace HLSLTest
 		{
 			effect.CurrentTechnique.Passes[0].Apply();
 			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
-			4 * nBillboards, 0, nBillboards * 2);
+				4 * nBillboards * crossBillboardNum, 0, nBillboards * 2 * crossBillboardNum);
 		}
 		void drawTransparentPixels()
 		{
@@ -137,7 +152,7 @@ namespace HLSLTest
 			this.billboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
 			this.texture = texture;
-			effect = content.Load<Effect>("BillboardEffect");
+			effect = content.Load<Effect>("BillboardCrossEffect");
 
 			generateParticles(particlePositions);
 		}

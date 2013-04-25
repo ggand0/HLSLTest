@@ -40,6 +40,7 @@ namespace HLSLTest
 		LaserBillboard lb;
 		Model s, e;
 		Vector3 start = new Vector3(200, 50, 0), end = new Vector3(-50, -50, 0);
+		BillboardCross treesCross;
 
 		public Game1()
 		{
@@ -120,6 +121,8 @@ namespace HLSLTest
 			//s.Scale = e.Scale = 0.01f;
 			s = Content.Load<Model>("Models\\Ship");
 			e = Content.Load<Model>("Models\\Ship");
+
+			treesCross = new BillboardCross(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
 
 			base.Initialize();
 		}
@@ -320,7 +323,8 @@ namespace HLSLTest
 				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			treesCross.Draw(camera.View, camera.Projection);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 

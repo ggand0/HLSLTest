@@ -74,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArcBallCamera.cs" />
-    <Compile Include="ParticleSystem\BillboardCross.cs" />
+    <None Include="ParticleSystem\BillboardCross.cs" />
     <Compile Include="ParticleSystem\BlillboardSystem.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
     <Compile Include="Camera.cs" />
