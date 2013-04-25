@@ -10,42 +10,72 @@ namespace HLSLTest
 {
 	public class BillboardSystem
 	{
-		// Vertex buffer and index buffer, particle
-		// and index arrays
-		VertexBuffer verts;
-		IndexBuffer ints;
-		VertexPositionTexture[] particles;
-		int[] indices;
-		// Billboard settings
-		int nBillboards;
-		Vector2 billboardSize;
-		Texture2D texture;
-		// GraphicsDevice and Effect
-		GraphicsDevice graphicsDevice;
-		Effect effect;
-		public bool EnsureOcclusion = true;
-		public enum BillboardMode { Cylindrical, Spherical };
-		public BillboardMode Mode = BillboardMode.Spherical;
+		// Vertex buffer and index buffer, particle and index arrays
+		protected VertexBuffer vertexBuffers;
+		protected IndexBuffer indexBuffers;
+		private VertexPositionTexture[] particles;
+		private int[] indices;
 
-		void generateParticles(Vector3[] particlePositions)
+		// GraphicsDevice and Effect
+		protected GraphicsDevice graphicsDevice;
+		protected Effect effect;
+
+		// Billboard settings
+		public int BillboardNum { get; private set; }
+		public Vector2 BillboardSize { get; private set; }
+		public Texture2D Texture { get; private set; }
+
+		
+		public bool EnsureOcclusion { get; set; }
+		public enum BillboardMode
+		{
+			Cylindrical, 
+			Spherical
+		};
+		public BillboardMode Mode { get; set; }
+
+
+		private void drawOpaquePixels()
+		{
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			effect.Parameters["AlphaTest"].SetValue(true);
+			effect.Parameters["AlphaTestGreater"].SetValue(true);
+			drawBillboards();
+		}
+		private void drawBillboards()
+		{
+			effect.CurrentTechnique.Passes[0].Apply();
+			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
+			4 * BillboardNum, 0, BillboardNum * 2);
+		}
+		private void drawTransparentPixels()
+		{
+			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+			effect.Parameters["AlphaTest"].SetValue(true);
+			effect.Parameters["AlphaTestGreater"].SetValue(false);
+			drawBillboards();
+		}
+		protected virtual void generateParticles(Vector3[] particlePositions)
 		{
 			// Create vertex and index arrays
-			particles = new VertexPositionTexture[nBillboards * 4];
-			indices = new int[nBillboards * 6];
+			particles = new VertexPositionTexture[BillboardNum * 4];
+			indices = new int[BillboardNum * 6];
 			int x = 0;
+
 			// For each billboard...
-			for (int i = 0; i < nBillboards * 4; i += 4) {
+			for (int i = 0; i < BillboardNum * 4; i += 4) {
 				Vector3 pos = particlePositions[i / 4];
+
 				// Add 4 vertices at the billboard's position
 				particles[i + 0] = new VertexPositionTexture(pos,
 					new Vector2(0, 0));
 				particles[i + 1] = new VertexPositionTexture(pos,
 					new Vector2(0, 1));
-
 				particles[i + 2] = new VertexPositionTexture(pos,
 					new Vector2(1, 1));
 				particles[i + 3] = new VertexPositionTexture(pos,
 					new Vector2(1, 0));
+
 				// Add 6 indices to form two triangles
 				indices[x++] = i + 0;
 				indices[x++] = i + 3;
@@ -56,34 +86,33 @@ namespace HLSLTest
 			}
 
 			// Create and set the vertex buffer
-			verts = new VertexBuffer(graphicsDevice,
+			vertexBuffers = new VertexBuffer(graphicsDevice,
 				typeof(VertexPositionTexture),
-				nBillboards * 4, BufferUsage.WriteOnly);
-			verts.SetData<VertexPositionTexture>(particles);
+				BillboardNum * 4, BufferUsage.WriteOnly);
+			vertexBuffers.SetData<VertexPositionTexture>(particles);
 			// Create and set the index buffer
-			ints = new IndexBuffer(graphicsDevice,
+			indexBuffers = new IndexBuffer(graphicsDevice,
 			IndexElementSize.ThirtyTwoBits,
-			nBillboards * 6, BufferUsage.WriteOnly);
-			ints.SetData<int>(indices);
+			BillboardNum * 6, BufferUsage.WriteOnly);
+			indexBuffers.SetData<int>(indices);
 		}
 
-		void setEffectParameters(Matrix View, Matrix Projection, Vector3 Up,
-			Vector3 Right)
+		protected virtual void setEffectParameters(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
-			effect.Parameters["ParticleTexture"].SetValue(texture);
+			effect.Parameters["ParticleTexture"].SetValue(Texture);
 			effect.Parameters["View"].SetValue(View);
 			effect.Parameters["Projection"].SetValue(Projection);
-			effect.Parameters["Size"].SetValue(billboardSize / 2f);
+			effect.Parameters["Size"].SetValue(BillboardSize / 2f);
 			//effect.Parameters["Up"].SetValue(Up);
 			effect.Parameters["Up"].SetValue(Mode == BillboardMode.Spherical ? Up : Vector3.Up);
 			effect.Parameters["Side"].SetValue(Right);
 			effect.CurrentTechnique.Passes[0].Apply();
 		}
-		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
-			graphicsDevice.SetVertexBuffer(verts);
-			graphicsDevice.Indices = ints;
+			graphicsDevice.SetVertexBuffer(vertexBuffers);
+			graphicsDevice.Indices = indexBuffers;
 
 			setEffectParameters(View, Projection, Up, Right);
 
@@ -108,38 +137,21 @@ namespace HLSLTest
 			graphicsDevice.SetVertexBuffer(null);
 			graphicsDevice.Indices = null;
 		}
-		void drawOpaquePixels()
-		{
-			graphicsDevice.DepthStencilState = DepthStencilState.Default;
-			effect.Parameters["AlphaTest"].SetValue(true);
-			effect.Parameters["AlphaTestGreater"].SetValue(true);
-			drawBillboards();
-		}
-		void drawBillboards()
-		{
-			effect.CurrentTechnique.Passes[0].Apply();
-			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
-			4 * nBillboards, 0, nBillboards * 2);
-		}
-		void drawTransparentPixels()
-		{
-			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-			effect.Parameters["AlphaTest"].SetValue(true);
-			effect.Parameters["AlphaTestGreater"].SetValue(false);
-			drawBillboards();
-		}
+		
 
 
 		public BillboardSystem(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3[] particlePositions)
 		{
-			this.nBillboards = particlePositions.Length;
-			this.billboardSize = billboardSize;
+			this.BillboardNum = particlePositions.Length;
+			this.BillboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
-			this.texture = texture;
+			this.Texture = texture;
 			effect = content.Load<Effect>("BillboardEffect");
 
 			generateParticles(particlePositions);
+			EnsureOcclusion = true;
+			Mode = BillboardMode.Spherical;
 		}
 	}
 }

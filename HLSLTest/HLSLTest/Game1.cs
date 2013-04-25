@@ -31,11 +31,17 @@ namespace HLSLTest
 		Water water;
 		BillboardSystem trees;
 		BillboardSystem clouds;
-		ParticleSystem ps;
 		Random r = new Random();
-		ExplosionParticleSystem eps;
-		ParticleSystem discoid;
-		ExplosionParticleSystem ls;
+
+		/*ParticleEmitter ps;
+		ExplosionParticleEmitter eps;
+		ParticleEmitter discoid;
+		ExplosionParticleEmitter ls;*/
+		FlameParticleEmitter ps;
+		ExplosionParticleEmitter eps;
+		DiscoidParticleEmitter discoid;
+		ExplosionParticleEmitter ls;
+
 		BillboardSystem lbs;
 		LaserBillboard lb;
 		Model s, e;
@@ -81,8 +87,6 @@ namespace HLSLTest
 			models.Add(Teapot);
 			camera.Initialize(this, Target);
 
-
-
 			// Generate random tree positions
 			Random r = new Random();
 			Vector3[] positions = new Vector3[100];
@@ -107,10 +111,11 @@ namespace HLSLTest
 
 			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"),	400, new Vector2(40), 1, Vector3.Zero, 0.5f);
 			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 400, new Vector2(10), 1, Vector3.Zero, 0.5f);
-			ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f, 0);// 0.1f
-			eps = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), 2000, new Vector2(50), 20, Vector3.Zero, 5f, 1);// 0.1f
-			discoid = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, Vector3.Zero, 5f, 1);
-			ls = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, Vector3.Zero, 0.1f, 2);// 0.1f
+			ps = new FlameParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
+			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), 2000, new Vector2(50), 20, 5f);// 0.1f
+			//discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
+			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
+			ls = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, 0.1f);// 0.1f
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
@@ -320,11 +325,11 @@ namespace HLSLTest
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				//string s = o.Scale.ToString();
-				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			treesCross.Draw(camera.View, camera.Projection);
+			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//treesCross.Draw(camera.View, camera.Projection);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 

@@ -74,24 +74,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArcBallCamera.cs" />
-    <None Include="ParticleSystem\BillboardCross.cs" />
+    <Compile Include="ParticleSystem\BillboardCross.cs" />
     <Compile Include="ParticleSystem\BlillboardSystem.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="CubeMapReflectMaterial.cs" />
     <Compile Include="Debug.cs" />
-    <Compile Include="ParticleSystem\ExplosionPartcleSystem.cs" />
+    <Compile Include="ParticleSystem\ParticleEmitter\DiscoidParticleEmitter.cs" />
+    <Compile Include="ParticleSystem\ParticleEmitter\ExplosionPartcleEmitter.cs" />
     <Compile Include="IRenderable.cs" />
     <Compile Include="JoyStick.cs" />
     <Compile Include="JoyStickInput.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="MeshTag.cs" />
     <Compile Include="Object.cs" />
+    <Compile Include="ParticleSystem\ParticleEmitter\FlameParticleEmitter.cs" />
     <Compile Include="ParticleSystem\LaserBillboard.cs" />
     <Compile Include="ParticleSystem\LoadParticles.cs" />
-    <Compile Include="ParticleSystem\ParticleSystem.cs" />
+    <Compile Include="ParticleSystem\ParticleEmitter\ParticleEmitter.cs" />
     <Compile Include="ParticleSystem\ParticleVertex.cs" />
-    <Compile Include="ParticleSystem\RingEffectParticleSystem.cs" />
     <Compile Include="PPPointLight.cs" />
     <Compile Include="PrelightingRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
