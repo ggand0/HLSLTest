@@ -244,10 +244,12 @@ namespace HLSLTest
 
 
 			
-			ps.Update();
+			/**/ps.Update();
 			discoid.Update();
 			eps.Update();
 			ls.Update();
+
+
 			//s.Update(gameTime); e.Update(gameTime);
 			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
 
@@ -297,22 +299,16 @@ namespace HLSLTest
 			renderer.Draw();
 			
 #else
-			
-			//water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
-
 			string belndState = GraphicsDevice.BlendState.ToString();
 			string depthState = GraphicsDevice.DepthStencilState.ToString();
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
-
-
-			//renderer.Draw();
-			//GraphicsDevice.Clear(Color.CornflowerBlue);
+			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
+			renderer.Draw();
 			GraphicsDevice.Clear(Color.Black);
 
 			//sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
-			//renderer.Draw();
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();
@@ -321,27 +317,32 @@ namespace HLSLTest
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				//string s = o.Scale.ToString();
-
 				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
 			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+
+
 			//ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-
-
-			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-
+			discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			//ls.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
+
+
+			belndState = GraphicsDevice.BlendState.ToString();
+			depthState = GraphicsDevice.DepthStencilState.ToString();
 			//s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
+			belndState = GraphicsDevice.BlendState.ToString();
+			depthState = GraphicsDevice.DepthStencilState.ToString();
 
-			debug.Draw(gameTime);
+			//debug.Draw(gameTime);
+			//ResetGraphicDevice();
 #endif
 
 			/*ResetGraphicDevice();

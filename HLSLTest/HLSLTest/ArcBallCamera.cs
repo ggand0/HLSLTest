@@ -15,7 +15,7 @@ namespace HLSLTest
 		// statics
 		private static readonly float VERTICAL_ANGLE_MIN = 0.01f;
 		private static readonly float VERTICAL_ANGLE_MAX = MathHelper.Pi - 0.01f;
-		private static readonly float ZOOM_MIN = 100;//100;
+		private static readonly float ZOOM_MIN = 100;
 		private static readonly float ZOOM_MAX = 00.0f;
 		//private static readonly float ZOOM_RATE = 10; // スムーズにズームさせたい時に使用する予定
 
@@ -153,22 +153,41 @@ namespace HLSLTest
 		/// </summary>
 		private void UpdateWorldPositions()
 		{
+			// old ver(13/4/25)
+			/*Direction = LookAt - CameraPosition;
+			Up = Vector3.Up;
+			Direction = Vector3.Normalize(Direction);
+			Right = Vector3.Normalize(Right);
+			Right = Vector3.Cross(this.Direction, Vector3.Up);
+			Right = Vector3.Normalize(Right);*/
+
+			//rotation = Matrix.CreateFromYawPitchRoll(HorizontalAngle, MathHelper.ToRadians(270) + VerticalAngle, 0);
+			/**/rotation = Matrix.CreateFromYawPitchRoll(HorizontalAngle, MathHelper.ToRadians(-90) + VerticalAngle, 0);
+			Direction = LookAt - CameraPosition;
+			Direction = Vector3.Normalize(Direction);
+			Up = Vector3.Transform(Vector3.Up, rotation);
+			//Up = Vector3.Up;
+			Up = Vector3.Normalize(Up);
+			Right = Vector3.Cross(Direction, Up);
+			Right = Vector3.Normalize(Right);
+
+
 			// オブジェクト(のローカル)空間からワールド空間にトランスフォームする行列を構築する
+			/*Matrix transform = Matrix.Identity;
+			ChaseDirection = Vector3.Normalize(ChaseDirection);
+			transform.Forward = ChaseDirection;
+			transform.Up = Up;*/
 			Matrix transform = Matrix.Identity;
 			ChaseDirection = Vector3.Normalize(ChaseDirection);
 			transform.Forward = ChaseDirection;
 			transform.Up = Up;
+			//transform.Right = Vector3.Cross(Up, ChaseDirection);
 
 
 			// ワールド空間における目的のカメラ プロパティを計算する
 			/*DesiredPosition = ChasePosition +
 				Vector3.TransformNormal(DesiredPositionOffset, transform);*/
 			//DesiredPosition += new Vector3(JoyStick.Vector;
-
-			if (JoyStick.vectorOther.Length() > 0.2) {
-				_verticalAngle += MathHelper.ToRadians(JoyStick.vectorOther.Y);
-				_horizontalAngle += MathHelper.ToRadians(JoyStick.vectorOther.X);
-			}
 			CameraPosition = new Vector3(0.0f, _zoom, 0.0f);
 			// Rotate vertically
 			CameraPosition = Vector3.Transform(CameraPosition, Matrix.CreateRotationX(_verticalAngle));
@@ -179,39 +198,25 @@ namespace HLSLTest
 
 			LookAt = ChasePosition +
 				Vector3.TransformNormal(LookAtOffset, transform);
-
-
-			// old ver(13/4/25)
-			/*Direction = LookAt - CameraPosition;
-			Up = Vector3.Up;
-			Direction = Vector3.Normalize(Direction);
-			Right = Vector3.Normalize(Right);
-			Right = Vector3.Cross(this.Direction, Vector3.Up);
-			Right = Vector3.Normalize(Right);*/
-
-			rotation = Matrix.CreateFromYawPitchRoll(HorizontalAngle, MathHelper.ToRadians(270)+VerticalAngle, 0);
-			Direction = LookAt - CameraPosition;
-			Direction = Vector3.Normalize(Direction);
-			Up = Vector3.Transform(Vector3.Up, rotation);
-			Up = Vector3.Normalize(Up);
-			Right = Vector3.Cross(Direction, Up);
-			Right = Vector3.Normalize(Right);
 		}
-		private void UpdateMatrices()
+		private void UpdateViewProjection()
 		{
-			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.Up);
-			View = Matrix.CreateLookAt(this.Position, this.LookAt, Vector3.Up);
-			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.t);
+			//View = Matrix.CreateLookAt(this.Position, this.LookAt, Vector3.Up);
+			View = Matrix.CreateLookAt(this.Position, this.LookAt, Up);
 			Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView,
 				AspectRatio, NearPlaneDistance, FarPlaneDistance);
 		}
 		private void HandleInput()
 		{
+			if (JoyStick.vectorOther.Length() > 0.2) {
+				_verticalAngle += MathHelper.ToRadians(JoyStick.vectorOther.Y);
+				_horizontalAngle += MathHelper.ToRadians(JoyStick.vectorOther.X);
+			}
+
 			if (JoyStick.IsOnKeyDown(7)) {
 				zoomMode++;
 				if (zoomMode == zoomState.Length) zoomMode = 0;
 			}
-
 			_zoom = zoomState[zoomMode];
 		}
 		/// <summary>
@@ -232,8 +237,11 @@ namespace HLSLTest
 			Position = ChasePosition + CameraPosition;
 			//Position = DesiredPosition + AdjustOffset;
 			
-			UpdateMatrices();
+			UpdateViewProjection();
 		}
+		/// <summary>
+		/// Targetの設定を含む初期化を行う。
+		/// </summary>
 		public void Initialize(Game1 game, Object target)
 		{
 			// カメラのオフセットを設定します
@@ -268,6 +276,7 @@ namespace HLSLTest
 			// ActionGameと違って今は対象の方向と一致していない
 			ChasePosition = target.Position;
 			ChaseDirection = target.Position - Position;
+			//Up = target.RotationMatrix.Up;
 		}
 		/// <summary>
 		/// カメラの現在位置から、追跡されるオブジェクトの背後の目的のオフセットに向かって
@@ -279,7 +288,7 @@ namespace HLSLTest
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
 			if (gameTime == null) {
-				throw new ArgumentNullException("gameTime");
+				throw new ArgumentNullException("gameTime is null.");
 			}
 			HandleInput();
 			UpdateWorldPositions();
@@ -287,19 +296,17 @@ namespace HLSLTest
 			/*// スプリングの力を計算する
 			Vector3 stretch = Position - DesiredPosition;
 			Vector3 force = -stiffness * stretch - damping * Velocity;
-
 			// 加速度を適用する
 			Vector3 acceleration = force / mass;// ma = fより
 			Velocity += acceleration * elapsed;
-
 			// 速度を適用する
 			Position += Velocity * elapsed;*/
+
 			Position = DesiredPosition;
 			if (Position.Y < 0) {
 				Position = new Vector3(Position.X, 0, Position.Z);
 			}
-
-			UpdateMatrices();
+			UpdateViewProjection();
 		}
 		#endregion
 

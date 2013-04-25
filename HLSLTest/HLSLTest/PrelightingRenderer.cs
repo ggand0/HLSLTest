@@ -99,10 +99,10 @@ namespace HLSLTest
 			graphicsDevice.Clear(Color.Black);
 
 			// Set the render target to the graphics device
-			graphicsDevice.SetRenderTarget(lightTarg);
+			/*graphicsDevice.SetRenderTarget(lightTarg);
 
 			// Clear the render target to black (no light)
-			graphicsDevice.Clear(Color.Black);
+			graphicsDevice.Clear(Color.Black);*/
 
 			// Set render states to additive (lights will add their influences)
 			graphicsDevice.BlendState = BlendState.Additive;
@@ -293,6 +293,7 @@ namespace HLSLTest
 			RenderTarget2D nt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			RenderTarget2D dt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			// Set the render targets to 'slots' 1 and 2
 			graphicsDevice.SetRenderTargets(nt, dt);
 			// Clear the render target to 1 (infinite depth)
