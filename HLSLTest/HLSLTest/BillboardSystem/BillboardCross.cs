@@ -152,7 +152,7 @@ namespace HLSLTest
 			this.billboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
 			this.texture = texture;
-			effect = content.Load<Effect>("BillboardCrossEffect");
+			effect = content.Load<Effect>("Billboard\\BillboardCrossEffect");
 
 			generateParticles(particlePositions);
 		}

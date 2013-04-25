@@ -12,6 +12,9 @@ float3 Up;
 float3 Side;
 float FadeInTime;
 
+bool AttachColor;
+float4 ParticleColor;
+
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
@@ -60,12 +63,16 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 	// Fade out towards end of life
 	float d = clamp(1.0f - pow((input.RelativeTime / Lifespan), 10), 0, 1);
-
 	// Fade in at beginning of life
 	d *= clamp((input.RelativeTime / FadeInTime), 0, 1);
 
 	// Return color * fade amount
-	return float4(color * d);
+	//return float4(color * d);
+	if (AttachColor) {
+		return float4(color * ParticleColor * d);
+	} else {
+		return float4(color * d);
+	}
 }
 
 technique Technique1

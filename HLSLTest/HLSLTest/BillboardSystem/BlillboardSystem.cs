@@ -147,7 +147,7 @@ namespace HLSLTest
 			this.BillboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
 			this.Texture = texture;
-			effect = content.Load<Effect>("BillboardEffect");
+			effect = content.Load<Effect>("Billboard\\BillboardEffect");
 
 			generateParticles(particlePositions);
 			EnsureOcclusion = true;

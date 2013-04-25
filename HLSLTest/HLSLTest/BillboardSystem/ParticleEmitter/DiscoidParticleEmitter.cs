@@ -33,15 +33,11 @@ namespace HLSLTest
 			ruv.Normalize();
 			return ruv;
 		}
-		private double NextDouble(Random r, double min, double max)
-		{
-			return min + r.NextDouble() * (max - min);
-		}
 
 
-		public DiscoidParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, int particleNum,
+		public DiscoidParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
-			:base(graphicsDevice, content, texture, particleNum, particleSize, lifespan, FadeInTime)
+			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			emitNumPerFrame = 100;//20
 		}

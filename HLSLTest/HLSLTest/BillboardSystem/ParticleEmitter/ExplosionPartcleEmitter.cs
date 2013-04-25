@@ -17,26 +17,8 @@ namespace HLSLTest
 			ruv.Normalize();
 			return ruv;
 		}
-		private double NextDouble(Random r, double min, double max)
-		{
-			return min + r.NextDouble() * (max - min);
-		}
 		protected override void MoveParticle()
 		{
-			/*for (int i = 0; i < ParticleNum; i++) {
-				float duration = (float)(rand.Next(0, 20)) / 10f + 2;
-				float x = ((float)rand.NextDouble() - 0.5f) * 1.5f;
-				float y = ((float)rand.Next(1, 100)) / 10f;
-				float z = ((float)rand.NextDouble() - 0.5f) * 1.5f;
-				//float s = (float)rand.NextDouble() + 1.0f;
-				float s = (float)rand.NextDouble() + 10.0f;
-				Vector3 direction = Vector3.Normalize(
-					new Vector3(x, y, z)) *
-					(((float)rand.NextDouble() * 3f) + 6f);
-
-				//AddParticle(position + new Vector3(0, -2, 0), direction, duration, s);
-				AddParticle(Position + new Vector3(0, -2, 0), direction, s);
-			}*/
 			var speed = 4.0f;
 			var innerRadius = 0.5f;
 			var outerRadius = 1.5f;
@@ -114,9 +96,9 @@ namespace HLSLTest
 
 
 		// Constructor
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, int particleNum,
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
-			:base(graphicsDevice, content, texture, particleNum, particleSize, lifespan, FadeInTime)
+			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			//emitNumPerFrame = 100;//50;
 			MoveParticle();

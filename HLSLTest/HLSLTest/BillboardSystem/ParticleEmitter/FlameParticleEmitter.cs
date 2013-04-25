@@ -88,9 +88,9 @@ namespace HLSLTest
 		}
 
 
-		public FlameParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, int particleNum,
+		public FlameParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, Vector3 wind, float FadeInTime)
-			:base(graphicsDevice, content, texture, particleNum, particleSize, lifespan, FadeInTime)
+			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			this.Wind = wind;
 		}

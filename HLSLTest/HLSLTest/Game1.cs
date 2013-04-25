@@ -33,14 +33,10 @@ namespace HLSLTest
 		BillboardSystem clouds;
 		Random r = new Random();
 
-		/*ParticleEmitter ps;
-		ExplosionParticleEmitter eps;
-		ParticleEmitter discoid;
-		ExplosionParticleEmitter ls;*/
 		FlameParticleEmitter ps;
 		ExplosionParticleEmitter eps;
 		DiscoidParticleEmitter discoid;
-		ExplosionParticleEmitter ls;
+		ParticleEmitter basicEmitter, beamEmitter;
 
 		BillboardSystem lbs;
 		LaserBillboard lb;
@@ -63,19 +59,15 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			// TODO: ここに初期化ロジックを追加します。
-			camera = new ArcBallCamera();
 			Object.game = this;
 			Object.content = Content;
-
 
 			//Target = new Object("Models\\UtahTeapotDef");
 			Target = new Object(new Vector3(0, 0, 0), "Models\\tank");
 			Ground = new Object("Models\\ground");
 			Teapot = new Object(new Vector3(-100, 0, 0), "Models\\UtahTeapotDef");
-			//Target.Scale = 10f;
 			Target.Scale = 0.1f;
 			Target.Direction = Vector3.UnitX;
-			//Target.RotationMatrix.Forward = Vector3.UnitX;
 			Ground.Scale = 0.05f;
 			Teapot.Scale = 10;
 			//Teapot.RotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-180));
@@ -85,7 +77,11 @@ namespace HLSLTest
 			//models.Add(Ground);
 			models.Add(Target);
 			models.Add(Teapot);
+
+			camera = new ArcBallCamera();
 			camera.Initialize(this, Target);
+			ParticleEmitter.camera = camera;
+
 
 			// Generate random tree positions
 			Random r = new Random();
@@ -98,6 +94,7 @@ namespace HLSLTest
 			//trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(800), positions);
 			trees = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
 
+
 			// Generate clouds
 			Vector3[] cloudPositions = new Vector3[350];
 			for (int i = 0; i < cloudPositions.Length; i++) {
@@ -109,22 +106,21 @@ namespace HLSLTest
 			clouds = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\cloud"), new Vector2(500), cloudPositions);
 			clouds.EnsureOcclusion = false;
 
-			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"),	400, new Vector2(40), 1, Vector3.Zero, 0.5f);
-			//ps = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 400, new Vector2(10), 1, Vector3.Zero, 0.5f);
-			ps = new FlameParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
-			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), 2000, new Vector2(50), 20, 5f);// 0.1f
-			//discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
-			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
 
-			ls = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, 0.1f);// 0.1f
+			// Generate particles
+			ps = new FlameParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
+			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
+			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
+			basicEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
+			beamEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f);
+
+
+			// Generate lasers
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
 			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3)
 				, start, end);/**/
-			//s = new Object(new Vector3(50, 50, 0), "Models\\Ship");
-			//e = new Object(new Vector3(-50, -50, 0), "Models\\Ship");
-			//s.Scale = e.Scale = 0.01f;
 			s = Content.Load<Model>("Models\\Ship");
 			e = Content.Load<Model>("Models\\Ship");
 
@@ -253,13 +249,13 @@ namespace HLSLTest
 
 
 			
-			/**/ps.Update();
+			ps.Update();
 			discoid.Update();
 			eps.Update();
-			ls.Update();
+			basicEmitter.Update();
+			beamEmitter.Update();
 
 
-			//s.Update(gameTime); e.Update(gameTime);
 			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
 
 			base.Update(gameTime);
@@ -333,19 +329,20 @@ namespace HLSLTest
 			//treesCross.Draw(camera.View, camera.Projection);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
-
+			// particles
 			//ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//basicEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
-			//ls.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			// laser test
 			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
-			//s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
 			belndState = GraphicsDevice.BlendState.ToString();

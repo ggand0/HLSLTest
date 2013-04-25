@@ -10,6 +10,8 @@ namespace HLSLTest
 {
 	public class ParticleEmitter
 	{
+		public static ArcBallCamera camera;
+
 		protected VertexBuffer vertexBuffers;
 		protected IndexBuffer indexBuffers;
 		protected GraphicsDevice graphicsDevice;
@@ -26,12 +28,14 @@ namespace HLSLTest
 		public float Lifespan { get; set; }
 		public float FadeInTime { get; set; }
 		public Texture2D Texture { get; private set; }
+		public Color ParticleColor { get; set; }
 		//public int EffectType { get; private set; }// refactoring後に消す
 
 		/// <summary>
 		/// Position of this emitter.
 		/// </summary>
 		public Vector3 Position { get; set; }
+		public int EmitType { get; set; }
 
 
 		// Queue variables
@@ -46,12 +50,61 @@ namespace HLSLTest
 		protected int maxEmitFrameCount;
 		protected int frameCount;
 
+		#region Various Particle Movement
+		protected float NextDouble(Random r, double min, double max)
+		{
+			return (float)(min + r.NextDouble() * (max - min));
+		}
+		protected void RandomDirectionExplosion()
+		{
+			for (int i = 0; i < ParticleNum; i++) {
+				float duration = (float)(rand.Next(0, 20)) / 10f + 2;
+				float x = ((float)rand.NextDouble() - 0.5f) * 1.5f;
+				float y = ((float)rand.Next(1, 100)) / 10f;
+				float z = ((float)rand.NextDouble() - 0.5f) * 1.5f;
+				//float s = (float)rand.NextDouble() + 1.0f;
+				float s = (float)rand.NextDouble() + 10.0f;
+				Vector3 direction = Vector3.Normalize(
+					new Vector3(x, y, z)) *
+					(((float)rand.NextDouble() * 3f) + 6f);
+
+				AddParticle(Position + new Vector3(0, -2, 0), direction, s);
+			}
+		}
+		protected void EmitRandomDirection()
+		{
+			var speed = 4.0f;
+
+			if (frameCount <= maxEmitFrameCount) {
+				for (int i = 0; i < emitNumPerFrame; i++) {
+					Vector3 dir = new Vector3(NextDouble(rand, -1, 1), NextDouble(rand, -1, 1), NextDouble(rand, -1, 1));
+					Vector3 velocity = dir * speed;
+					AddParticle(Position, velocity, speed);
+				}
+			}
+		}
+		protected void EmitOptionalDirection(Vector3 direction)
+		{
+			var speed = 4.0f;
+			var width = 5;
+
+			if (frameCount <= maxEmitFrameCount) {
+				for (int i = 0; i < emitNumPerFrame; i++) {
+					var normal = Vector3.Cross(direction, Vector3.Cross(camera.Up, camera.Right));
+					var dir = direction + normal * NextDouble(rand, -width, width);
+					Vector3 velocity = dir * speed;
+					AddParticle(Position, velocity, speed);
+				}
+			}
+		}
+		#endregion
+
 
 		/// <summary>
 		/// Increases the 'start' parameter by 'count' positions, wrapping
 		/// around the particle array if necessary
 		/// </summary>
-		private int offsetIndex(int start, int count)
+		private int OffsetIndex(int start, int count)
 		{
 			for (int i = 0; i < count; i++) {
 				start++;
@@ -61,7 +114,7 @@ namespace HLSLTest
 			}
 			return start;
 		}
-		protected void generateParticles()
+		protected void GenerateParticles()
 		{
 			// Create particle and index arrays
 			particles = new ParticleVertex[ParticleNum * 4];
@@ -85,6 +138,9 @@ namespace HLSLTest
 		}
 		protected virtual void MoveParticle()
 		{
+			//RandomDirectionExplosion();
+			//emitNumPerFrame = 1; ParticleColor = Color.CadetBlue; EmitRandomDirection();
+			emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
 		}
 		protected void UpdateParticles()
 		{
@@ -111,7 +167,6 @@ namespace HLSLTest
 			vertexBuffers.SetData<ParticleVertex>(particles);
 			indexBuffers.SetData<int>(indices);
 		}
-		
 		protected void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
 			// If there are no available particles, give up
@@ -120,7 +175,7 @@ namespace HLSLTest
 			}
 
 			// Determine the index at which this particle should be created
-			int index = offsetIndex(activeStart, activeParticlesNum);
+			int index = OffsetIndex(activeStart, activeParticlesNum);
 			activeParticlesNum += 4;
 
 			// Determine the start time
@@ -134,6 +189,7 @@ namespace HLSLTest
 				particles[index + i].StartTime = startTime;
 			}
 		}
+
 		public bool canAddParticle()
 		{
 			return activeParticlesNum + 4 != ParticleNum * 4;
@@ -193,6 +249,9 @@ namespace HLSLTest
 			effect.Parameters["Side"].SetValue(Right);
 			effect.Parameters["FadeInTime"].SetValue(FadeInTime);
 
+			effect.Parameters["ParticleColor"].SetValue(ParticleColor.ToVector4());
+			effect.Parameters["AttachColor"].SetValue(true);
+
 			// Enable blending render states
 			graphicsDevice.BlendState = BlendState.AlphaBlend;
 			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
@@ -216,18 +275,18 @@ namespace HLSLTest
 
 
 		// Constructor
-		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, int particleNum,
+		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position , int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 		{
-			Lifespan = 1;
+			//Lifespan = 1;
 
 			this.ParticleNum = particleNum;
 			this.ParticleSize = particleSize;
 			this.Lifespan = lifespan;
 			this.graphicsDevice = graphicsDevice;
 			this.Texture = texture;
+			this.Position = position;
 			this.FadeInTime = FadeInTime;
-			Position = Vector3.Zero;
 
 			// Create vertex and index buffers to accomodate all particles
 			vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
@@ -235,8 +294,8 @@ namespace HLSLTest
 			indexBuffers = new IndexBuffer(graphicsDevice,
 				IndexElementSize.ThirtyTwoBits, particleNum * 6,
 				BufferUsage.WriteOnly);
-			generateParticles();
-			effect = content.Load<Effect>("ParticleEffect");
+			GenerateParticles();
+			effect = content.Load<Effect>("Billboard\\ParticleEffect");
 			start = DateTime.Now;
 
 			this.emitNumPerFrame = 10;
