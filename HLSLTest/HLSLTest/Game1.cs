@@ -115,6 +115,7 @@ namespace HLSLTest
 			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), 2000, new Vector2(50), 20, 5f);// 0.1f
 			//discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
 			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, 5f);
+
 			ls = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, 0.1f);// 0.1f
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),

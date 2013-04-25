@@ -26,7 +26,7 @@ namespace HLSLTest
 		public float Lifespan { get; set; }
 		public float FadeInTime { get; set; }
 		public Texture2D Texture { get; private set; }
-		public int EffectType { get; private set; }// refactoring後に消す
+		//public int EffectType { get; private set; }// refactoring後に消す
 
 		/// <summary>
 		/// Position of this emitter.
@@ -86,9 +86,33 @@ namespace HLSLTest
 		protected virtual void MoveParticle()
 		{
 		}
+		protected void UpdateParticles()
+		{
+			float now = (float)(DateTime.Now - start).TotalSeconds;
+			int startIndex = activeStart;
+			int end = activeParticlesNum;
 
+			// For each particle marked as active...
+			for (int i = 0; i < end; i++) {
+				// If this particle has gotten older than 'lifespan'...
+				if (particles[activeStart].StartTime < now - Lifespan) {
+					// Advance the active particle start position past
+					// the particle's index and reduce the number of
+					// active particles by 1
+					activeStart++;
+					activeParticlesNum--;
+					if (activeStart == particles.Length) {
+						activeStart = 0;
+					}
+				}
+			}
+
+			// Update the vertex and index buffers
+			vertexBuffers.SetData<ParticleVertex>(particles);
+			indexBuffers.SetData<int>(indices);
+		}
 		
-		public void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
+		protected void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
 			// If there are no available particles, give up
 			if (activeParticlesNum + 4 == ParticleNum * 4) {
@@ -128,8 +152,8 @@ namespace HLSLTest
 					break;
 			}*/
 			MoveParticle();
-
-			float now = (float)(DateTime.Now - start).TotalSeconds;
+			UpdateParticles();
+			/*float now = (float)(DateTime.Now - start).TotalSeconds;
 			int startIndex = activeStart;
 			int end = activeParticlesNum;
 
@@ -150,7 +174,7 @@ namespace HLSLTest
 
 			// Update the vertex and index buffers
 			vertexBuffers.SetData<ParticleVertex>(particles);
-			indexBuffers.SetData<int>(indices);
+			indexBuffers.SetData<int>(indices);*/
 		}
 		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
@@ -162,8 +186,7 @@ namespace HLSLTest
 			effect.Parameters["ParticleTexture"].SetValue(Texture);
 			effect.Parameters["View"].SetValue(View);
 			effect.Parameters["Projection"].SetValue(Projection);
-			effect.Parameters["Time"].SetValue((float)(DateTime.Now - start).
-			TotalSeconds);
+			effect.Parameters["Time"].SetValue((float)(DateTime.Now - start).TotalSeconds);
 			effect.Parameters["Lifespan"].SetValue(Lifespan);
 			effect.Parameters["Size"].SetValue(ParticleSize / 2f);
 			effect.Parameters["Up"].SetValue(Up);
@@ -196,13 +219,15 @@ namespace HLSLTest
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 		{
+			Lifespan = 1;
+
 			this.ParticleNum = particleNum;
 			this.ParticleSize = particleSize;
 			this.Lifespan = lifespan;
 			this.graphicsDevice = graphicsDevice;
 			this.Texture = texture;
 			this.FadeInTime = FadeInTime;
-
+			Position = Vector3.Zero;
 
 			// Create vertex and index buffers to accomodate all particles
 			vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
@@ -214,10 +239,9 @@ namespace HLSLTest
 			effect = content.Load<Effect>("ParticleEffect");
 			start = DateTime.Now;
 
-			//this.EffectType = particleType;
-			this.emitNumPerFrame = EffectType == 1 ? 100 : 1;//50;
+			this.emitNumPerFrame = 10;
 			this.maxEmitFrameCount = particleNum / emitNumPerFrame;
-			Lifespan = 1;
+			
 		}
 	}
 

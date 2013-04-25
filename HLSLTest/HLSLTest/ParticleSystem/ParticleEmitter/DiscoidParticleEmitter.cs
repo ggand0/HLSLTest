@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class DiscoidParticleEmitter : ExplosionParticleEmitter
+	public class DiscoidParticleEmitter : ParticleEmitter//ExplosionParticleEmitter
 	{
 		protected override void MoveParticle()
 		{
@@ -16,15 +16,13 @@ namespace HLSLTest
 			var innerRadius = 0.5f;
 			var outerRadius = 1.5f;
 
-			//thickness
-
 			if (frameCount <= maxEmitFrameCount) {
 				for (int i = 0; i < emitNumPerFrame; i++) {
 					Vector3 ruv = RandomUnitVectorInPlane(Matrix.CreateTranslation(Position), Vector3.Up);// 方向を決める
 					Vector3 newPos = Position + ((ruv * innerRadius) + (ruv * (float)NextDouble(rand, innerRadius, outerRadius)));
 					Vector3 pos = newPos;
 					Vector3 velocity = ruv * speed;
-					AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
+					AddParticle(Position + pos + new Vector3(0, 2, 0), velocity, speed);
 				}
 			}
 		}
@@ -45,6 +43,7 @@ namespace HLSLTest
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			:base(graphicsDevice, content, texture, particleNum, particleSize, lifespan, FadeInTime)
 		{
+			emitNumPerFrame = 100;//20
 		}
 	}
 }
