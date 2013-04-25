@@ -44,7 +44,16 @@ namespace HLSLTest
 				particles[i + 2] = new VertexPositionTexture(pos,
 					new Vector2(1, 1));
 				particles[i + 3] = new VertexPositionTexture(pos,
-					new Vector2(1, 0));
+					new Vector2(1, 0));/**/
+				/*particles[i + 0] = new VertexPositionNormalTexture(pos,
+					Vector3.Cross(), new Vector2(0, 0));
+				particles[i + 1] = new VertexPositionNormalTexture(pos,
+					new Vector2(0, 1));
+				particles[i + 2] = new VertexPositionNormalTexture(pos,
+					new Vector2(1, 1));
+				particles[i + 3] = new VertexPositionNormalTexture(pos,
+					new Vector2(1, 0));*/
+
 				// Add 6 indices to form two triangles
 				indices[x++] = i + 0;
 				indices[x++] = i + 3;
@@ -115,16 +124,35 @@ namespace HLSLTest
 			Vector3 pv = AxisProjectedVectorAxisPlane(Up, (End - Start), debug);
 
 			Viewport view = graphicsDevice.Viewport;
-			Vector3 v3 = view.Project(End - Start,
-								Projection,
-								View,
-								Matrix.Identity);
+			/*Vector3 orgVector = Vector3.Normalize(End - Start);
+			Matrix w = Matrix.Identity; w.Translation = Vector3.Zero;
+			////Vector3 v3 = view.Project(End - Start, Projection, View, Matrix.Identity);
+			Vector3 v3 = view.Project(orgVector, Projection, View, World);
+			v3.Normalize();*/
+
+			// 分かった、位置ベクトルstartとendを”それぞれ”射影してからvector計算だ！！！
+			/*Vector3 projectedStart = view.Project(Start, Projection, View, Matrix.Identity);
+			Vector3 projectedEnd = view.Project(End, Projection, View, Matrix.Identity);*/
+			
+			Matrix w = Matrix.Identity; //w.Up = Vector3.Cross(Up, Right);
+			w.Up = Up; w.Right = -Right; w.Forward = Vector3.Normalize(Vector3.Cross(Up, Right));
+			//w.Translation = Vector3.Zero;
+			Vector3 mid = (Start + End) / 2f;
+			w.Translation = mid;// 中点を出す
+			
+			Vector3 projectedStart = view.Project(Start, Projection, View, w);
+			Vector3 projectedEnd = view.Project(End, Projection, View, w);//Matrix.CreateWorld(End, End - Start, Vector3.Cross(Up, Right)));
+			Vector3 v3 = Vector3.Normalize(projectedEnd - projectedStart);
+
 			//effect.Parameters["ProjectedVector"].SetValue(new Vector4(AxisProjectedVectorAxisPlane(Up, (Start - End), debug), 1));
 			effect.Parameters["ProjectedVector"].SetValue(v3);// ktkr!!!!!!!!!!!!!!!!!!!!!!
+			effect.Parameters["CenterNormal"].SetValue(Vector3.Cross(Up, Right));
+
 
 			effect.Parameters["World"].SetValue(World);
 			effect.Parameters["theta"].SetValue(45f);
 			effect.Parameters["CameraDir"].SetValue(Vector3.Normalize(CameraPosition - Start));
+
 
 			effect.CurrentTechnique.Passes[0].Apply();
 
@@ -135,11 +163,11 @@ namespace HLSLTest
 			Vector3 Right, Vector3 CameraPosition)
 		{
 			Vector3 dir = End - Start;
-			//Vector3 dir = Start - End;
 			dir.Normalize();
-			Vector3 toCamera = CameraPosition - Start;
-			//Vector3 right = Vector3.Cross(dir, Vector3.Cross(Up, Right));
-			Vector3 right = Vector3.Cross(dir, toCamera);
+			//Vector3 toCamera = CameraPosition - Start;
+			Vector3 toCamera = CameraPosition - Vector3.Zero;
+			Vector3 right = Vector3.Cross(dir, Vector3.Cross(Up, Right));
+			//Vector3 right = Vector3.Cross(dir, toCamera);
 			right.Normalize();
 			Vector3 up = Vector3.Cross(right, dir);
 			
@@ -152,8 +180,8 @@ namespace HLSLTest
 			World.Translation = Vector3.Zero;
 
 
-			World = Matrix.CreateFromAxisAngle(toCamera, 10);
-			World.Translation = Vector3.Zero;
+			//World = Matrix.CreateFromAxisAngle(toCamera, 10);
+			//World.Translation = Vector3.Zero;
 		}
 		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
 		{
@@ -195,7 +223,7 @@ namespace HLSLTest
 		{
 			effect.CurrentTechnique.Passes[0].Apply();
 			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
-			4 * nBillboards, 0, nBillboards * 2);
+				4 * nBillboards, 0, nBillboards * 2);
 		}
 		void drawTransparentPixels()
 		{
@@ -205,21 +233,25 @@ namespace HLSLTest
 			drawBillboards();
 		}
 
-		public Vector3 Start { get; set; }
-		public Vector3 End { get; set; }
+		public Vector3 Start { get; private set; }
+		public Vector3 End { get; private set; }
+		public Vector3 Mid { get; private set; }
 		//public Vector3 CameraPos { get44
 		public LaserBillboard(GraphicsDevice graphicsDevice,
-			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Vector3[] particlePositions)
+			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//, Vector3[] particlePositions)
 		{
-			this.nBillboards = particlePositions.Length;
+			//this.nBillboards = particlePositions.Length;
+			this.nBillboards = 1;
 			this.billboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
 			this.texture = texture;
 			this.Start = start;
 			this.End = end;
-			effect = content.Load<Effect>("LaserBillboardEffectV2");
+			effect = content.Load<Effect>("LaserBillboardEffectV3");
 
-			generateParticles(particlePositions);
+			Mid = (start + end) / 2.0f;
+			//generateParticles(particlePositions);
+			generateParticles(new Vector3[] { Mid });
 		}
 	}
 }

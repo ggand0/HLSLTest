@@ -158,7 +158,7 @@ namespace HLSLTest
 			ChaseDirection = Vector3.Normalize(ChaseDirection);
 			transform.Forward = ChaseDirection;
 			transform.Up = Up;
-			
+
 
 			// ワールド空間における目的のカメラ プロパティを計算する
 			/*DesiredPosition = ChasePosition +
@@ -180,23 +180,21 @@ namespace HLSLTest
 			LookAt = ChasePosition +
 				Vector3.TransformNormal(LookAtOffset, transform);
 
-			
-			/*this.Direction = LookAt - CameraPosition;
-			Right = Vector3.Cross(Up, Direction);
-			Right = Vector3.Normalize(Right);
-			transform.Right = Right;//Vector3.Cross(Up, ChaseDirection);*/
-			//this.Direction = LookAt - Position;
-			/*this.Direction = ChasePosition - Position;
-			Direction = Vector3.Normalize(Direction);
-			Right = Vector3.Cross(this.Direction, Vector3.Up);
-			Right = Vector3.Normalize(Right);
-			Up = Vector3.Cross(Direction, Right);
-			Up = Vector3.Normalize(Up);*/
-			Direction = LookAt - CameraPosition;
+
+			// old ver(13/4/25)
+			/*Direction = LookAt - CameraPosition;
 			Up = Vector3.Up;
 			Direction = Vector3.Normalize(Direction);
 			Right = Vector3.Normalize(Right);
 			Right = Vector3.Cross(this.Direction, Vector3.Up);
+			Right = Vector3.Normalize(Right);*/
+
+			rotation = Matrix.CreateFromYawPitchRoll(HorizontalAngle, MathHelper.ToRadians(270)+VerticalAngle, 0);
+			Direction = LookAt - CameraPosition;
+			Direction = Vector3.Normalize(Direction);
+			Up = Vector3.Transform(Vector3.Up, rotation);
+			Up = Vector3.Normalize(Up);
+			Right = Vector3.Cross(Direction, Up);
 			Right = Vector3.Normalize(Right);
 		}
 		private void UpdateMatrices()
@@ -258,14 +256,10 @@ namespace HLSLTest
 			Reset();
 		}
 		/// <summary>
-		/// カメラによって追尾されるように値を更新します
+		/// カメラによって追尾されるように値を更新する
 		/// </summary>
 		public void UpdateChaseTarget(Object target)
 		{
-			/*camera.ChasePosition = ship.Position;
-			camera.ChaseDirection = ship.Direction;
-			camera.Up = ship.Up;*/
-
 			/*ChasePosition = target.Position;
 			ChaseDirection = target.Direction;
 			ChaseDirection = target.Position - Position;
@@ -274,8 +268,6 @@ namespace HLSLTest
 			// ActionGameと違って今は対象の方向と一致していない
 			ChasePosition = target.Position;
 			ChaseDirection = target.Position - Position;
-			//Up = target.Up;
-			Up = target.RotationMatrix.Up;
 		}
 		/// <summary>
 		/// カメラの現在位置から、追跡されるオブジェクトの背後の目的のオフセットに向かって
@@ -303,7 +295,9 @@ namespace HLSLTest
 			// 速度を適用する
 			Position += Velocity * elapsed;*/
 			Position = DesiredPosition;
-			if (Position.Y < 0) Position = new Vector3(Position.X, 0, Position.Z);
+			if (Position.Y < 0) {
+				Position = new Vector3(Position.X, 0, Position.Z);
+			}
 
 			UpdateMatrices();
 		}

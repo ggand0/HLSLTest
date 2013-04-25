@@ -38,7 +38,8 @@ namespace HLSLTest
 		ExplosionParticleSystem ls;
 		BillboardSystem lbs;
 		LaserBillboard lb;
-		Object s, e;
+		Model s, e;
+		Vector3 start = new Vector3(200, 50, 0), end = new Vector3(-50, -50, 0);
 
 		public Game1()
 		{
@@ -110,17 +111,19 @@ namespace HLSLTest
 			discoid = new ParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), 10000, new Vector2(5), 20, Vector3.Zero, 5f, 1);
 			ls = new ExplosionParticleSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_1"), 150, new Vector2(10), 4, Vector3.Zero, 0.1f, 2);// 0.1f
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
-			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(5, 3),
-				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });
-			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 10)
-				, new Vector3(0, 50, 60), new Vector3(0, -50, -50), new Vector3[] { Vector3.Zero });*/
-			s = new Object(new Vector3(50, 50, 0), "Models\\UtahTeapot");
-			e = new Object(new Vector3(-50, -50, 0), "Models\\UtahTeapot");
-			s.Scale = 10; e.Scale = 10;
+			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
+				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
+			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3)
+				, start, end);/**/
+			//s = new Object(new Vector3(50, 50, 0), "Models\\Ship");
+			//e = new Object(new Vector3(-50, -50, 0), "Models\\Ship");
+			//s.Scale = e.Scale = 0.01f;
+			s = Content.Load<Model>("Models\\Ship");
+			e = Content.Load<Model>("Models\\Ship");
 
 			base.Initialize();
 		}
-		Texture2D t;
+
 		/// <summary>
 		/// LoadContent はゲームごとに 1 回呼び出され、ここですべてのコンテンツを
 		/// 読み込みます。
@@ -245,7 +248,7 @@ namespace HLSLTest
 			discoid.Update();
 			eps.Update();
 			ls.Update();
-			s.Update(gameTime); e.Update(gameTime);
+			//s.Update(gameTime); e.Update(gameTime);
 			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
 
 			base.Update(gameTime);
@@ -322,15 +325,21 @@ namespace HLSLTest
 				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//ps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+
+
+			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+
+
 			//ls.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
-			s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
+			//s.Draw(GraphicsDevice); e.Draw(GraphicsDevice);
+			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
+			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
 
 			debug.Draw(gameTime);
 #endif
@@ -348,3 +357,4 @@ namespace HLSLTest
 		}
 	}
 }
+
