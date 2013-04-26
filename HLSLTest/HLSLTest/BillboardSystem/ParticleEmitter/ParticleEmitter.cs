@@ -29,6 +29,7 @@ namespace HLSLTest
 		public float FadeInTime { get; set; }
 		public Texture2D Texture { get; private set; }
 		public Color ParticleColor { get; set; }
+		public BlendState blendState { get; set; }
 		//public int EffectType { get; private set; }// refactoring後に消す
 
 		/// <summary>
@@ -36,6 +37,7 @@ namespace HLSLTest
 		/// </summary>
 		public Vector3 Position { get; set; }
 		public int EmitType { get; set; }
+		public float Rotation { get; set; }
 
 
 		// Queue variables
@@ -92,8 +94,34 @@ namespace HLSLTest
 				for (int i = 0; i < emitNumPerFrame; i++) {
 					var normal = Vector3.Cross(direction, Vector3.Cross(camera.Up, camera.Right));
 					var dir = direction + normal * NextDouble(rand, -width, width);
+					dir.Normalize();
 					Vector3 velocity = dir * speed;
-					AddParticle(Position, velocity, speed);
+
+					// calc theta
+					Viewport view = graphicsDevice.Viewport;
+					Vector3 projectedDir = view.Project(Position + dir*10, camera.Projection, camera.View, Matrix.Identity);
+					Vector3 projectedPosition = view.Project(Position, camera.Projection, camera.View, Matrix.Identity);
+					//Vector3 originPosition = projectedPosition + new Vector3(ParticleSize.X, 0, 0);// 多分これの取り方が良くないと思うんだよな...
+					Vector3 originPosition = Vector3.Cross(dir, Vector3.Cross(camera.Up, camera.Right));
+					originPosition = view.Project(originPosition, camera.Projection, camera.View, Matrix.Identity);
+					//originPosition.Normalize();
+
+					Vector2 v1 = new Vector2((originPosition - projectedPosition).X, (originPosition - projectedPosition).Y);
+					Vector2 v2 = new Vector2((projectedDir - projectedPosition).X, (projectedDir - projectedPosition).Y);
+					//var theta = (float)Math.Atan2(v1.X, -v1.Y) - (float)Math.Atan2(v2.X, -v2.Y);
+					//var theta = (float)Math.Atan2(v1.X - v2.X, -(v1.Y - v2.Y));
+					var ang1 = (float)Math.Atan2(v1.X, v1.Y);
+					var ang2 = (float)Math.Atan2(v2.X, v2.Y);
+					var theta = ang1 - ang2;
+
+					var ang =  MathHelper.ToDegrees(theta);
+					/*Matrix w = Matrix.Identity; //w.Up = Vector3.Cross(Up, Right);
+					w.Up = Up; w.Right = -Right; w.Forward = Vector3.Normalize(Vector3.Cross(Up, Right));*/
+
+
+					//AddParticle(Position, velocity, 90, speed);
+					//AddParticle(Position, velocity, MathHelper.ToRadians(90), speed); // ok
+					AddParticle(Position, velocity, theta, speed);
 				}
 			}
 		}
@@ -140,7 +168,8 @@ namespace HLSLTest
 		{
 			//RandomDirectionExplosion();
 			//emitNumPerFrame = 1; ParticleColor = Color.CadetBlue; EmitRandomDirection();
-			emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
+			//emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
+			
 		}
 		protected void UpdateParticles()
 		{
@@ -169,6 +198,29 @@ namespace HLSLTest
 		}
 		protected void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
+			this.AddParticle(Position, Direction, 0, Speed);
+			// If there are no available particles, give up
+			/*if (activeParticlesNum + 4 == ParticleNum * 4) {
+				return;
+			}
+
+			// Determine the index at which this particle should be created
+			int index = OffsetIndex(activeStart, activeParticlesNum);
+			activeParticlesNum += 4;
+
+			// Determine the start time
+			float startTime = (float)(DateTime.Now - start).TotalSeconds;
+
+			// Set the particle settings to each of the particle's vertices
+			for (int i = 0; i < 4; i++) {
+				particles[index + i].StartPosition = Position;
+				particles[index + i].Direction = Direction;
+				particles[index + i].Speed = Speed;
+				particles[index + i].StartTime = startTime;
+			}*/
+		}
+		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed)
+		{
 			// If there are no available particles, give up
 			if (activeParticlesNum + 4 == ParticleNum * 4) {
 				return;
@@ -185,6 +237,7 @@ namespace HLSLTest
 			for (int i = 0; i < 4; i++) {
 				particles[index + i].StartPosition = Position;
 				particles[index + i].Direction = Direction;
+				particles[index + i].Rotation = rotation;
 				particles[index + i].Speed = Speed;
 				particles[index + i].StartTime = startTime;
 			}
@@ -251,9 +304,10 @@ namespace HLSLTest
 
 			effect.Parameters["ParticleColor"].SetValue(ParticleColor.ToVector4());
 			effect.Parameters["AttachColor"].SetValue(true);
+			//effect.Parameters["Rotation"].SetValue(Rotation);
 
 			// Enable blending render states
-			graphicsDevice.BlendState = BlendState.AlphaBlend;
+			graphicsDevice.BlendState = blendState;//BlendState.AlphaBlend;
 			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 
 			// Apply the effect
@@ -300,7 +354,7 @@ namespace HLSLTest
 
 			this.emitNumPerFrame = 10;
 			this.maxEmitFrameCount = particleNum / emitNumPerFrame;
-			
+			blendState = BlendState.AlphaBlend;
 		}
 	}
 

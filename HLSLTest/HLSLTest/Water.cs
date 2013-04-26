@@ -159,9 +159,17 @@ namespace HLSLTest
 		/// </summary>
 		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
+			graphics.BlendState = BlendState.AlphaBlend;
+			//graphics.DepthStencilState = DepthStencilState.None;
 			// 本文にはDraw関数の記述は無かったが、恐らくSkySphere.Drawと同様だろう
 			waterMesh.World = Matrix.CreateScale(waterMesh.ScaleVector) * waterMesh.RotationMatrix * Matrix.CreateTranslation(waterMesh.Position);// スケールにベクトルを使用していることに注意
+			graphics.RasterizerState = RasterizerState.CullClockwise;
 			waterMesh.Draw(View, Projection, CameraPosition);
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			waterMesh.Draw(View, Projection, CameraPosition);
+
+			graphics.BlendState = BlendState.Opaque;
+			graphics.DepthStencilState = DepthStencilState.Default;
 		}
 
 		public Water(ContentManager content, GraphicsDevice graphics,
@@ -176,7 +184,7 @@ namespace HLSLTest
 			waterMesh.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 
-			waterEffect = content.Load<Effect>("WaterEffectV2");
+			waterEffect = content.Load<Effect>("WaterEffectV3");
 			waterMesh.SetModelEffect(waterEffect, false);
 			waterEffect.Parameters["viewportWidth"].SetValue(graphics.Viewport.Width);
 			waterEffect.Parameters["viewportHeight"].SetValue(graphics.Viewport.Height);
@@ -188,8 +196,8 @@ namespace HLSLTest
 			//reflectionTarg = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//reflectionTarg = new RenderTarget2D(graphics, 2048, 2048, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
-			waterEffect.Parameters["WaterNormalMap"].SetValue(
-				content.Load<Texture2D>("waterbump"));
+			waterEffect.Parameters["WaterNormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
+			waterEffect.Parameters["Mask"].SetValue(content.Load<Texture2D>("Textures\\cloud_mask2"));
 
 
 			/**/if (renderer == null) {

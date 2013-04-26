@@ -12,6 +12,7 @@ namespace HLSLTest
 		Vector3 startPosition;
 		Vector2 uv;
 		Vector3 direction;
+		float rotation;
 		float speed;
 		float startTime;
 
@@ -33,6 +34,11 @@ namespace HLSLTest
 			get { return direction; }
 			set { direction = value; }
 		}
+		public float Rotation
+		{
+			get { return rotation; }
+			set { rotation = value; }
+		}
 		// Speed of the particle in units/second
 		public float Speed
 		{
@@ -50,21 +56,29 @@ namespace HLSLTest
 
 		// Vertex declaration
 		public readonly static VertexDeclaration VertexDeclaration =
-			new VertexDeclaration(new VertexElement(0, VertexElementFormat.Vector3,
-				// Start position
-				VertexElementUsage.Position, 0),
-			new VertexElement(12, VertexElementFormat.Vector2,
+			new VertexDeclaration(
+				/*// Start position
+				new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
 				// UV coordinates
-				VertexElementUsage.TextureCoordinate, 0),
-			new VertexElement(20, VertexElementFormat.Vector3,
+				new VertexElement(12, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
 				// Movement direction
-				VertexElementUsage.TextureCoordinate, 1),
-			new VertexElement(32, VertexElementFormat.Single,
+				new VertexElement(20, VertexElementFormat.Vector3, VertexElementUsage.TextureCoordinate, 1),
 				// Movement speed
-				VertexElementUsage.TextureCoordinate, 2),
-			new VertexElement(36, VertexElementFormat.Single,
+				new VertexElement(32, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 2),
 				// Start time
-				VertexElementUsage.TextureCoordinate, 3)
+				new VertexElement(36, VertexElementFormat.Single,VertexElementUsage.TextureCoordinate, 3)*/
+				// Start position
+					new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+				// UV coordinates
+					new VertexElement(12, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+				// Movement direction
+					new VertexElement(20, VertexElementFormat.Vector3, VertexElementUsage.TextureCoordinate, 1),
+				// Rotation
+					new VertexElement(32, VertexElementFormat.Single, VertexElementUsage.Color, 0),
+				// Movement speed
+					new VertexElement(36, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 2),
+				// Start time
+					new VertexElement(40, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 3)
 			);
 		VertexDeclaration IVertexType.VertexDeclaration
 		{
@@ -74,10 +88,20 @@ namespace HLSLTest
 
 		// Constructor
 		public ParticleVertex(Vector3 StartPosition, Vector2 UV, Vector3 Direction, float Speed, float StartTime)
+			:this(StartPosition, UV, Direction, 0, Speed, StartTime)
 		{
 			this.startPosition = StartPosition;
 			this.uv = UV;
 			this.direction = Direction;
+			this.speed = Speed;
+			this.startTime = StartTime;
+		}/**/
+		public ParticleVertex(Vector3 StartPosition, Vector2 UV, Vector3 Direction, float rotation, float Speed, float StartTime)
+		{
+			this.startPosition = StartPosition;
+			this.uv = UV;
+			this.direction = Direction;
+			this.rotation = rotation;
 			this.speed = Speed;
 			this.startTime = StartTime;
 		}

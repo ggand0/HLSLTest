@@ -1,3 +1,5 @@
+// 水面エフェクトはV2で完成されているので、透過などの実験用
+
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
@@ -18,7 +20,7 @@ sampler2D reflectionSampler = sampler_state {
 #include "PPShared.vsi"
 
 texture WaterNormalMap;
-	sampler2D waterNormalSampler = sampler_state {
+sampler2D waterNormalSampler = sampler_state {
 	texture = <WaterNormalMap>;
 };
 float WaveLength = 0.6;
@@ -28,6 +30,10 @@ float WaveSpeed = 0.04f;
 
 float3 LightDirection = float3(1, 1, 1);
 
+texture Mask;
+sampler2D maskSampler = sampler_state {
+	texture = <Mask>;
+};
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
@@ -63,26 +69,31 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-    float2 reflectionUV = postProjToScreen(input.ReflectionPosition) +
-		halfPixel();
-	//float3 reflection = tex2D(reflectionSampler, reflectionUV);
-	float3 BaseColor = float3(0.2, 0.2, 0.8);
+    float2 reflectionUV = postProjToScreen(input.ReflectionPosition) + halfPixel();
+	//float3 BaseColor = float3(0.2, 0.2, 0.8);
+	float4 BaseColor = float4(0.2, 0.2, 0.8, 0.1);
 	float BaseColorAmount = 0.3f;
 
 	float4 normal = tex2D(waterNormalSampler, input.NormalMapPosition) * 2 - 1;
 	float2 UVOffset = WaveHeight * normal.rg;
-	float3 reflection = tex2D(reflectionSampler, reflectionUV + UVOffset);
-
-	//return float4(reflection, 1);
-	//return float4(lerp(reflection, BaseColor, BaseColorAmount), 1);
+	//float3 reflection = tex2D(reflectionSampler, reflectionUV + UVOffset);
+	float4 reflection = tex2D(reflectionSampler, reflectionUV + UVOffset);
 
 	float3 viewDirection = normalize(CameraPosition - input.WorldPosition);
 	float3 reflectionVector = -reflect(LightDirection, normal.rgb);
 	float specular = dot(normalize(reflectionVector), viewDirection);
 	specular = pow(specular, 256);
 
-	//float alpha = 0.f;
-	return float4(lerp(reflection, BaseColor, BaseColorAmount) + specular, 1);
+
+	//float4 maskColor = tex2D(reflectionSampler, reflectionUV + UVOffset);
+	//float4 alpha = float4(1, 1, 1, 0.1f);
+
+	//return float4(lerp(reflection, BaseColor, BaseColorAmount) + specular, 0.5f);
+	return lerp(reflection, BaseColor, BaseColorAmount) + specular;
+
+	//float4 debug = float4(1,1,1,1);
+	//debug.w = 0.1f;
+	//return debug;
 }
 
 technique Technique1

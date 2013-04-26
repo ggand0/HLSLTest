@@ -39,7 +39,9 @@ namespace HLSLTest
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
-			emitNumPerFrame = 100;//20
+			emitNumPerFrame = 20;//20
+			ParticleColor = Color.LightBlue;
+			blendState = BlendState.Additive;
 		}
 	}
 }

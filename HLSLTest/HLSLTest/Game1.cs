@@ -44,6 +44,8 @@ namespace HLSLTest
 		Vector3 start = new Vector3(200, 50, 0), end = new Vector3(-50, -50, 0);
 		BillboardCross treesCross;
 
+		DiscoidEffect discoidEffect;
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -64,7 +66,7 @@ namespace HLSLTest
 
 			//Target = new Object("Models\\UtahTeapotDef");
 			Target = new Object(new Vector3(0, 0, 0), "Models\\tank");
-			Ground = new Object("Models\\ground");
+			Ground = new Object(new Vector3(0, -50, 0), "Models\\ground");
 			Teapot = new Object(new Vector3(-100, 0, 0), "Models\\UtahTeapotDef");
 			Target.Scale = 0.1f;
 			Target.Direction = Vector3.UnitX;
@@ -74,7 +76,7 @@ namespace HLSLTest
 			Teapot.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 			models = new List<Object>();
-			//models.Add(Ground);
+			models.Add(Ground);
 			models.Add(Target);
 			models.Add(Teapot);
 
@@ -109,8 +111,10 @@ namespace HLSLTest
 
 			// Generate particles
 			ps = new FlameParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
-			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
-			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
+			/*eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
+			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);*/
+			eps = new ExplosionParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 2000, new Vector2(10), 20, 5f);
+			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 			beamEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f);
 
@@ -119,12 +123,16 @@ namespace HLSLTest
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
-			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3)
-				, start, end);/**/
+			lb = new LaserBillboard(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3), start, end);/**/
 			s = Content.Load<Model>("Models\\Ship");
 			e = Content.Load<Model>("Models\\Ship");
 
 			treesCross = new BillboardCross(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
+
+
+			// test
+			DiscoidEffect.game = this;
+			discoidEffect = new DiscoidEffect(Content, GraphicsDevice, new Vector3(0, 50, 0), new Vector2(100));
 
 			base.Initialize();
 		}
@@ -209,8 +217,10 @@ namespace HLSLTest
 			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
 			//water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(sky);
-			water.Objects.Add(models[0]);
-			water.Objects.Add(models[1]);
+			//water.Objects.Add(models[0]); water.Objects.Add(models[1]);
+			foreach (Object o in models) {
+				water.Objects.Add(o);
+			}
 			water.Initialize();
 		}
 
@@ -255,8 +265,9 @@ namespace HLSLTest
 			basicEmitter.Update();
 			beamEmitter.Update();
 
-
 			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
+
+			discoidEffect.Update();
 
 			base.Update(gameTime);
 		}
@@ -318,14 +329,14 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
-			//Ground.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
 			foreach (Object o in models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				//string s = o.Scale.ToString();
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
-			trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//treesCross.Draw(camera.View, camera.Projection);
 			//clouds.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
@@ -335,6 +346,9 @@ namespace HLSLTest
 			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//basicEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+
+			// test effect
+			//discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
 
 			// laser test
 			//lbs.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
@@ -348,6 +362,8 @@ namespace HLSLTest
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 
+
+			
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();
 #endif

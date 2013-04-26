@@ -15,11 +15,13 @@ float FadeInTime;
 bool AttachColor;
 float4 ParticleColor;
 
+
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 	float2 UV : TEXCOORD0;
 	float3 Direction : TEXCOORD1;
+	float Rotation : COLOR0;
 	float Speed : TEXCOORD2;
 	float StartTime : TEXCOORD3;
 };
@@ -28,6 +30,7 @@ struct VertexShaderOutput
 	float4 Position : POSITION0;
 	float2 UV : TEXCOORD0;
 	float2 RelativeTime : TEXCOORD1;
+	float Rotation : COLOR0;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -49,6 +52,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	// Transform the final position by the view and projection matrices
 	output.Position = mul(float4(position, 1), mul(View, Projection));
 	output.UV = input.UV;
+	output.Rotation = (input.Rotation + 3.14159) / 6.283185;
 
 	return output;
 }
@@ -57,9 +61,20 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
     // Ignore particles that aren't active
 	clip(input.RelativeTime);
+	
+
+	float r = (input.Rotation * 6.283185) - 3.141593;
+	float c = cos(r);
+	float s = sin(r);
+	float2x2 rotationMatrix = float2x2(c, -s, s, c);
+
+	float2 texCoord = mul(input.UV - 0.5, rotationMatrix);
+	//return tex2D(TextureSampler, texCoord + 0.5) * i.Colour;
 
 	// Sample texture
-	float4 color = tex2D(texSampler, input.UV);
+	//float4 color = tex2D(texSampler, input.UV);
+	float4 color = tex2D(texSampler, texCoord + 0.5);
+
 
 	// Fade out towards end of life
 	float d = clamp(1.0f - pow((input.RelativeTime / Lifespan), 10), 0, 1);

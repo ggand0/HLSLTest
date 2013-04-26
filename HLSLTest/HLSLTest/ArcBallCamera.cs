@@ -303,9 +303,9 @@ namespace HLSLTest
 			Position += Velocity * elapsed;*/
 
 			Position = DesiredPosition;
-			if (Position.Y < 0) {
+			/*if (Position.Y < 0) {
 				Position = new Vector3(Position.X, 0, Position.Z);
-			}
+			}*/
 			UpdateViewProjection();
 		}
 		#endregion
