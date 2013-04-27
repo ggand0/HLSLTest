@@ -102,3 +102,9 @@ Content\Billboard\SoftParticleEffect.xnb
 Content\Billboard\CreateDepthMapFromCamera.xnb
 Content\Billboard\SoftParticleTest.xnb
 Content\Models\cube.xnb
+Content\Textures\Plasma_1.xnb
+Content\Textures\Plasma_0.xnb
+Content\Lights\RimLightingEffect.xnb
+Content\Lights\RimLightingEffectV2.xnb
+Content\Textures\rainbow.xnb
+Content\Textures\Transparent.xnb

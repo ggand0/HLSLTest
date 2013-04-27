@@ -39,13 +39,14 @@ namespace HLSLTest
 
 			Scale = Matrix.CreateScale(currentRadius);
 		}
-		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 Up, Vector3 Right)
+		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 CameraDirection, Vector3 Up, Vector3 Right)
 		{
 			// 本文にはDraw関数の記述は無かったが、恐らくSkySphere.Drawと同様だろう
 			graphics.BlendState = BlendState.AlphaBlend;
 			// スケールにベクトルを使用していることに注意
 			//discoidMesh.World = Matrix.CreateScale(discoidMesh.ScaleVector) * discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);
 			discoidMesh.World = Scale * discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);
+			SetEffectParameters(CameraPosition, CameraDirection);
 
 			// 両面を描画する
 			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -62,6 +63,28 @@ namespace HLSLTest
 
 			eps.Draw(View, Projection, Up, Right);
 		}
+		private void SetEffectParameters(Vector3 CameraPosition, Vector3 CameraDirection)
+		{
+			/*float4 AmbientColor;
+float4 DiffuseColor0;// 例外対策
+float4 SpecularColor;
+float4 RimColor;
+ 
+float AmbientIntensity;
+float DiffuseIntensity;
+float SpecularIntensity;
+float RimIntensity;         // Intensity of the rim light
+ 
+float3 DiffuseLightDirection;
+float3 CameraPosition;
+float3 CameraDirection;
+float Shinniness;*/
+
+			//discoidEffect.Parameters["ParticleTexture"].SetValue(Texture);
+			discoidEffect.Parameters["CameraPosition"].SetValue(CameraPosition);
+			discoidEffect.Parameters["CameraDirection"].SetValue(CameraDirection);
+			discoidEffect.Parameters["CenterToCamera"].SetValue(new Vector4(Vector3.Normalize(CameraPosition - discoidMesh.Position), 1));
+		}
 
 
 		public DiscoidEffect(ContentManager content, GraphicsDevice graphics,
@@ -70,7 +93,8 @@ namespace HLSLTest
 			this.content = content;
 			this.graphics = graphics;
 			//discoidMesh = new Object(content.Load<Model>("plane"), position, Vector3.Zero, new Vector3(size.X, 1, size.Y), graphics);
-			discoidMesh = new Object(position, "Models\\DiscoidMesh");
+			//discoidMesh = new Object(position, "Models\\DiscoidMesh");
+			discoidMesh = new Object(position, "Models\\SkySphereMesh");
 			
 
 			//discoidMesh.ScaleVector = new Vector3(size.X, 1, size.Y);
@@ -78,15 +102,22 @@ namespace HLSLTest
 			discoidMesh.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 
-			discoidEffect = content.Load<Effect>("Billboard\\DiscoidEffect");
+			/*discoidEffect = content.Load<Effect>("Billboard\\DiscoidEffect");
 			discoidMesh.SetModelEffect(discoidEffect, false);
 			//discoidEffect.Parameters["viewportWidth"].SetValue(graphics.Viewport.Width);
 			//discoidEffect.Parameters["viewportHeight"].SetValue(graphics.Viewport.Height);
+			discoidEffect.Parameters["Texture"].SetValue(content.Load<Texture2D>("Textures\\Plasma_0"));//Mask1"));
+			discoidEffect.Parameters["Color"].SetValue(Color.LightGreen.ToVector4());*/
 
+			Texture2D tex = content.Load<Texture2D>("Textures\\rainbow");
+			discoidEffect = content.Load<Effect>("Lights\\RimLightingEffectV2");
+			//discoidEffect.Parameters["RimColor"].SetValue(Color.LightGreen.ToVector4());
+			discoidEffect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
+			//discoidEffect.Parameters["BaseTexture"].SetValue(tex);
+			discoidMesh.SetModelEffect(discoidEffect, false);
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
-			discoidEffect.Parameters["Texture"].SetValue(content.Load<Texture2D>("Textures\\Mask1"));
-			discoidEffect.Parameters["Color"].SetValue(Color.LightGreen.ToVector4());
+
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
 			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
 			currentRadius = DEF_RADIUS;

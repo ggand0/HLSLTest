@@ -351,21 +351,17 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			//discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
+			discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			
-			softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
-
-
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
-			belndState = GraphicsDevice.BlendState.ToString();
-			depthState = GraphicsDevice.DepthStencilState.ToString();
 
 
 			//debug.Draw(gameTime);

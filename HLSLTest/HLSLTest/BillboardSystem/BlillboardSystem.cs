@@ -46,7 +46,11 @@ namespace HLSLTest
 		private void drawOpaquePixels()
 		{
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
-			//if (DepthMode == 1) graphicsDevice.DepthStencilState = DepthStencilState.None;
+			//
+			if (DepthMode == 1) {
+				//BlendState bs = BlendState.AlphaBlend;
+				//graphicsDevice.BlendState = BlendState.;
+			}
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(true);
 			drawBillboards();

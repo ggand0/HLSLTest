@@ -290,6 +290,8 @@ namespace HLSLTest
 				return;
 			if (val is Vector3)
 				effect.Parameters[paramName].SetValue((Vector3)val);
+			else if (val is Vector4)
+				effect.Parameters[paramName].SetValue((Vector4)val);
 			else if (val is bool)
 				effect.Parameters[paramName].SetValue((bool)val);
 			else if (val is Matrix)

@@ -13,6 +13,7 @@ bool AlphaTestGreater = true;
 float AlphaTestValue = 0.5f;
 
 float Offset = 10.0f;// どれだけの距離までを透過するか
+float FarPlane = 100000;
 texture DepthMap;
 sampler DepthSampler = sampler_state
 {
@@ -67,6 +68,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	input.Depth.xy /= input.Depth.w;
 	float2 coord = input.Depth.xy * float2(0.5f, -0.5f) + 0.5f;
 	float depth = tex2D(DepthSampler, coord).x;
+
+	float realDepth = input.Depth.z / FarPlane;
 
 	float alpha = depth * input.Depth.w - input.Depth.z;
 	if (alpha <= Offset) {
