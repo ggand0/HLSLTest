@@ -20,15 +20,21 @@ namespace HLSLTest
 		private Object discoidMesh;
 		private float currentRadius;
 		private readonly float MAX_RADIUS = 1000;
+		private readonly int DEF_RADIUS = 10;
 		private Matrix Scale;
 		private ExplosionParticleEmitter eps;
 
-		public void Update()
+
+		private float speed;
+		public void Update(GameTime gameTime)
 		{
+			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
 			eps.Update();
-			currentRadius++;
+			//currentRadius +=  elapsed * speed;
+			currentRadius += speed * 0.05f;
 			if (currentRadius >= MAX_RADIUS) {
-				currentRadius = 1;
+				currentRadius = DEF_RADIUS;
 			}
 
 			Scale = Matrix.CreateScale(currentRadius);
@@ -43,7 +49,7 @@ namespace HLSLTest
 
 			// 両面を描画する
 			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
-			//discoidMesh.Draw(View, Projection, CameraPosition);
+			discoidMesh.Draw(View, Projection, CameraPosition);
 
 			Vector3 reflectedCameraPosition = CameraPosition;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + discoidMesh.Position.Y * 2;
@@ -65,7 +71,7 @@ namespace HLSLTest
 			this.graphics = graphics;
 			//discoidMesh = new Object(content.Load<Model>("plane"), position, Vector3.Zero, new Vector3(size.X, 1, size.Y), graphics);
 			discoidMesh = new Object(position, "Models\\DiscoidMesh");
-			currentRadius = 1;
+			
 
 			//discoidMesh.ScaleVector = new Vector3(size.X, 1, size.Y);
 			discoidMesh.ScaleVector = new Vector3(size.X, size.Y, 1);// 元々Blenderで作成した素材なので傾いている。それに合わせて、rescaleする成分を調整
@@ -82,7 +88,9 @@ namespace HLSLTest
 			discoidEffect.Parameters["Texture"].SetValue(content.Load<Texture2D>("Textures\\Mask1"));
 			discoidEffect.Parameters["Color"].SetValue(Color.LightGreen.ToVector4());
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
-			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 2000, new Vector2(10), 20, 5f);
+			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
+			currentRadius = DEF_RADIUS;
+			speed = eps.Velocity.Length();
 		}
 	}
 }

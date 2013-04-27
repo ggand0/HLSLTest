@@ -98,3 +98,7 @@ Content\Textures\cloud_mask.xnb
 Content\Textures\cloud_mask2.xnb
 Content\Textures\Mask1.xnb
 Content\Billboard\DiscoidEffect.xnb
+Content\Billboard\SoftParticleEffect.xnb
+Content\Billboard\CreateDepthMapFromCamera.xnb
+Content\Billboard\SoftParticleTest.xnb
+Content\Models\cube.xnb

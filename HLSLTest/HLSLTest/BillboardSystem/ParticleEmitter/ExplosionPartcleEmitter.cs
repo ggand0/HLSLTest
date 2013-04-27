@@ -10,6 +10,8 @@ namespace HLSLTest
 {
 	public class ExplosionParticleEmitter : ParticleEmitter
 	{
+		public Vector3 Velocity { get; set; }
+
 		private Vector3 RandomUnitVectorInPlane(Matrix xform, Vector3 axis)
 		{
 			xform *= Matrix.CreateFromAxisAngle(axis, (float)NextDouble(rand, 0.0, 360.0));
@@ -39,6 +41,8 @@ namespace HLSLTest
 				// Particle Animator component to move the particles.
 				Vector3 velocity = ruv * speed;
 
+				if (i == 0) Velocity = velocity;
+				
 				//AddParticle(position + new Vector3(0, -2, 0), direction, duration, s);
 				AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
 			}

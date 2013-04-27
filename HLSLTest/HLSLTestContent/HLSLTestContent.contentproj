@@ -201,6 +201,26 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Billboard\SoftParticleEffect.fx">
+      <Name>SoftParticleEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Billboard\CreateDepthMapFromCamera.fx">
+      <Name>CreateDepthMapFromCamera</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Billboard\SoftParticleTest.fx">
+      <Name>SoftParticleTest</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\cube.fbx">
+      <Name>cube</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <None Include="PPshared.vsi">
       <Name>PPshared</Name>
       <Importer>EffectImporter</Importer>

@@ -168,7 +168,7 @@ namespace HLSLTest
 		{
 			//RandomDirectionExplosion();
 			//emitNumPerFrame = 1; ParticleColor = Color.CadetBlue; EmitRandomDirection();
-			//emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
+			emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
 			
 		}
 		protected void UpdateParticles()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -24,6 +25,13 @@ namespace HLSLTest
 		public int BillboardNum { get; private set; }
 		public Vector2 BillboardSize { get; private set; }
 		public Texture2D Texture { get; private set; }
+		/// <summary>
+		/// ソフトパーティクルを使うかどうか
+		/// </summary>
+		public int DepthMode { get; set; }
+		private RenderTarget2D depthTarget;
+		private Effect depthEffect;
+		private List<Object> Models;
 
 		
 		public bool EnsureOcclusion { get; set; }
@@ -38,6 +46,7 @@ namespace HLSLTest
 		private void drawOpaquePixels()
 		{
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			//if (DepthMode == 1) graphicsDevice.DepthStencilState = DepthStencilState.None;
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(true);
 			drawBillboards();
@@ -106,7 +115,39 @@ namespace HLSLTest
 			//effect.Parameters["Up"].SetValue(Up);
 			effect.Parameters["Up"].SetValue(Mode == BillboardMode.Spherical ? Up : Vector3.Up);
 			effect.Parameters["Side"].SetValue(Right);
+
+			if (DepthMode == 1) {
+				effect.Parameters["DepthMap"].SetValue(depthTarget);
+			}
+
 			effect.CurrentTechnique.Passes[0].Apply();
+		}
+
+		bool hasSaved;
+		public void DrawDepth(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			graphicsDevice.SetRenderTargets(depthTarget);
+			// Clear the render target to 1 (infinite depth)
+			graphicsDevice.Clear(Color.White);
+
+			foreach (Object o in Models) {
+				o.CacheEffects();// すでにあるエフェクトを上書きさせないために退避させておく
+				o.SetModelEffect(depthEffect, false);// 空いたスペースで法線マップをDrawする
+				//o.Draw(_gameInstance.camera.View, _gameInstance.camera.Projection, _gameInstance.camera.CameraPosition);
+				o.Draw(View, Projection, CameraPosition);
+				o.RestoreEffects();// 退避させておいたエフェクトを戻す
+			}
+
+			// Un-set the render targets
+			graphicsDevice.SetRenderTargets(null);
+
+			/*if (JoyStick.IsOnKeyDown(0)) {
+				using (Stream stream = File.OpenWrite("DepthMapForSoftParticles.png")) {
+					depthTarget.SaveAsPng(stream, depthTarget.Width, depthTarget.Height);
+					stream.Position = 0;
+					hasSaved = true;
+				}
+			}*/
 		}
 		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
@@ -137,21 +178,42 @@ namespace HLSLTest
 			graphicsDevice.SetVertexBuffer(null);
 			graphicsDevice.Indices = null;
 		}
-		
+
 
 
 		public BillboardSystem(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3[] particlePositions)
+			:this(graphicsDevice, content, texture, 0, null, billboardSize, particlePositions)
+		{
+		}
+		public BillboardSystem(GraphicsDevice graphicsDevice,
+			ContentManager content, Texture2D texture, int depthMode, List<Object> Models, Vector2 billboardSize, Vector3[] particlePositions)
 		{
 			this.BillboardNum = particlePositions.Length;
 			this.BillboardSize = billboardSize;
 			this.graphicsDevice = graphicsDevice;
 			this.Texture = texture;
-			effect = content.Load<Effect>("Billboard\\BillboardEffect");
+			this.DepthMode = depthMode;
+			this.Models = Models;
+
+			// SoftParticleTestはbillboardeffectを元に実験用に作成したエフェクト
+			if (DepthMode == 0) {
+				effect = content.Load<Effect>("Billboard\\BillboardEffect");
+			} else if (DepthMode == 1) {
+				effect = content.Load<Effect>("Billboard\\SoftParticleTest");
+			}
+			depthEffect = content.Load<Effect>("Billboard\\CreateDepthMapFromCamera");
 
 			generateParticles(particlePositions);
 			EnsureOcclusion = true;
 			Mode = BillboardMode.Spherical;
+
+			int viewWidth = graphicsDevice.Viewport.Width;
+			int viewHeight = graphicsDevice.Viewport.Height;
+			/*depthTarget = new RenderTarget2D(graphicsDevice, viewWidth,
+				viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);*/
+			depthTarget = new RenderTarget2D(graphicsDevice, viewWidth,
+				viewHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);/**/
 		}
 	}
 }
