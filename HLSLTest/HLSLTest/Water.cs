@@ -204,7 +204,7 @@ namespace HLSLTest
 				renderer = new PrelightingRenderer(graphics, content);
 			}
 			renderer = new PrelightingRenderer(graphics, content);
-			renderer.Models = game.models;
+			renderer.Models = game.Models;
 			renderer.Lights = new List<PPPointLight>() {
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),

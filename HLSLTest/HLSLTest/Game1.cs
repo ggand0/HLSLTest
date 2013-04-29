@@ -26,8 +26,8 @@ namespace HLSLTest
 		public ArcBallCamera camera { get; private set; }
 		Debug debug;
 		PrelightingRenderer renderer;
-		public List<Object> models { get; private set; }
-		SkySphere sky;
+		public List<Object> Models { get; private set; }
+		public SkySphere Sky { get; private set; }
 		Water water;
 		BillboardSystem trees;
 		BillboardSystem clouds;
@@ -46,6 +46,7 @@ namespace HLSLTest
 
 		DiscoidEffect discoidEffect;
 		BillboardSystem softParticle;
+        GlassEffect glassEffect;
 
 		public Game1()
 		{
@@ -78,10 +79,10 @@ namespace HLSLTest
 			//Teapot.RotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-180));
 			Teapot.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
-			models = new List<Object>();
-			models.Add(Ground);
-			models.Add(Target);
-			models.Add(Teapot);
+			Models = new List<Object>();
+			Models.Add(Ground);
+			Models.Add(Target);
+			Models.Add(Teapot);
 
 			camera = new ArcBallCamera();
 			camera.Initialize(this, Target);
@@ -119,7 +120,7 @@ namespace HLSLTest
 			discoid = new DiscoidParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 			beamEmitter = new ParticleEmitter(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f);
-			softParticle = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_2"), 1, models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
+			softParticle = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
 
 			// Generate lasers
 			lbs = new BillboardSystem(GraphicsDevice, Content, Content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
@@ -178,13 +179,13 @@ namespace HLSLTest
 			Effect lightingEffect = Content.Load<Effect>("PPModel");	// load Prelighting Effect
 			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
 			//models[1].SetModelEffect(lightingEffect, true);
-			models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
-			models[1].SetModelEffect(shadowEffect, true);
+			Models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
+			Models[1].SetModelEffect(shadowEffect, true);
 			Ground.SetModelEffect(shadowEffect, true);
 			
 
 			renderer = new PrelightingRenderer(GraphicsDevice, Content);
-			renderer.Models = models;
+			renderer.Models = Models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PPPointLight>() {
 				/*new PPPointLight(new Vector3(-100, 100, 0), Color.Red * .85f,
@@ -212,17 +213,25 @@ namespace HLSLTest
 
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
-			sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("SkyBoxTex"));
+			Sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("SkyBoxTex"));
 
 			Water.game = this;
 			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
 			//water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
-			water.Objects.Add(sky);
+			water.Objects.Add(Sky);
 			//water.Objects.Add(models[0]); water.Objects.Add(models[1]);
-			foreach (Object o in models) {
+			foreach (Object o in Models) {
 				water.Objects.Add(o);
 			}
 			water.Initialize();
+
+            GlassEffect.game = this;
+            glassEffect = new GlassEffect(Content, GraphicsDevice, new Vector3(0, 100, 0), 30);
+            glassEffect.Objects.Add(Sky);
+            foreach (Object o in Models) {
+                glassEffect.Objects.Add(o);
+            }
+            glassEffect.Initialize();
 		}
 
 		/// <summary>
@@ -246,9 +255,10 @@ namespace HLSLTest
 				this.Exit();
 
 			JoyStick.Update(1);
-			sky.Update(gameTime);
+            KeyInput.Update();
+			Sky.Update(gameTime);
 
-			foreach (Object o in models) {
+			foreach (Object o in Models) {
 				o.Update(gameTime);
 			}
 
@@ -305,6 +315,57 @@ namespace HLSLTest
 				mesh.Draw();
 			}
 		}
+		private TextureCube RenderCubeMap()
+		{
+			TextureCube RefCubeMap;
+			Matrix viewMatrix;
+			// Render our cube map, once for each cube face( 6 times ).
+			for (int i = 0; i < 6; i++) {
+				// render the scene to all cubemap faces
+				CubeMapFace cubeMapFace = (CubeMapFace)i;
+
+				switch (cubeMapFace) {
+					case CubeMapFace.NegativeX: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Left, Vector3.Up);
+							break;
+						}
+					case CubeMapFace.NegativeY: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Down, Vector3.Forward);
+							break;
+						}
+					case CubeMapFace.NegativeZ: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Backward, Vector3.Up);
+							break;
+						}
+					case CubeMapFace.PositiveX: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Right, Vector3.Up);
+							break;
+						}
+					case CubeMapFace.PositiveY: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Up, Vector3.Backward);
+							break;
+						}
+					case CubeMapFace.PositiveZ: {
+							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Forward, Vector3.Up);
+							break;
+						}
+				}
+
+				effect.Parameters["matWorldViewProj"].SetValue(worldMatrix * viewMatrix * projMatrix);
+
+				// Set the cubemap render target, using the selected face
+				this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
+				this.GraphicsDevice.Clear(Color.White);
+				this.DrawScene(false);
+			}
+
+			graphics.GraphicsDevice.SetRenderTarget(null);
+			return RefCubeMap;
+		}
+		private void DrawScene(ArcBallCamera camera)
+		{
+
+		}
 		/// <summary>
 		/// ゲームが自身を描画するためのメソッドです。
 		/// </summary>
@@ -321,11 +382,12 @@ namespace HLSLTest
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
+            glassEffect.PreDraw(camera, gameTime);
 			renderer.Draw();
 			
 			GraphicsDevice.Clear(Color.Black);
 
-			sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 			belndState = GraphicsDevice.BlendState.ToString();
@@ -333,7 +395,7 @@ namespace HLSLTest
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
 			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
-			foreach (Object o in models) {
+			foreach (Object o in Models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
 				//string s = o.Scale.ToString();
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -351,12 +413,17 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
+
+            // glassEffect test
+            glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
+            //glassEffect.PreDraw(camera, gameTime);
+
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();

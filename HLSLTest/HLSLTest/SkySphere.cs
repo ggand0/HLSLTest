@@ -13,7 +13,7 @@ namespace HLSLTest
 		public Object model;
 		Effect effect;
 		GraphicsDevice graphics;
-		TextureCube textureCube;
+		public TextureCube TextureCube { get; set; }
 
 		public SkySphere(ContentManager content, GraphicsDevice graphcisDevice, TextureCube Texture)
 		{
@@ -24,7 +24,7 @@ namespace HLSLTest
 			//model.Scale = 1000;
 			model.Scale = 10000;
 
-			textureCube = Texture;
+			TextureCube = Texture;
 			effect = content.Load<Effect>("SkySphereEffect");
 			effect.Parameters["CubeMap"].SetValue(Texture);
 			//effect = content.Load<Effect>("SkySphere");

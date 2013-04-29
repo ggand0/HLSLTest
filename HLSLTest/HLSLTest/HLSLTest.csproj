@@ -83,9 +83,11 @@
     <Compile Include="BillboardSystem\ParticleEmitter\DiscoidParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ExplosionPartcleEmitter.cs" />
     <Compile Include="Effect\DiscoidEffect.cs" />
+    <Compile Include="GlassEffect.cs" />
     <Compile Include="IRenderable.cs" />
     <Compile Include="JoyStick.cs" />
     <Compile Include="JoyStickInput.cs" />
+    <Compile Include="KeyInput.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="MeshTag.cs" />
     <Compile Include="Object.cs" />
