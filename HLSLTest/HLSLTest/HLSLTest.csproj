@@ -79,6 +79,7 @@
     <Compile Include="BoundingSphereRenderer.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="CubeMapReflectMaterial.cs" />
+    <Compile Include="DDSLib.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\DiscoidParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ExplosionPartcleEmitter.cs" />

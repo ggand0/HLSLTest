@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -132,7 +133,7 @@ namespace HLSLTest
 
 			treesCross = new BillboardCross(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
 
-			// test
+			// discoid effect
 			DiscoidEffect.game = this;
 			discoidEffect = new DiscoidEffect(Content, GraphicsDevice, new Vector3(0, 50, 0), new Vector2(100));
 
@@ -226,13 +227,18 @@ namespace HLSLTest
 			water.Initialize();
 
             GlassEffect.game = this;
-            glassEffect = new GlassEffect(Content, GraphicsDevice, new Vector3(0, 100, 0), 30);
+            glassEffect = new GlassEffect(Content, GraphicsDevice, new Vector3(0, 100, 0), 50);
             glassEffect.Objects.Add(Sky);
             foreach (Object o in Models) {
                 glassEffect.Objects.Add(o);
             }
             glassEffect.Initialize();
+
+            // 静的なオブジェクトを全て含めた環境マップ生成
+            PreDrawScene(new GameTime());
+            EnvironmentalMap = RenderCubeMap(new Vector3(0, 100, 0));
 		}
+        bool initialized;
 
 		/// <summary>
 		/// UnloadContent はゲームごとに 1 回呼び出され、ここですべてのコンテンツを
@@ -269,7 +275,7 @@ namespace HLSLTest
 			//Ground.Update(gameTime);
 
 
-			
+			// update particles
 			ps.Update();
 			discoid.Update();
 			eps.Update();
@@ -315,10 +321,15 @@ namespace HLSLTest
 				mesh.Draw();
 			}
 		}
-		private TextureCube RenderCubeMap()
+		public TextureCube EnvironmentalMap { get; private set; }
+		private TextureCube RenderCubeMap(Vector3 position)
 		{
-			TextureCube RefCubeMap;
-			Matrix viewMatrix;
+			TextureCube debug;
+			//RenderTargetCube RefCubeMap = new RenderTargetCube(this.GraphicsDevice, 256, 1, SurfaceFormat.Color);
+			RenderTargetCube RefCubeMap = new RenderTargetCube(this.GraphicsDevice, GraphicsDevice.Viewport.Width, true, SurfaceFormat.Color, DepthFormat.Depth24);
+			Matrix viewMatrix = Matrix.Identity;
+			TargetCamera camera;
+
 			// Render our cube map, once for each cube face( 6 times ).
 			for (int i = 0; i < 6; i++) {
 				// render the scene to all cubemap faces
@@ -326,46 +337,78 @@ namespace HLSLTest
 
 				switch (cubeMapFace) {
 					case CubeMapFace.NegativeX: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Left, Vector3.Up);
+							//Vector3 target = new Vector3
+							viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Left, Vector3.Up);
 							break;
 						}
 					case CubeMapFace.NegativeY: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Down, Vector3.Forward);
+                        viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Down, Vector3.Forward);
 							break;
 						}
 					case CubeMapFace.NegativeZ: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Backward, Vector3.Up);
+                        viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Backward, Vector3.Up);
 							break;
 						}
 					case CubeMapFace.PositiveX: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Right, Vector3.Up);
+                        viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Right, Vector3.Up);
 							break;
 						}
 					case CubeMapFace.PositiveY: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Up, Vector3.Backward);
+                        viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Up, Vector3.Backward);
 							break;
 						}
 					case CubeMapFace.PositiveZ: {
-							viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Forward, Vector3.Up);
+                        viewMatrix = Matrix.CreateLookAt(position, position + Vector3.Forward, Vector3.Up);
 							break;
 						}
 				}
 
-				effect.Parameters["matWorldViewProj"].SetValue(worldMatrix * viewMatrix * projMatrix);
+				//effect.Parameters["matWorldViewProj"].SetValue(worldMatrix * viewMatrix * projMatrix);
+				camera = new TargetCamera(position, Vector3.Zero, GraphicsDevice);
+				camera.View = viewMatrix; camera.Projection = this.camera.Projection;
+
 
 				// Set the cubemap render target, using the selected face
+				//this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
 				this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
 				this.GraphicsDevice.Clear(Color.White);
-				this.DrawScene(false);
+				this.DrawScene(camera);
+				graphics.GraphicsDevice.SetRenderTarget(null);
 			}
 
 			graphics.GraphicsDevice.SetRenderTarget(null);
+			if (!hasSaved) {
+				debug = RefCubeMap;// null!?
+				DDSLib.DDSToFile("cubeMapFace_debug.dds", true, debug, false); 
+			}
+
+
 			return RefCubeMap;
 		}
-		private void DrawScene(ArcBallCamera camera)
+		/// <summary>
+		/// Draw terrain + objects
+		/// </summary>
+		private void DrawScene(TargetCamera camera)
 		{
+			Sky.Draw(camera.View, camera.Projection, camera.Position);
+			water.Draw(camera.View, camera.Projection, camera.Position);
 
+			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
+			foreach (Object o in Models) {
+				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
+				//string s = o.Scale.ToString();
+				o.Draw(camera.View, camera.Projection, camera.Position);
+			}
 		}
+        private void PreDrawScene(GameTime gameTime)
+        {
+            softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
+            water.PreDraw(camera, new GameTime());// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
+            glassEffect.PreDraw(camera, gameTime);
+            renderer.Draw();
+        }
+
+		bool hasSaved;
 		/// <summary>
 		/// ゲームが自身を描画するためのメソッドです。
 		/// </summary>
@@ -382,9 +425,9 @@ namespace HLSLTest
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
-            glassEffect.PreDraw(camera, gameTime);
+            //glassEffect.PreDraw(camera, gameTime);
 			renderer.Draw();
-			
+			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
 			GraphicsDevice.Clear(Color.Black);
 
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -394,10 +437,10 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			rasterizerState = GraphicsDevice.RasterizerState.ToString();
 
+
 			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
 			foreach (Object o in Models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
-				//string s = o.Scale.ToString();
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
@@ -413,18 +456,18 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			//discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			
+			discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
             // glassEffect test
-            glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
             //glassEffect.PreDraw(camera, gameTime);
+            //glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
+            
 
-
+            // for debug
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);

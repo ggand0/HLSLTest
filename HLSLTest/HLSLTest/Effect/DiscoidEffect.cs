@@ -23,9 +23,8 @@ namespace HLSLTest
 		private readonly int DEF_RADIUS = 10;
 		private Matrix Scale;
 		private ExplosionParticleEmitter eps;
-
-
 		private float speed;
+
 		public void Update(GameTime gameTime)
 		{
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -36,7 +35,6 @@ namespace HLSLTest
 			if (currentRadius >= MAX_RADIUS) {
 				currentRadius = DEF_RADIUS;
 			}
-
 			Scale = Matrix.CreateScale(currentRadius);
 		}
 		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 CameraDirection, Vector3 Up, Vector3 Right)
@@ -60,30 +58,37 @@ namespace HLSLTest
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 			
 			graphics.BlendState = BlendState.Opaque;
-
 			eps.Draw(View, Projection, Up, Right);
 		}
+        /// <summary>
+        /// エフェクトファイル内のパラメータを設定する
+        /// </summary>
+        /// <param name="CameraPosition"></param>
+        /// <param name="CameraDirection"></param>
 		private void SetEffectParameters(Vector3 CameraPosition, Vector3 CameraDirection)
 		{
 			/*float4 AmbientColor;
-float4 DiffuseColor0;// 例外対策
-float4 SpecularColor;
-float4 RimColor;
+            float4 DiffuseColor0;// 例外対策
+            float4 SpecularColor;
+            float4 RimColor;
  
-float AmbientIntensity;
-float DiffuseIntensity;
-float SpecularIntensity;
-float RimIntensity;         // Intensity of the rim light
+            float AmbientIntensity;
+            float DiffuseIntensity;
+            float SpecularIntensity;
+            float RimIntensity;         // Intensity of the rim light
  
-float3 DiffuseLightDirection;
-float3 CameraPosition;
-float3 CameraDirection;
-float Shinniness;*/
+            float3 DiffuseLightDirection;
+            float3 CameraPosition;
+            float3 CameraDirection;
+            float Shinniness;*/
+
+
 
 			//discoidEffect.Parameters["ParticleTexture"].SetValue(Texture);
 			discoidEffect.Parameters["CameraPosition"].SetValue(CameraPosition);
 			discoidEffect.Parameters["CameraDirection"].SetValue(CameraDirection);
-			discoidEffect.Parameters["CenterToCamera"].SetValue(new Vector4(Vector3.Normalize(CameraPosition - discoidMesh.Position), 1));
+			discoidEffect.Parameters["CenterToCamera"].SetValue(
+                new Vector4(Vector3.Normalize(CameraPosition - discoidMesh.Position), 1));
 		}
 
 
@@ -109,12 +114,15 @@ float Shinniness;*/
 			discoidEffect.Parameters["Texture"].SetValue(content.Load<Texture2D>("Textures\\Plasma_0"));//Mask1"));
 			discoidEffect.Parameters["Color"].SetValue(Color.LightGreen.ToVector4());*/
 
+
 			Texture2D tex = content.Load<Texture2D>("Textures\\rainbow");
 			discoidEffect = content.Load<Effect>("Lights\\RimLightingEffectV2");
+            //discoidEffect = content.Load<Effect>("Lights\\SimpleEffect");
 			//discoidEffect.Parameters["RimColor"].SetValue(Color.LightGreen.ToVector4());
 			discoidEffect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
 			//discoidEffect.Parameters["BaseTexture"].SetValue(tex);
 			discoidMesh.SetModelEffect(discoidEffect, false);
+            
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
 

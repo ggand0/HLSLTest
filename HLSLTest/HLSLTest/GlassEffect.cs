@@ -104,12 +104,12 @@ namespace HLSLTest
             graphics.SetRenderTarget(null);
             graphics.RasterizerState = RasterizerState.CullCounterClockwise;
 
+
             /*// Set the render target
             //graphics.SetRenderTarget(reflectionTarg);
             graphics.Clear(Color.Black);
             foreach (IRenderable renderable in Objects) {
                 renderable.SetClipPlane(clipPlane);
-
                 if (renderable is Object) {
                     (renderable as Object).Update(new GameTime());
                     //continue;
@@ -194,7 +194,7 @@ namespace HLSLTest
 
 
             //if (KeyInput.IsOnKeyDown(Keys.Z)) {
-            if (!hasSaved) {//if (JoyStick.IsOnKeyDown(1)) {
+            /*if (!hasSaved) {//if (JoyStick.IsOnKeyDown(1)) {
                 using (Stream stream = File.OpenWrite("refraction_map.png")) {
                     refractionTarget.SaveAsPng(stream, refractionTarget.Width, refractionTarget.Height);
                     stream.Position = 0;
@@ -202,11 +202,13 @@ namespace HLSLTest
                     //media.SavePicture("shadowDepth.jpg", stream);
                     hasSaved = true; // 下でfalseに
                 }
-            }/**/
+            }*/
 
             // Set the reflected scene to its effect parameter in the water effect
             //glassEffect.Parameters["RefractionMap"].SetValue(refractionTarget);// 屈折マップ生成
-			glassEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);// 屈折マップ生成
+			//glassEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);// 屈折マップ生成
+            Update();
+			glassEffect.Parameters["RefractionMap"].SetValue(game.EnvironmentalMap);// シーンが映り込んだマップを使う場合
         }
 
         public void Update()
@@ -244,8 +246,7 @@ namespace HLSLTest
         }
         
         // Constructor
-        public GlassEffect(ContentManager content, GraphicsDevice graphics,
-            Vector3 position, float Scale)
+        public GlassEffect(ContentManager content, GraphicsDevice graphics, Vector3 position, float Scale)
         {
             this.content = content;
             this.graphics = graphics;

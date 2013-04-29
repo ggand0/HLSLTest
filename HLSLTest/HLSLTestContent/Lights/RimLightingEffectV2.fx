@@ -94,7 +94,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float4 specular = pow(saturate(dot(norm, halfAngle)), Shinniness) * SpecularColor * SpecularIntensity;
 	float4 diffuse = dot(lightdir, input.Normal) * DiffuseColor0 * DiffuseIntensity;
 	float4 ambient = AmbientColor * AmbientIntensity;
-	return rim + ambient + specular + diffuse;
+	//return rim + ambient + specular + diffuse;
+	return float4(1, 1, 1, 1);
 
 	/*float4 modulatedColor;
 	float4 finalColor;
