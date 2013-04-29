@@ -64,6 +64,9 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			// TODO: ここに初期化ロジックを追加します。
+			this.graphics.PreferredBackBufferWidth = 1280;
+			this.graphics.PreferredBackBufferHeight = 720;
+
 			Object.game = this;
 			Object.content = Content;
 
@@ -84,6 +87,7 @@ namespace HLSLTest
 			Models.Add(Ground);
 			Models.Add(Target);
 			Models.Add(Teapot);
+			Models.Add(new Object(new Vector3(0, 150, 0), "Models\\SkySphereMesh"));
 
 			camera = new ArcBallCamera();
 			camera.Initialize(this, Target);
@@ -133,9 +137,7 @@ namespace HLSLTest
 
 			treesCross = new BillboardCross(GraphicsDevice, Content, Content.Load<Texture2D>("tree"), new Vector2(10), positions);
 
-			// discoid effect
-			DiscoidEffect.game = this;
-			discoidEffect = new DiscoidEffect(Content, GraphicsDevice, new Vector3(0, 50, 0), new Vector2(100));
+			
 
 			base.Initialize();
 		}
@@ -158,8 +160,9 @@ namespace HLSLTest
 			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Content.Load<TextureCube>("SkyBoxTex"));
 			Teapot.SetModelEffect(cubeMapEffect, false);
 			Teapot.Material = cubeMat;/**/
-			//models[2].SetModelEffect(cubeMapEffect, false);
-			//models[2].Material = cubeMat;
+			/*Models[3].SetModelEffect(cubeMapEffect, false);
+			Models[3].Material = cubeMat;
+			Models[3].Scale = 50;*/
 
 			// projection
 			/*Effect effect = Content.Load<Effect>("TextureProjectionEffect");
@@ -226,7 +229,8 @@ namespace HLSLTest
 			}
 			water.Initialize();
 
-            GlassEffect.game = this;
+			
+            /*GlassEffect.game = this;
             glassEffect = new GlassEffect(Content, GraphicsDevice, new Vector3(0, 100, 0), 50);
             glassEffect.Objects.Add(Sky);
             foreach (Object o in Models) {
@@ -235,10 +239,14 @@ namespace HLSLTest
             glassEffect.Initialize();
 
             // 静的なオブジェクトを全て含めた環境マップ生成
-            PreDrawScene(new GameTime());
-            EnvironmentalMap = RenderCubeMap(new Vector3(0, 100, 0));
+			PreDrawScene(new GameTime());
+            EnvironmentalMap = RenderCubeMap(new Vector3(0, 100, 0));*/
+
+
+			// discoid effect : Skyの後に初期化
+			DiscoidEffect.game = this;
+			discoidEffect = new DiscoidEffect(Content, GraphicsDevice, new Vector3(0, 50, 0), new Vector2(300));
 		}
-        bool initialized;
 
 		/// <summary>
 		/// UnloadContent はゲームごとに 1 回呼び出され、ここですべてのコンテンツを
@@ -426,8 +434,8 @@ namespace HLSLTest
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
             //glassEffect.PreDraw(camera, gameTime);
-			renderer.Draw();
 			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
+			renderer.Draw();
 			GraphicsDevice.Clear(Color.Black);
 
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -456,7 +464,7 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			discoidEffect.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
@@ -464,7 +472,7 @@ namespace HLSLTest
 
             // glassEffect test
             //glassEffect.PreDraw(camera, gameTime);
-            //glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
+           // glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
             
 
             // for debug
@@ -472,8 +480,6 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
-
-
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();
 #endif

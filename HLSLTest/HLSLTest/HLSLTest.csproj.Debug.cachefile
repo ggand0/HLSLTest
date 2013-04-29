@@ -110,3 +110,6 @@ Content\Textures\rainbow.xnb
 Content\Textures\Transparent.xnb
 Content\Lights\GlassEffect.xnb
 Content\Lights\GlassEffectV2.xnb
+Content\Lights\EnergyShieldEffect.xnb
+Content\Models\Disk.xnb
+Content\Lights\EnergyRingEffect.xnb

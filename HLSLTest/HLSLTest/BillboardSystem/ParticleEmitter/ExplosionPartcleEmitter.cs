@@ -19,11 +19,14 @@ namespace HLSLTest
 			ruv.Normalize();
 			return ruv;
 		}
+		public float speed = 4.0f;
+		public float innerRadius = 0.5f;
+		public float outerRadius = 1.5f;
 		protected override void MoveParticle()
 		{
-			var speed = 4.0f;
+			/*var speed = 4.0f;
 			var innerRadius = 0.5f;
-			var outerRadius = 1.5f;
+			var outerRadius = 1.5f;*/
 
 			for (int i = 0; i < ParticleNum; i++) {
 				// Generate a random unit vector in the plane defined by our transform's red axis centered around the 
@@ -105,6 +108,7 @@ namespace HLSLTest
 			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			//emitNumPerFrame = 100;//50;
+			speed = 4.0f * 5;
 			MoveParticle();
 		}
 	}

@@ -29,22 +29,28 @@ namespace HLSLTest
 		{
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+			
 			eps.Update();
-			//currentRadius +=  elapsed * speed;
-			currentRadius += speed * 0.05f;
+			currentRadius += speed * 0.05f * 5;
 			if (currentRadius >= MAX_RADIUS) {
 				currentRadius = DEF_RADIUS;
 			}
 			Scale = Matrix.CreateScale(currentRadius);
+			//discoidMesh.ScaleVector = new Vector3(currentRadius, currentRadius, 50);
+			//discoidMesh.ScaleVector = new Vector3(currentRadius, 10, currentRadius);
 		}
-		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 CameraDirection, Vector3 Up, Vector3 Right)
+		public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 CameraDirection, Vector3 Up, Vector3 Right)
 		{
+			//discoidEffect.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+
 			// 本文にはDraw関数の記述は無かったが、恐らくSkySphere.Drawと同様だろう
 			graphics.BlendState = BlendState.AlphaBlend;
 			// スケールにベクトルを使用していることに注意
-			//discoidMesh.World = Matrix.CreateScale(discoidMesh.ScaleVector) * discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);
+			/*discoidMesh.World = Matrix.CreateScale(discoidMesh.ScaleVector)
+				* discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);*/
 			discoidMesh.World = Scale * discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);
 			SetEffectParameters(CameraPosition, CameraDirection);
+
 
 			// 両面を描画する
 			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -87,8 +93,8 @@ namespace HLSLTest
 			//discoidEffect.Parameters["ParticleTexture"].SetValue(Texture);
 			discoidEffect.Parameters["CameraPosition"].SetValue(CameraPosition);
 			discoidEffect.Parameters["CameraDirection"].SetValue(CameraDirection);
-			discoidEffect.Parameters["CenterToCamera"].SetValue(
-                new Vector4(Vector3.Normalize(CameraPosition - discoidMesh.Position), 1));
+			//discoidEffect.Parameters["CenterToCamera"].SetValue(new Vector4(Vector3.Normalize(CameraPosition - discoidMesh.Position), 1));
+			discoidEffect.Parameters["CenterToCamera"].SetValue(new Vector4(Vector3.Up, 1));
 		}
 
 
@@ -99,7 +105,7 @@ namespace HLSLTest
 			this.graphics = graphics;
 			//discoidMesh = new Object(content.Load<Model>("plane"), position, Vector3.Zero, new Vector3(size.X, 1, size.Y), graphics);
 			//discoidMesh = new Object(position, "Models\\DiscoidMesh");
-			discoidMesh = new Object(position, "Models\\SkySphereMesh");
+			discoidMesh = new Object(position, "Models\\Disk");
 			
 
 			//discoidMesh.ScaleVector = new Vector3(size.X, 1, size.Y);
@@ -115,12 +121,18 @@ namespace HLSLTest
 			discoidEffect.Parameters["Color"].SetValue(Color.LightGreen.ToVector4());*/
 
 
-			Texture2D tex = content.Load<Texture2D>("Textures\\rainbow");
-			discoidEffect = content.Load<Effect>("Lights\\RimLightingEffectV2");
+			Texture2D tex = content.Load<Texture2D>("Textures\\Plasma_0");
+			//discoidEffect = content.Load<Effect>("Lights\\RimLightingEffectV2");
+			//discoidEffect = content.Load<Effect>("Lights\\EnergyShieldEffect");
+			discoidEffect = content.Load<Effect>("Lights\\EnergyRingEffect");
             //discoidEffect = content.Load<Effect>("Lights\\SimpleEffect");
 			//discoidEffect.Parameters["RimColor"].SetValue(Color.LightGreen.ToVector4());
 			discoidEffect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
-			//discoidEffect.Parameters["BaseTexture"].SetValue(tex);
+			discoidEffect.Parameters["BaseTexture"].SetValue(tex);
+			discoidEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);
+			discoidEffect.Parameters["NormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
+			discoidEffect.Parameters["AlphaTest"].SetValue(true);
+			discoidEffect.Parameters["WaveSpeed"].SetValue(0.1f);
 			discoidMesh.SetModelEffect(discoidEffect, false);
             
 
@@ -129,6 +141,7 @@ namespace HLSLTest
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
 			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
 			currentRadius = DEF_RADIUS;
+			//currentRadius = 100;
 			speed = eps.Velocity.Length();
 		}
 	}
