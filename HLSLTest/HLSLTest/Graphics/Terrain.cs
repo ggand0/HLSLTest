@@ -22,7 +22,7 @@ namespace HLSLTest
 		Effect effect; // Effect used for rendering
 		GraphicsDevice graphicsDevice; // Graphics device to draw with
 		Texture2D heightMap; // Heightmap texture
-
+		public Texture2D RTexture, BTexture, GTexture, WeightMap;
 
 		Texture2D baseTexture;
 		float textureTiling;
@@ -33,44 +33,57 @@ namespace HLSLTest
 			// Extract pixel data
 			Color[] heightMapData = new Color[width * length];
 			heightMap.GetData<Color>(heightMapData);
+
 			// Create heights[,] array
 			heights = new float[width, length];
+
 			// For each pixel
-			for (int y = 0; y < length; y++)
+			for (int y = 0; y < length; y++) {
 				for (int x = 0; x < width; x++) {
 					// Get color value (0 - 255)
 					float amt = heightMapData[y * width + x].R;
+
 					// Scale to (0 - 1)
 					amt /= 255.0f;
+
 					// Multiply by max height to get final height
-					heights[x, y] = amt * height;
+					heights[x, y] = amt * height + BaseHeight;// 指定された高さからのheightにしたver
+					//heights[x, y] = amt * height;
 				}
+			}
 		}
+
 		private void createVertices()
 		{
 			vertices = new VertexPositionNormalTexture[nVertices];
-			// Calculate the position offset that will center the terrain at(0, 0, 0)
-			Vector3 offsetToCenter = -new Vector3(((float)width / 2.0f) *
-			cellSize, 0, ((float)length / 2.0f) * cellSize);
+
+			// Calculate the position offset that will center the terrain at (0, 0, 0)
+			Vector3 offsetToCenter = -new Vector3(((float)width / 2.0f) * cellSize,
+				0, ((float)length / 2.0f) * cellSize);
+
 			// For each pixel in the image
 			for (int z = 0; z < length; z++)
 				for (int x = 0; x < width; x++) {
-					// Find position based on grid coordinates and height in
-					// heightmap
+					// Find position based on grid coordinates and height in heightmap
 					Vector3 position = new Vector3(x * cellSize,
-					heights[x, z], z * cellSize) + offsetToCenter;
-					// UV coordinates range from (0, 0) at grid location (0, 0) to
+						heights[x, z], z * cellSize) + offsetToCenter;
+
+					// UV coordinates range from (0, 0) at grid location (0, 0) to 
 					// (1, 1) at grid location (width, length)
 					Vector2 uv = new Vector2((float)x / width, (float)z / length);
+
 					// Create the vertex
 					vertices[z * width + x] = new VertexPositionNormalTexture(
-					position, Vector3.Zero, uv);
+						position, Vector3.Zero, uv);
 				}
 		}
+
 		private void createIndices()
 		{
 			indices = new int[nIndices];
+
 			int i = 0;
+
 			// For each cell
 			for (int x = 0; x < width - 1; x++)
 				for (int z = 0; z < length - 1; z++) {
@@ -79,16 +92,19 @@ namespace HLSLTest
 					int upperRight = upperLeft + 1;
 					int lowerLeft = upperLeft + width;
 					int lowerRight = lowerLeft + 1;
+
 					// Specify upper triangle
 					indices[i++] = upperLeft;
 					indices[i++] = upperRight;
 					indices[i++] = lowerLeft;
+
 					// Specify lower triangle
 					indices[i++] = lowerLeft;
 					indices[i++] = upperRight;
 					indices[i++] = lowerRight;
 				}
 		}
+
 		private void genNormals()
 		{
 			// For each triangle
@@ -97,15 +113,18 @@ namespace HLSLTest
 				Vector3 v1 = vertices[indices[i]].Position;
 				Vector3 v2 = vertices[indices[i + 1]].Position;
 				Vector3 v3 = vertices[indices[i + 2]].Position;
+
 				// Cross the vectors between the corners to get the normal
 				Vector3 normal = Vector3.Cross(v1 - v2, v1 - v3);
 				normal.Normalize();
+
 				// Add the influence of the normal to each vertex in the
 				// triangle
 				vertices[indices[i]].Normal += normal;
 				vertices[indices[i + 1]].Normal += normal;
 				vertices[indices[i + 2]].Normal += normal;
 			}
+
 			// Average the influences of the triangles touching each
 			// vertex
 			for (int i = 0; i < nVertices; i++)
@@ -153,32 +172,40 @@ namespace HLSLTest
 			effect.Parameters["TextureTiling"].SetValue(textureTiling);
 			effect.Parameters["LightDirection"].SetValue(lightDirection);
 
+			effect.Parameters["RTexture"].SetValue(RTexture);
+			effect.Parameters["GTexture"].SetValue(GTexture);
+			effect.Parameters["BTexture"].SetValue(BTexture);
+			effect.Parameters["WeightMap"].SetValue(WeightMap);
+
 			effect.Techniques[0].Passes[0].Apply();
 
 			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
 				nVertices, 0, nIndices / 3);
+
+			// Un-set the buffers
+			graphicsDevice.SetVertexBuffer(null);
+			graphicsDevice.Indices = null;
 		}
 
+		public float BaseHeight { get; private set; }
 		public Terrain(Texture2D HeightMap, float CellSize, float Height,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
-			:this(HeightMap, CellSize, Height, null, 0, Vector3.Zero, GraphicsDevice, Content)
+			:this(HeightMap, CellSize, Height, 0, null, 0, Vector3.Zero, GraphicsDevice, Content)
 		{
-			
 		}
 		public Terrain(Texture2D HeightMap, float CellSize, float Height,
-			Texture2D BaseTexture, float TextureTiling, Vector3 LightDirection,
+			float baseHeight, Texture2D BaseTexture, float TextureTiling, Vector3 LightDirection,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 		{
 			this.baseTexture = BaseTexture;
 			this.textureTiling = TextureTiling;
 			this.lightDirection = LightDirection;
-			
-
 
 			this.heightMap = HeightMap;
 			this.width = HeightMap.Width;
 			this.length = HeightMap.Height;
 			this.cellSize = CellSize;
+			this.BaseHeight = baseHeight;
 			this.height = Height;
 			this.graphicsDevice = GraphicsDevice;
 			effect = Content.Load<Effect>("Terrain\\TerrainEffect");
@@ -191,18 +218,20 @@ namespace HLSLTest
 			// (Width-1) * (Length-1) cells, 2 triangles per cell, 3 indices per
 			// triangle
 			nIndices = (width - 1) * (length - 1) * 6;
+
 			vertexBuffer = new VertexBuffer(GraphicsDevice,
-			typeof(VertexPositionNormalTexture), nVertices,
-			BufferUsage.WriteOnly);
+				typeof(VertexPositionNormalTexture), nVertices,
+				BufferUsage.WriteOnly);
 			indexBuffer = new IndexBuffer(GraphicsDevice,
-			IndexElementSize.ThirtyTwoBits,
-			nIndices, BufferUsage.WriteOnly);
+				IndexElementSize.ThirtyTwoBits,
+				nIndices, BufferUsage.WriteOnly);
 
 			// setting the vertices and indices
 			getHeights();
 			createVertices();
 			createIndices();
 			genNormals();
+
 			vertexBuffer.SetData<VertexPositionNormalTexture>(vertices);
 			indexBuffer.SetData<int>(indices);
 		}

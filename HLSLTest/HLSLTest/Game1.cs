@@ -253,7 +253,8 @@ namespace HLSLTest
 
 			// Terrain
 			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
-			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 200, 				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,
+				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
 		}
 
 		/// <summary>
@@ -431,7 +432,7 @@ namespace HLSLTest
 		/// <param name="gameTime">ゲームの瞬間的なタイミング情報</param>
 		protected override void Draw(GameTime gameTime)
 		{
-#if DEBUG_MODE			
+#if DEBUG_MODE
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			renderer.Draw();
 			
@@ -448,7 +449,7 @@ namespace HLSLTest
 
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			terrain.Draw(camera.View, camera.Projection);
 
 			belndState = GraphicsDevice.BlendState.ToString();
@@ -481,8 +482,7 @@ namespace HLSLTest
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
             // glassEffect test
-            //glassEffect.PreDraw(camera, gameTime);
-           // glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 
 			
@@ -492,6 +492,7 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
+
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();
 #endif
