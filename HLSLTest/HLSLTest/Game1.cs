@@ -49,10 +49,15 @@ namespace HLSLTest
 		BillboardSystem softParticle;
         GlassEffect glassEffect;
 
+		Terrain terrain;
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
+
+			//this.graphics.PreferredBackBufferWidth = 1280;
+			//this.graphics.PreferredBackBufferHeight = 720;
 		}
 
 		/// <summary>
@@ -64,8 +69,7 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			// TODO: ここに初期化ロジックを追加します。
-			this.graphics.PreferredBackBufferWidth = 1280;
-			this.graphics.PreferredBackBufferHeight = 720;
+			
 
 			Object.game = this;
 			Object.content = Content;
@@ -246,6 +250,10 @@ namespace HLSLTest
 			// discoid effect : Skyの後に初期化
 			DiscoidEffect.game = this;
 			discoidEffect = new DiscoidEffect(Content, GraphicsDevice, new Vector3(0, 50, 0), new Vector2(300));
+
+			// Terrain
+			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 200, 				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
 		}
 
 		/// <summary>
@@ -438,8 +446,10 @@ namespace HLSLTest
 			renderer.Draw();
 			GraphicsDevice.Clear(Color.Black);
 
+			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			terrain.Draw(camera.View, camera.Projection);
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
@@ -464,7 +474,7 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
@@ -473,7 +483,9 @@ namespace HLSLTest
             // glassEffect test
             //glassEffect.PreDraw(camera, gameTime);
            // glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
-            
+
+
+			
 
             // for debug
 			belndState = GraphicsDevice.BlendState.ToString();

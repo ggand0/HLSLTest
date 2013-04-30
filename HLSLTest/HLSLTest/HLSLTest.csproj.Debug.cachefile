@@ -113,3 +113,8 @@ Content\Lights\GlassEffectV2.xnb
 Content\Lights\EnergyShieldEffect.xnb
 Content\Models\Disk.xnb
 Content\Lights\EnergyRingEffect.xnb
+Content\Textures\Grass.xnb
+Content\Textures\heightmap_01.xnb
+Content\Textures\heightmap_02.xnb
+Content\Terrain\TerrainEffect.xnb
+Content\Textures\terrain.xnb

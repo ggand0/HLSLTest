@@ -80,6 +80,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Graphics\CubeMapReflectMaterial.cs" />
     <Compile Include="Graphics\EnergyShieldEffect.cs" />
+    <Compile Include="Graphics\Terrain.cs" />
     <Compile Include="Misc\DDSLib.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\DiscoidParticleEmitter.cs" />
