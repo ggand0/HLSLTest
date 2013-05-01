@@ -21,6 +21,18 @@ sampler WeightMapSampler = sampler_state {
 	MinFilter = Linear;
 	MagFilter = Linear;
 };
+float DetailTextureTiling;
+float DetailDistance = 2500;
+texture DetailTexture;
+sampler DetailSampler = sampler_state {
+	texture = <DetailTexture>;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	MinFilter = Linear;
+	MagFilter = Linear;
+};
+
+
 
 texture RTexture;
 sampler RTextureSampler = sampler_state
@@ -39,7 +51,7 @@ sampler GTextureSampler = sampler_state
 	AddressV = Wrap;
 	MinFilter = Anisotropic;
 	MagFilter = Anisotropic;
-}
+};
 
 texture BTexture;
 sampler BTextureSampler = sampler_state
@@ -50,6 +62,9 @@ sampler BTextureSampler = sampler_state
 	MinFilter = Anisotropic;
 	MagFilter = Anisotropic;
 };
+
+float4 ClipPlane;
+bool ClipPlaneEnabled = false;
 
 struct VertexShaderInput
 {
@@ -63,6 +78,8 @@ struct VertexShaderOutput
     float4 Position : POSITION0;
 	float2 UV : TEXCOORD0;
 	float3 Normal : TEXCOORD1;
+	float2 Depth : TEXCOORD2;
+	float3 WorldPosition : TEXCOORD3;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -72,12 +89,18 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.Position = mul(input.Position, mul(View, Projection));
 	output.Normal = input.Normal;
 	output.UV = input.UV;
+	output.Depth.xy = output.Position.zw;
+	output.WorldPosition = input.Position;
 
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
+	if (ClipPlaneEnabled)
+		clip(dot(float4(input.WorldPosition, 1), ClipPlane));
+
+
     float light = dot(normalize(input.Normal),
 		normalize(LightDirection));
 	light = clamp(light + 0.4f, 0, 1); // Simple ambient lighting
@@ -97,7 +120,12 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	output += weightMap.r * rTex + weightMap.g * gTex +
 	weightMap.b * bTex;
 
-	return float4(output * light, 1);
+	float3 detail = tex2D(DetailSampler, input.UV * DetailTextureTiling);
+	float detailAmt = input.Depth / DetailDistance;
+	detail = lerp(detail, 1, clamp(detailAmt, 0, 1));
+	return float4(detail * output * light, 1);
+
+	//return float4(output * light, 1);
 }
 
 technique Technique1

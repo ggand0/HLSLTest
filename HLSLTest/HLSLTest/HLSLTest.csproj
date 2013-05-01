@@ -101,6 +101,9 @@
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleVertex.cs" />
     <Compile Include="Graphics\PPPointLight.cs" />
     <Compile Include="Graphics\PrelightingRenderer.cs" />
+    <Compile Include="Planet\Planet.cs" />
+    <Compile Include="Planet\RenderTargetState.cs" />
+    <Compile Include="Planet\WaterPlanet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />

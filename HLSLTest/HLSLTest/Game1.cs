@@ -50,6 +50,8 @@ namespace HLSLTest
         GlassEffect glassEffect;
 
 		Terrain terrain;
+		Planet planet;
+		Model debugModel;
 
 		public Game1()
 		{
@@ -253,8 +255,23 @@ namespace HLSLTest
 
 			// Terrain
 			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
-			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,
+			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 2500, -1500,
 				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			terrain.WeightMap = Content.Load<Texture2D>("Textures\\color1");
+			terrain.RTexture = Content.Load<Texture2D>("Textures\\sand");
+			terrain.GTexture = Content.Load<Texture2D>("Textures\\grass");
+			terrain.BTexture = Content.Load<Texture2D>("Textures\\stone");
+			terrain.DetailTexture = Content.Load<Texture2D>("Textures\\detail0");
+
+
+
+			// Planet test
+			debugModel = Content.Load<Model>("Models\\sphere2");
+			WaterPlanet wplanet = new WaterPlanet(GraphicsDevice);
+			wplanet.LoadContent(Content);
+			planet = wplanet;
+			
 		}
 
 		/// <summary>
@@ -485,14 +502,14 @@ namespace HLSLTest
 			//glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 
-			
+			planet.Draw(camera.View, Matrix.CreateScale(200), camera.Projection);
 
             // for debug
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
-
+			debugModel.Draw(Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(0, 200, 0)), camera.View, camera.Projection);
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();
 #endif

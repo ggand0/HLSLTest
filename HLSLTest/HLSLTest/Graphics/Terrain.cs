@@ -28,6 +28,10 @@ namespace HLSLTest
 		float textureTiling;
 		Vector3 lightDirection;
 
+		public Texture2D DetailTexture;
+		public float DetailDistance = 2500;//2500;
+		public float DetailTextureTiling = 100;
+
 		private void getHeights()
 		{
 			// Extract pixel data
@@ -176,6 +180,10 @@ namespace HLSLTest
 			effect.Parameters["GTexture"].SetValue(GTexture);
 			effect.Parameters["BTexture"].SetValue(BTexture);
 			effect.Parameters["WeightMap"].SetValue(WeightMap);
+
+			effect.Parameters["DetailTexture"].SetValue(DetailTexture);
+			effect.Parameters["DetailDistance"].SetValue(DetailDistance);
+			effect.Parameters["DetailTextureTiling"].SetValue(DetailTextureTiling);
 
 			effect.Techniques[0].Passes[0].Apply();
 
