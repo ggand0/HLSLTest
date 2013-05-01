@@ -1,0 +1,48 @@
+float4 gpuGetCell3D(sampler ColorMapSampler, int x, int y, int z)
+{
+    float u = (x  + y * 3) / 128.0;
+    float v = (z - x * 31) / 128.0;
+    float4 c1 =tex2D(ColorMapSampler, float2(u, v));
+    return c1;
+}
+
+
+float2 gpuCellNoise3D(sampler ColorMapSampler, float3 xyz)
+{
+    int xi = int(floor(xyz.x));
+    int yi = int(floor(xyz.y));
+    int zi = int(floor(xyz.z));
+
+    float xf = xyz.x - float(xi);
+    float yf = xyz.y - float(yi);
+    float zf = xyz.z - float(zi);
+
+    float dist1 = 9999999.0;
+    float dist2 = 9999999.0;
+    float3 cell;
+
+    for (int z = -1; z <= 1; z++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                cell = gpuGetCell3D(ColorMapSampler, xi + x, yi + y, zi + z).xyz;
+                cell.x += (float(x) - xf);
+                cell.y += (float(y) - yf);
+                cell.z += (float(z) - zf);
+                float dist = dot(cell, cell);
+                if (dist < dist1)
+                {
+                    dist2 = dist1;
+                    dist1 = dist;
+                }
+                else if (dist < dist2)
+                {
+                    dist2 = dist;
+                }
+            }
+        }
+    }
+    return float2(sqrt(dist1), sqrt(dist2));
+} 

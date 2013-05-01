@@ -268,9 +268,13 @@ namespace HLSLTest
 
 			// Planet test
 			debugModel = Content.Load<Model>("Models\\sphere2");
-			WaterPlanet wplanet = new WaterPlanet(GraphicsDevice);
-			wplanet.LoadContent(Content);
-			planet = wplanet;
+			WaterPlanet waterPlanet = new WaterPlanet(GraphicsDevice);
+			waterPlanet.LoadContent(Content);
+			IcePlanet icePlanet = new IcePlanet(GraphicsDevice, Content);
+			GasGiant gasGiant = new GasGiant(GraphicsDevice, Content);
+			RockPlanet rockPlanet = new RockPlanet(GraphicsDevice, Content);
+
+			planet = rockPlanet;
 			
 		}
 
@@ -509,7 +513,7 @@ namespace HLSLTest
 			depthState = GraphicsDevice.DepthStencilState.ToString();
 			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
 			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
-			debugModel.Draw(Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(0, 200, 0)), camera.View, camera.Projection);
+			//debugModel.Draw(Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(0, 200, 0)), camera.View, camera.Projection);
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();
 #endif

@@ -21,14 +21,16 @@ namespace HLSLTest
 		protected Model model;
 		protected int Scale;
 
-		public int Seed;
-		public PlanetType Type;
-		public Texture2D PermTex;
-		public Texture2D Mercator;
-		public Texture2D Palette;
-		public Effect terrain;
-		public Effect draw;
-		public RenderTargetState rts;
+		public int Seed { get; private set; }
+		public PlanetType Type { get; protected set; }
+		public Texture2D PermTex { get; protected set; }
+		public Texture2D Mercator { get; protected set; }
+		public Texture2D Palette { get; protected set; }
+		public Texture2D normalmap { get; protected set; }
+		public Effect terrain { get; protected set; }
+		public Effect draw { get; protected set; }
+		public RenderTargetState rts { get; protected set; }
+		public int Nz { get; protected set; }
 
 		/// <summary>
 		/// generate a random array of numbers, based on the planets seed,
@@ -79,6 +81,7 @@ namespace HLSLTest
 			draw.Parameters["wvp"].SetValue(wvp);
 			draw.Parameters["Palette"].SetValue(Palette);
 			draw.Parameters["ColorMap"].SetValue(Mercator);
+			draw.Parameters["BumpMap"].SetValue(normalmap);
 			draw.Parameters["world"].SetValue(World);
 			for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
 				for (int msh = 0; msh < model.Meshes.Count; msh++) {
@@ -92,6 +95,24 @@ namespace HLSLTest
 
 		}
 
+
+		private int safex(int x)
+		{
+			if (x >= 512)
+				return x - 512;
+			if (x < 0)
+				return 512 + x;
+			return x;
+		}
+
+		private int safey(int y)
+		{
+			if (y >= 512)
+				return y - 512;
+			if (y < 0)
+				return 512 + y;
+			return y;
+		}
 		public void Generate(GraphicsDevice graphics)
 		{
 			//rts = new RenderTargetState(graphics, 512, 512, 512, 512);// このクラス消して直接setRenderTargetした方が絶対わかりやすいよな...
@@ -111,14 +132,13 @@ namespace HLSLTest
 					// desired effect (from .fx file)  
 					mesh.MeshParts[i].Effect = terrain;
 				}
-
 				mesh.Draw();
 			}
 			graphics.SetRenderTarget(null);
 			Mercator = RenderTarget;
 			//Mercator = (Texture2D)graphics.GetRenderTargets()[0].RenderTarget;
 			//Mercator = rts.EndRenderGetTexture();
-			
+
 
 			// debug
 			using (Stream stream = File.OpenWrite("planet_map.png")) {
@@ -127,6 +147,38 @@ namespace HLSLTest
 			}
 			//rts.DestroyBuffers();
 			//rts = null;
+
+			// generate normals
+			Color[] Map = new Color[512 * 512];
+			Mercator.GetData<Color>(Map);
+
+			//normalmap = new Texture2D(graphics, 512, 512, 1, TextureUsage.None, SurfaceFormat.Color);
+			normalmap = new Texture2D(graphics, 512, 512, false, SurfaceFormat.Color);
+			Color[] pixels = new Color[512 * 512];
+			Color c3;
+			for (int y = 0; y < 512; y++) {
+				int offset = y * 512;
+				for (int x = 0; x < 512; x++) {
+					float h0 = (float)Map[x + (512 * y)].R;
+					float h1 = (float)Map[x + (512 * safey(y + 1))].R;
+					float h2 = (float)Map[safex(x + 1) + (512 * y)].R;
+
+					float Nx = h0 - h2;
+					float Ny = h0 - h1;
+
+					Vector3 Normal = new Vector3((float)Nx, (float)Ny, (float)Nz);
+					Normal.Normalize();
+					Normal /= 2;
+
+					byte cr = (byte)(128 + (255 * Normal.X));
+					byte cg = (byte)(128 + (255 * Normal.Y));
+					byte cb = (byte)(128 + (255 * Normal.Z));
+					c3 = new Color(cr, cg, cb);
+					pixels[x + (y * 512)] = c3;
+				}
+			}
+
+			normalmap.SetData(pixels);
 		}
 	}
 }
