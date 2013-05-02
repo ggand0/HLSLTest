@@ -8,8 +8,9 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class Terrain
+	public class SphericalTerrain
 	{
+
 		private VertexPositionNormalTexture[] vertices; // Vertex array
 		private VertexBuffer vertexBuffer; // Vertex buffer
 		private int[] indices; // Index array
@@ -32,7 +33,10 @@ namespace HLSLTest
 		public float DetailDistance = 2500;//2500;
 		public float DetailTextureTiling = 100;
 
-		private void getHeights()
+		public float Radius { get; private set; }
+		public Vector3 Center { get; private set; }
+
+		private void GetHeights()
 		{
 			// Extract pixel data
 			Color[] heightMapData = new Color[width * length];
@@ -57,20 +61,39 @@ namespace HLSLTest
 			}
 		}
 
+		/// <summary>
+		/// 球状に配置したい
+		/// </summary>
 		private void CreateVertices()
 		{
 			vertices = new VertexPositionNormalTexture[nVertices];
 
 			// Calculate the position offset that will center the terrain at (0, 0, 0)
+			// Centerをメンバに加えたので使わない。あとでこの行は消す
 			Vector3 offsetToCenter = -new Vector3(((float)width / 2.0f) * cellSize,
 				0, ((float)length / 2.0f) * cellSize);
+
 
 			// For each pixel in the image
 			for (int z = 0; z < length; z++)
 				for (int x = 0; x < width; x++) {
 					// Find position based on grid coordinates and height in heightmap
-					Vector3 position = new Vector3(x * cellSize,
-						heights[x, z], z * cellSize) + offsetToCenter;
+					//Vector3 position = new Vector3(x * cellSize, heights[x, z], z * cellSize) + offsetToCenter;
+
+					// θ=arctan(y/x)
+					//float theta = (float)Math.Atan( (z * cellSize) / (x * cellSize));
+
+					// GPS座標からXYZ座標へ変換
+					float lat = x * cellSize, lon = z * cellSize;
+					float lx = Radius * (float)(Math.Cos(lat) * Math.Cos(lon));
+					float ly = Radius * (float)(Math.Cos(lat) * Math.Sign(lon));
+					float lz = Radius * Math.Sign(lat);
+
+					// 高さ分だけlyを上げる。計算するのに、その座標での法線ベクトルが必要
+
+
+					// 中心座標を考慮して位置を決定
+					Vector3 position = Center + new Vector3(lx, ly, lz);
 
 					// UV coordinates range from (0, 0) at grid location (0, 0) to 
 					// (1, 1) at grid location (width, length)
@@ -173,15 +196,18 @@ namespace HLSLTest
 		}
 
 		public float BaseHeight { get; private set; }
-		public Terrain(Texture2D HeightMap, float CellSize, float Height,
+		public SphericalTerrain(Texture2D HeightMap, float CellSize, float Height,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 			:this(HeightMap, CellSize, Height, 0, null, 0, Vector3.Zero, GraphicsDevice, Content)
 		{
 		}
-		public Terrain(Texture2D HeightMap, float CellSize, float Height,
+		public SphericalTerrain(Texture2D HeightMap, float CellSize, float Height,
 			float baseHeight, Texture2D BaseTexture, float TextureTiling, Vector3 LightDirection,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 		{
+			Radius = 50;
+			Center = new Vector3(0, 200, -200);
+
 			this.baseTexture = BaseTexture;
 			this.textureTiling = TextureTiling;
 			this.lightDirection = LightDirection;
@@ -212,7 +238,7 @@ namespace HLSLTest
 				nIndices, BufferUsage.WriteOnly);
 
 			// setting the vertices and indices
-			getHeights();
+			GetHeights();
 			CreateVertices();
 			CreateIndices();
 			GenerateNormals();
@@ -220,5 +246,6 @@ namespace HLSLTest
 			vertexBuffer.SetData<VertexPositionNormalTexture>(vertices);
 			indexBuffer.SetData<int>(indices);
 		}
+	
 	}
 }

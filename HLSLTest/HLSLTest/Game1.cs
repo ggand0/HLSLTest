@@ -52,6 +52,7 @@ namespace HLSLTest
 		Terrain terrain;
 		Planet planet;
 		Model debugModel;
+		SphericalTerrain2 sphericalTerrain;
 
 		public Game1()
 		{
@@ -256,7 +257,8 @@ namespace HLSLTest
 			// Terrain
 			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
 			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
-			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 30, 2500, -1500,
+			//terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			terrain = new Terrain(Content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,
 				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
 			terrain.WeightMap = Content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = Content.Load<Texture2D>("Textures\\sand");
@@ -275,7 +277,16 @@ namespace HLSLTest
 			RockPlanet rockPlanet = new RockPlanet(GraphicsDevice, Content);
 
 			planet = rockPlanet;
-			
+
+
+			// Spherical terrain test
+			sphericalTerrain = new SphericalTerrain2(Content.Load<Texture2D>("Textures\\terrain"), 1, 100, 0,
+				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
+			sphericalTerrain.WeightMap = Content.Load<Texture2D>("Textures\\color1");
+			sphericalTerrain.RTexture = Content.Load<Texture2D>("Textures\\sand");
+			sphericalTerrain.GTexture = Content.Load<Texture2D>("Textures\\grass");
+			sphericalTerrain.BTexture = Content.Load<Texture2D>("Textures\\stone");
+			sphericalTerrain.DetailTexture = Content.Load<Texture2D>("Textures\\detail0");
 		}
 
 		/// <summary>
@@ -470,8 +481,9 @@ namespace HLSLTest
 
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			terrain.Draw(camera.View, camera.Projection);
+			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			terrain.Draw(true, camera.View, camera.Projection);
+			sphericalTerrain.Draw(true, camera.View, camera.Projection);
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
@@ -506,13 +518,14 @@ namespace HLSLTest
 			//glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 
-			planet.Draw(camera.View, Matrix.CreateScale(200), camera.Projection);
+			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection);
 
             // for debug
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();
-			s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
-			e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
+			//s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
+			//e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
+            BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-100,0,0), new Vector3(-0,100,-100)), GraphicsDevice, camera.View, camera.Projection, Color.White);
 			//debugModel.Draw(Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(0, 200, 0)), camera.View, camera.Projection);
 			//debug.Draw(gameTime);
 			//ResetGraphicDevice();

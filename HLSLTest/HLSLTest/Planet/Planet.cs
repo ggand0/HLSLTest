@@ -141,10 +141,10 @@ namespace HLSLTest
 
 
 			// debug
-			using (Stream stream = File.OpenWrite("planet_map.png")) {
+			/*using (Stream stream = File.OpenWrite("planet_map.png")) {
 				Mercator.SaveAsPng(stream, Mercator.Width, Mercator.Height);
 				stream.Position = 0;
-			}
+			}*/
 			//rts.DestroyBuffers();
 			//rts = null;
 
