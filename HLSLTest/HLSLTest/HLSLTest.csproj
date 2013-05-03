@@ -83,6 +83,8 @@
     <Compile Include="Graphics\EnergyShieldEffect.cs" />
     <Compile Include="Graphics\SphericalTerrain.cs" />
     <Compile Include="Graphics\SphericalTerrain2.cs" />
+    <None Include="Graphics\SphericalTerrain2_bak.cs" />
+    <None Include="Graphics\SphericalTerrain2_bak1.cs" />
     <Compile Include="Graphics\Terrain.cs" />
     <Compile Include="Misc\DDSLib.cs" />
     <Compile Include="Debug.cs" />

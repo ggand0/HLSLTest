@@ -483,7 +483,7 @@ namespace HLSLTest
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			terrain.Draw(true, camera.View, camera.Projection);
-			sphericalTerrain.Draw(true, camera.View, camera.Projection);
+			sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
 			belndState = GraphicsDevice.BlendState.ToString();
 			depthState = GraphicsDevice.DepthStencilState.ToString();

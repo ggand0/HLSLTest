@@ -98,7 +98,7 @@ namespace HLSLTest
 						//heights[x, y] = amt * height;
 					}
 				}*/
-				
+
 				Color[] heightMapData = new Color[width * length];
 				heightMapCube.GetData<Color>(orients[orientation], heightMapData);
 
@@ -134,53 +134,26 @@ namespace HLSLTest
 			// Calculate the position offset that will center the terrain at (0, 0, 0)
 			Vector3 offsetToCenter = -new Vector3(((float)width / 2.0f) * cellSize,
 				0, ((float)length / 2.0f) * cellSize);
-
-			/*Vector3[] offsetToFaces = new Vector3[] {
+			Vector3[] offsetToFaces = new Vector3[] {
 				new Vector3(0, length/2.0f, 0),// Top
 				new Vector3(0, -length/2.0f, 0),// Bottom
-				//new Vector3(0, 0, -length/2),// Back
-				//new Vector3(0, 0, length/2),// Front
-				//new Vector3(-width/2, 0, 0),// Left
-				//new Vector3(width/2, 0, 0),// Right
+				/*new Vector3(0, 0, -length/2),// Back
+				new Vector3(0, 0, length/2),// Front
+				new Vector3(-width/2, 0, 0),// Left
+				new Vector3(width/2, 0, 0),// Right*/
 				new Vector3(0, 0, length/2),// Back
 				new Vector3(0, 0, -length/2),// Front
 				new Vector3(-width/2, 0, 0),// Left
 				new Vector3(width/2, 0, 0),// Right
-			};*/
-			float offset = 2f;// for gapping seams!
-			Vector3[] offsetToFaces = new Vector3[] {
-				new Vector3(0, length/2.0f-offset, 0),// Top
-				new Vector3(0, -length/2.0f+offset, 0),// Bottom
-				//new Vector3(0, 0, -length/2),// Back
-				//new Vector3(0, 0, length/2),// Front
-				//new Vector3(-width/2, 0, 0),// Left
-				//new Vector3(width/2, 0, 0),// Right
-				new Vector3(0, 0, length/2-offset),// Back
-				new Vector3(0, 0, -length/2+offset),// Front
-				new Vector3(-width/2+offset, 0, 0),// Left
-				new Vector3(width/2-offset, 0, 0),// Right
 			};
-			/*Vector3[] offsetToFaces = new Vector3[] {
-				new Vector3(0, 1, 0),// Top
-				new Vector3(0, -1, 0),// Bottom
-				//new Vector3(0, 0, -length/2),// Back
-				//new Vector3(0, 0, length/2),// Front
-				//new Vector3(-width/2, 0, 0),// Left
-				//new Vector3(width/2, 0, 0),// Right
-				new Vector3(0, 0, 1),// Back
-				new Vector3(0, 0, -1),// Front
-				new Vector3(-1, 0, 0),// Left
-				new Vector3(1, 0, 0),// Right
-			};*/
 
-			//cellSize /= (float)heightMapCube.Size;
+
 			// For each pixel in the image
 			for (int orientation = 0; orientation < 6; orientation++) {
 				for (int z = 0; z < length; z++)
 					for (int x = 0; x < width; x++) {
 						//Vector3 v = new Vector3(x * cellSize, heights[x, z], z * cellSize) + offsetToCenter;
-						//Vector3 v = new Vector3(x * cellSize, cubeHeights[orientation][x, z], z * cellSize) + offsetToCenter;
-						Vector3 v = new Vector3(x * cellSize, 0, z * cellSize) + offsetToCenter;
+						Vector3 v = new Vector3(x * cellSize, cubeHeights[orientation][x, z], z * cellSize) + offsetToCenter;
 
 						// rotate according to side orientation
 						switch (orientation) {
@@ -197,8 +170,7 @@ namespace HLSLTest
 							case 4: v = new Vector3(-v.Y, v.X, v.Z); break;// Left
 							case 5: v = new Vector3(v.Y, -v.X, v.Z); break;// Right*/
 						}
-						// 全体を移動させるのは球状に変換した後で。
-						Vector3 position = /*Center +*/ v + offsetToFaces[orientation] * cellSize;
+						Vector3 position = Center + v + offsetToFaces[orientation];
 
 
 						// UV coordinates range from (0, 0) at grid location (0, 0) to 
@@ -294,111 +266,6 @@ namespace HLSLTest
 			}
 		}
 
-		public static Vector3 CubeVertexToSphere(Vector3 v)
-		{
-			/*float squareX = v.X * v.X;
-			float squareY = v.Y * v.Y;
-			float squareZ = v.Z * v.Z;
-			float tmpX = 1 - squareY / 2.0f - squareZ / 2.0f + squareY * squareZ / 3.0f;
-			float tmpY = 1 - squareZ / 2.0f - squareX / 2.0f + squareZ * squareX / 3.0f;
-			float tmpZ = 1 - squareX / 2.0f - squareY / 2.0f + squareX * squareY / 3.0f;
-
-			return new Vector3(
-				v.X * (float)Math.Sqrt(tmpX),
-				v.Y * (float)Math.Sqrt(tmpY),
-				v.Z * (float)Math.Sqrt(tmpZ)
-			);*/
-			float sx = v.X * (float)Math.Sqrt(1.0f - v.Y * v.Y * 0.5f - v.Z * v.Z * 0.5f + v.Y * v.Y * v.Z * v.Z / 3.0f);
-			float sy = v.Y * (float)Math.Sqrt(1.0f - v.Z * v.Z * 0.5f - v.X * v.X * 0.5f + v.Z * v.Z * v.X * v.X / 3.0f);
-			float sz = v.Z * (float)Math.Sqrt(1.0f - v.X * v.X * 0.5f - v.Y * v.Y * 0.5f + v.X * v.X * v.Y * v.Y / 3.0f);
-			return new Vector3(sx, sy, sz);
-		}
-
-		private void TransformVertices()
-		{
-			/*Vector3[] faceVec = new Vector3[] {
-				new Vector3(0, 1, 0),// Top
-				new Vector3(0, 1, 0),// Bottom
-				new Vector3(0, 0, 1),// Back
-				new Vector3(0, 0, 1),// Front
-				new Vector3(1, 0, 0),// Left
-				new Vector3(1, 0, 0),// Right
-			};*/
-			Vector3[] faceVec = new Vector3[] {
-				new Vector3(1, 0, 1),// Top
-				new Vector3(1, 0, 1),// Bottom
-				new Vector3(1, 1, 0),// Back
-				new Vector3(1, 1, 0),// Front
-				new Vector3(0, 1, 1),// Left
-				new Vector3(0, 1, 1),// Right
-			};
-
-			float maxX = 0, maxY = 0, maxZ = 0;
-			// transform vertices on a cube to a sphrical map
-			// 全ての頂点の全ての成分が-1to1である必要があるのでそこを要確認
-
-			// というかx,y,zが-1to1のcubeの表面の頂点なら常にどれかの成分は１でなければならないはず。
-			// 単にnormalizeするだけでは意味がないのではないか。
-			for (int orientation = 0; orientation < 6; orientation++) {
-				for (int i = 0; i < vertices[orientation].Length; i++) {
-
-					float length = vertices[orientation][i].Position.Length();// l = 109.7087, {X:-64 Y:62 Z:-64}
-					vertices[orientation][i].Position.Normalize();// normalizeだけだと0to1になるだけ?
-					switch (orientation) {
-						case 0:
-							//vertices[orientation][i].Position.Y = 1;
-							vertices[orientation][i].Position *= 1 / vertices[orientation][i].Position.Y;
-							break;
-						case 1:
-							//vertices[orientation][i].Position.Y = -1;
-							vertices[orientation][i].Position *= -1 / vertices[orientation][i].Position.Y;
-							break;
-						case 2:
-							//vertices[orientation][i].Position.Z = 1;
-							vertices[orientation][i].Position *= 1 / vertices[orientation][i].Position.Z;
-							break;
-						case 3:
-							//vertices[orientation][i].Position.Z = -1;
-							vertices[orientation][i].Position *= -1 / vertices[orientation][i].Position.Z;
-							break;
-						case 4:
-							vertices[orientation][i].Position *= -1 / vertices[orientation][i].Position.X;
-							break;
-						case 5:
-							vertices[orientation][i].Position *= 1 / vertices[orientation][i].Position.X;
-							break;
-					}
-					
-					//vertices[orientation][i].Position *= length;// lengthを掛ければ元の値に戻ることを確認
-
-					//vertices[orientation][i].Position = vertices[orientation][i].Position * 2 - Vector3.One;// その方向に1引く？
-					//vertices[orientation][i].Position =	vertices[orientation][i].Position * faceVec[orientation] * 2 - faceVec[orientation];
-					// Topだったら「その面方向に」-1to1である必要があるはず
-					//Vector3 debug = new Vector3(1, 0, 2) * new Vector3(2, 0, 2);
-					// どのvertexも0.5付近の値らしい?
-					if (vertices[orientation][i].Position.X > 1.0f) {
-						string debug = "maybe ok";//1,0,0の点はある。
-					}
-					if (vertices[orientation][i].Position.X > maxX) maxX = vertices[orientation][i].Position.X;// どれも1.0
-					if (vertices[orientation][i].Position.Y > maxY) maxY = vertices[orientation][i].Position.Y;
-					if (vertices[orientation][i].Position.Z > maxZ) maxZ = vertices[orientation][i].Position.Z;
-
-					vertices[orientation][i].Position = CubeVertexToSphere(vertices[orientation][i].Position);// magic number
-
-					// -1to1から0to1に戻す必要あり？
-					//vertices[orientation][i].Position += Vector3.One;
-					//vertices[orientation][i].Position = vertices[orientation][i].Position / 2.0f;
-
-					//vertices[orientation][i].Position += faceVec[orientation];
-					//vertices[orientation][i].Position = vertices[orientation][i].Position / (faceVec[orientation] * 2);
-
-					//vertices[orientation][i].Position *= new Vector3(heightMapCube.Size, 0, heightMapCube.Size);
-					vertices[orientation][i].Position *= 200;
-					//vertices[orientation][i].Position += Center;
-				}
-			}
-			int d = 0;
-		}
 		private void AddVertices()
 		{
 			/*for (int i = 0; i < vertices.GetLength(0); i++) {
@@ -407,9 +274,6 @@ namespace HLSLTest
 				}
 				//if (i==2) break;
 			}*/
-
-
-			TransformVertices();
 			for (int i = 0; i < vertices.GetLength(0); i++) {
 				//vertexBuffer[i].SetData<VertexPositionNormalTexture>(vertices[i,]);
 
@@ -418,11 +282,11 @@ namespace HLSLTest
 
 				vertexBuffer[i].SetData<VertexPositionNormalTexture>(vertices[i]);
 			}
-			
+
 		}
 		private void AddIndices()
 		{
-			
+
 			/*for (int i = 0; i < indices.GetLength(0); i++) {
 				for (int j = 0; j < indices.GetLength(1); j++) {
 					//finalIndices[i * j + j] = indices[i, j];
@@ -434,9 +298,6 @@ namespace HLSLTest
 				indexBuffer[i].SetData<int>(indices[i]);
 			}
 		}
-
-
-
 		/*public void Draw(bool wireFrame, Matrix View, Matrix Projection)
 		{
 			if (wireFrame) {
@@ -535,8 +396,6 @@ namespace HLSLTest
 			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\sphericalHeightmap0");
 			this.width = heightMapCube.Size;
 			this.length = heightMapCube.Size;
-			//int[] test = new int[heightMapCube.Size]
-			//heightMapCube.GetData<int>(CubeMapFace.NegativeX,);
 
 			this.cellSize = CellSize;
 			this.BaseHeight = baseHeight;
@@ -546,7 +405,7 @@ namespace HLSLTest
 			effect.Parameters["BaseTexture"].SetValue(baseTexture);
 			effect.Parameters["TextureTiling"].SetValue(textureTiling);
 			effect.Parameters["LightDirection"].SetValue(lightDirection);
-			
+
 
 			// 1 vertex per pixel
 			nVertices = width * length;
