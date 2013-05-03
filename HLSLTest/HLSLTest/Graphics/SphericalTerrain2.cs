@@ -21,6 +21,8 @@ namespace HLSLTest
 
 
 		private float[,] heights; // Array of vertex heights
+		private float[][,] cubeHeights;
+
 		private float height; // Maximum height of terrain
 		private float cellSize; // Distance between vertices on x and z axes
 		private int width, length; // Number of vertices on x and z axes
@@ -68,27 +70,52 @@ namespace HLSLTest
 		}
 		private void GetCubeHeights()
 		{
-			heightMapCube.GetData<int>(CubeMapFace.NegativeX, );
+			CubeMapFace[] orients = new CubeMapFace[] {
+				CubeMapFace.PositiveY,
+				CubeMapFace.NegativeY,
+				CubeMapFace.PositiveZ,
+				CubeMapFace.NegativeZ,
+				CubeMapFace.PositiveX,
+				CubeMapFace.NegativeX
+			};
+			cubeHeights = new float[6][,];
 
-			// Extract pixel data
-			Color[] heightMapData = new Color[width * length];
-			heightMap.GetData<Color>(heightMapData);
+			for (int orientation = 0; orientation < 6; orientation++) {
+				/*// Extract pixel data
+				Color[] heightMapData = new Color[width * length];
+				heightMap.GetData<Color>(heightMapData);
+				// Create heights[,] array
+				heights = new float[width, length];
+				// For each pixel
+				for (int y = 0; y < length; y++) {
+					for (int x = 0; x < width; x++) {
+						// Get color value (0 - 255)
+						float amt = heightMapData[y * width + x].R;
+						// Scale to (0 - 1)
+						amt /= 255.0f;
+						// Multiply by max height to get final height
+						heights[x, y] = amt * height + BaseHeight;// 指定された高さからのheightにしたver
+						//heights[x, y] = amt * height;
+					}
+				}*/
+				
+				Color[] heightMapData = new Color[width * length];
+				heightMapCube.GetData<Color>(orients[orientation], heightMapData);
 
-			// Create heights[,] array
-			heights = new float[width, length];
+				// Create heights[,] array
+				cubeHeights[orientation] = new float[width, length];
 
-			// For each pixel
-			for (int y = 0; y < length; y++) {
-				for (int x = 0; x < width; x++) {
-					// Get color value (0 - 255)
-					float amt = heightMapData[y * width + x].R;
-
-					// Scale to (0 - 1)
-					amt /= 255.0f;
-
-					// Multiply by max height to get final height
-					heights[x, y] = amt * height + BaseHeight;// 指定された高さからのheightにしたver
-					//heights[x, y] = amt * height;
+				// For each pixel
+				for (int y = 0; y < length; y++) {
+					for (int x = 0; x < width; x++) {
+						// Get color value (0 - 255)
+						float amt = heightMapData[y * width + x].R;
+						// Scale to (0 - 1)
+						amt /= 255.0f;
+						// Multiply by max height to get final height
+						cubeHeights[orientation][x, y] = amt * height + BaseHeight;// 指定された高さからのheightにしたver
+						//heights[x, y] = amt * height;
+					}
 				}
 			}
 		}
@@ -125,7 +152,8 @@ namespace HLSLTest
 			for (int orientation = 0; orientation < 6; orientation++) {
 				for (int z = 0; z < length; z++)
 					for (int x = 0; x < width; x++) {
-						Vector3 v = new Vector3(x * cellSize, heights[x, z], z * cellSize) + offsetToCenter;
+						//Vector3 v = new Vector3(x * cellSize, heights[x, z], z * cellSize) + offsetToCenter;
+						Vector3 v = new Vector3(x * cellSize, cubeHeights[orientation][x, z], z * cellSize) + offsetToCenter;
 
 						// rotate according to side orientation
 						switch (orientation) {
@@ -363,8 +391,12 @@ namespace HLSLTest
 			this.lightDirection = LightDirection;
 
 			this.heightMap = HeightMap;
-			this.width = HeightMap.Width;
-			this.length = HeightMap.Height;
+			//this.width = HeightMap.Width;
+			//this.length = HeightMap.Height;
+			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\sphericalHeightmap0");
+			this.width = heightMapCube.Size;
+			this.length = heightMapCube.Size;
+
 			this.cellSize = CellSize;
 			this.BaseHeight = baseHeight;
 			this.height = Height;
@@ -373,7 +405,7 @@ namespace HLSLTest
 			effect.Parameters["BaseTexture"].SetValue(baseTexture);
 			effect.Parameters["TextureTiling"].SetValue(textureTiling);
 			effect.Parameters["LightDirection"].SetValue(lightDirection);
-			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\heightmapCube0");
+			
 
 			// 1 vertex per pixel
 			nVertices = width * length;
@@ -415,7 +447,8 @@ namespace HLSLTest
 			}
 
 			// setting the vertices and indices
-			GetHeights();
+			//GetHeights();
+			GetCubeHeights();
 			CreateVertices();
 			CreateIndices();
 			GenerateNormals();

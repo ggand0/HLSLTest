@@ -387,6 +387,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Textures\Terrain\sphericalHeightmap0.dds">
+      <Name>sphericalHeightmap0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="projectedTexture.png">
@@ -787,6 +792,13 @@
   <ItemGroup>
     <Compile Include="Textures\Planet\rock.png">
       <Name>rock</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Terrain\heightmapCube0.png">
+      <Name>heightmapCube0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
