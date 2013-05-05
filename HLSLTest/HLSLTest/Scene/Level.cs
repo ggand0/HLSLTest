@@ -23,6 +23,8 @@ namespace HLSLTest
 		public List<Object> Models { get; protected set; }
 		public SkySphere Sky { get; protected set; }
 
+		public Vector3 LightPosition = new Vector3(-2000, 0, 2000);
+
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
 		/// spriteBatchがDeviceにした変更を戻すのに使う
@@ -43,6 +45,7 @@ namespace HLSLTest
 			Water.level = this;
 			GlassEffect.level = this;
 			DiscoidEffect.level = this;
+			Planet.level = this;
 		}
 		public override void Load()
 		{

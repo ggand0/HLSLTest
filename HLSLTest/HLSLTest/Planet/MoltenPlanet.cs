@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,30 +8,38 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class WaterPlanet : Planet
+	public class MoltenPlanet : Planet
 	{
-		public WaterPlanet(GraphicsDevice graphics, ContentManager content)
-			:base(graphics, content)
+		protected Texture2D lava;
+
+		public MoltenPlanet(GraphicsDevice graphics, ContentManager content)
+			: base(graphics, content)
 		{
 			Type = PlanetType.Water;
-			
 		}
 
 		protected override void LoadContent(ContentManager content)
 		{
+
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
 			model = content.Load<Model>("Models\\sphere2");
+			lava = content.Load<Texture2D>("Textures\\Planet\\lava");
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
 			terrain = content.Load<Effect>("Planets\\WaterPlanet");
-			draw = content.Load<Effect>("Planets\\ColorMap");
-			Palette = content.Load<Texture2D>("Textures\\Planet\\water2");
-			Nz = 64;//128;
+			draw = content.Load<Effect>("Planets\\MoltenPlanet");
+			Palette = content.Load<Texture2D>("Textures\\Planet\\rock");
+			Nz = 128;//50
 
 			Generate(graphics);
-			SubType = 1;
 		}
-		
+
+		public override void Draw(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			draw.Parameters["Lava"].SetValue(lava);// added
+
+			base.Draw(Position, View, Projection, CameraPosition);
+		}
 	}
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
@@ -18,7 +19,10 @@ namespace HLSLTest
 	};
 	public abstract class Planet
 	{
-		protected Model model;
+		public static Game1 game;
+		public static Level level;
+
+		protected Model model, sphere;
 		protected int Scale;
 
 		public int Seed { get; private set; }
@@ -29,8 +33,39 @@ namespace HLSLTest
 		public Texture2D normalmap { get; protected set; }
 		public Effect terrain { get; protected set; }
 		public Effect draw { get; protected set; }
+		/// <summary>
+		/// このプロジェクトでは使う予定は無いが、チュートリアルで使うかもしれないので一応。
+		/// </summary>
 		public RenderTargetState rts { get; protected set; }
+		/// <summary>
+		/// 小さいほど凹凸が激しい
+		/// </summary>
 		public int Nz { get; protected set; }
+
+		public int TextureWidth = 512;
+		public int TextureHeight = 512;
+		public int SubType { get; protected set; }
+
+
+		protected GraphicsDevice graphics;
+		public Effect atmosphere { get; protected set; }
+		float p_radius = 200;
+		float a_radius = 205;
+		float c_radius = 200.5f;
+		public float roll;
+		public float pitch;
+
+		public Planet(GraphicsDevice graphics, ContentManager content)
+		{
+			this.graphics = graphics;
+			LoadContent(content);
+		}
+		protected virtual void LoadContent(ContentManager content)
+		{
+			sphere = content.Load<Model>("Models\\sphere");
+			atmosphere = content.Load<Effect>("Planets//SkyFromSpace");
+			BuildPerm(graphics);
+		}
 
 		/// <summary>
 		/// generate a random array of numbers, based on the planets seed,
@@ -70,19 +105,87 @@ namespace HLSLTest
 			PermTex = new Texture2D(graphicsDevice, 256, 256, false, SurfaceFormat.Vector4);
 			//PermTex = new Texture2D(graphicsDevice, 256, 256, false, SurfaceFormat.Single);
 			PermTex.SetData(perm);
+
+			// 色の決定
+			SubType = r.Next(8);
+
 			using (Stream stream = File.OpenWrite("permtex.png")) {
 				PermTex.SaveAsPng(stream, PermTex.Width, PermTex.Height);
 				stream.Position = 0;
 			}
 		}
-		public void Draw(Matrix View, Matrix World, Matrix Projection)
+
+		protected virtual void SetAtmosphereEffectParametersDetail()
 		{
+			atmosphere.Parameters["fKrESun"].SetValue(0.00025f * 10);
+			atmosphere.Parameters["fKmESun"].SetValue(0.0015f * 10);
+			atmosphere.Parameters["v3InvWavelength"].SetValue(new Vector3(1.0f / (float)Math.Pow(0.650f, 4), 1.0f / (float)Math.Pow(0.570f, 4), 1.0f / (float)Math.Pow(0.475f, 4)));
+		}
+		protected virtual void SetAtmosphereEffectParameters(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			float scale = 1.0f / (a_radius - p_radius);
+
+			atmosphere.Parameters["fOuterRadius"].SetValue(a_radius);
+			atmosphere.Parameters["fInnerRadius"].SetValue(p_radius);
+			atmosphere.Parameters["fOuterRadius2"].SetValue(a_radius * a_radius);
+			atmosphere.Parameters["fInnerRadius2"].SetValue(p_radius * p_radius);
+			atmosphere.Parameters["fKr4PI"].SetValue(0.0025f * 4 * MathHelper.Pi);
+			atmosphere.Parameters["fKm4PI"].SetValue(0.0015f * 4 * MathHelper.Pi);
+			atmosphere.Parameters["fScale"].SetValue(scale);
+			atmosphere.Parameters["fScaleDepth"].SetValue(0.25f);
+			atmosphere.Parameters["fScaleOverScaleDepth"].SetValue(scale / 0.25f);
+			atmosphere.Parameters["fSamples"].SetValue(2.0f);
+			atmosphere.Parameters["nSamples"].SetValue(2);
+
+
+			// ここを惑星ごとに変えるべし
+			SetAtmosphereEffectParametersDetail();
+
+			Matrix World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch);
+				//* Matrix.CreateTranslation(Position);
+			Vector3 vl = -level.LightPosition;
+			vl.Normalize();
+
+			atmosphere.Parameters["World"].SetValue(World);
+			atmosphere.Parameters["View"].SetValue(View);
+			atmosphere.Parameters["Projection"].SetValue(Projection);
+			atmosphere.Parameters["v3CameraPos"].SetValue(CameraPosition);
+
+			atmosphere.Parameters["v3LightDir"].SetValue(vl);
+			atmosphere.Parameters["v3LightPos"].SetValue(level.LightPosition);
+			atmosphere.Parameters["fCameraHeight"].SetValue(CameraPosition.Length());
+			atmosphere.Parameters["fCameraHeight2"].SetValue(CameraPosition.LengthSquared());
+		}
+		public virtual void Draw(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+
+			/*//Matrix wvp = World * View * Projection;
+			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
+				//* Matrix.CreateTranslation(Position);
 			Matrix wvp = World * View * Projection;
+			Vector3 light = -level.LightPosition;
+			light.Normalize();
+
+			draw.Parameters["wvp"].SetValue(wvp);
+			// wvp以外は毎フレーム設定する必要ないよな
+			draw.Parameters["Palette"].SetValue(Palette);
+			draw.Parameters["ColorMap"].SetValue(Mercator);
+			draw.Parameters["BumpMap"].SetValue(normalmap);
+			draw.Parameters["world"].SetValue(World);
+			draw.Parameters["subtype"].SetValue(SubType / 8.0f);*/
+			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
+			Matrix wvp = World * View * Projection;
+			Vector3 light = -level.LightPosition;
+			light.Normalize();
+			draw.Parameters["LightDirection"].SetValue(light);
 			draw.Parameters["wvp"].SetValue(wvp);
 			draw.Parameters["Palette"].SetValue(Palette);
 			draw.Parameters["ColorMap"].SetValue(Mercator);
 			draw.Parameters["BumpMap"].SetValue(normalmap);
 			draw.Parameters["world"].SetValue(World);
+			draw.Parameters["subtype"].SetValue(SubType / 8.0f);
+
+			//graphics.RasterizerState = RasterizerState.CullNone;
 			for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
 				for (int msh = 0; msh < model.Meshes.Count; msh++) {
 					ModelMesh mesh = model.Meshes[msh];
@@ -93,31 +196,50 @@ namespace HLSLTest
 				}
 			}
 
+			// atmosphere scattering setteings
+			SetAtmosphereEffectParameters(Position, View, Projection, CameraPosition);
+
+
+			// Draw
+			graphics.RasterizerState = RasterizerState.CullClockwise;
+			/*DepthStencilState ds = new DepthStencilState();
+			ds.DepthBufferEnable = false;
+			graphics.DepthStencilState = ds;*/
+			foreach (ModelMesh mesh in sphere.Meshes) {
+				for (int i = 0; i < mesh.MeshParts.Count; i++) {
+					// Set this MeshParts effect (currentEffect) to the desired effect (from .fx file)   
+					mesh.MeshParts[i].Effect = atmosphere;
+				}
+				mesh.Draw();
+			}
+			//graphics.RenderState.CullMode = CullMode.None;
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphics.DepthStencilState = DepthStencilState.Default;
+
 		}
 
 
 		private int safex(int x)
 		{
-			if (x >= 512)
-				return x - 512;
+			if (x >= TextureWidth)
+				return x - TextureWidth;
 			if (x < 0)
-				return 512 + x;
+				return TextureWidth + x;
 			return x;
 		}
-
 		private int safey(int y)
 		{
-			if (y >= 512)
-				return y - 512;
+			if (y >= TextureHeight)
+				return TextureHeight - 1;
 			if (y < 0)
-				return 512 + y;
+				return 0;
 			return y;
 		}
 		public void Generate(GraphicsDevice graphics)
 		{
-			//rts = new RenderTargetState(graphics, 512, 512, 512, 512);// このクラス消して直接setRenderTargetした方が絶対わかりやすいよな...
+			//rts = new RenderTargetState(graphics, TextureWidth, TextureHeight, TextureWidth, TextureHeight);// このクラス消して直接setRenderTargetした方が絶対わかりやすいよな...
 			//rts.BeginRenderToTexture();
-			RenderTarget2D RenderTarget = new RenderTarget2D(graphics, 512, 512, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			RenderTarget2D RenderTarget = new RenderTarget2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			graphics.SetRenderTarget(RenderTarget);
 
 			DepthStencilState ds = new DepthStencilState();
@@ -149,19 +271,45 @@ namespace HLSLTest
 			//rts = null;
 
 			// generate normals
-			Color[] Map = new Color[512 * 512];
+			Color[] Map = new Color[TextureHeight * TextureWidth];
 			Mercator.GetData<Color>(Map);
 
 			//normalmap = new Texture2D(graphics, 512, 512, 1, TextureUsage.None, SurfaceFormat.Color);
-			normalmap = new Texture2D(graphics, 512, 512, false, SurfaceFormat.Color);
-			Color[] pixels = new Color[512 * 512];
+			normalmap = new Texture2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color);
+			Color[] pixels = new Color[TextureHeight * TextureWidth];
 			Color c3;
-			for (int y = 0; y < 512; y++) {
-				int offset = y * 512;
-				for (int x = 0; x < 512; x++) {
-					float h0 = (float)Map[x + (512 * y)].R;
-					float h1 = (float)Map[x + (512 * safey(y + 1))].R;
-					float h2 = (float)Map[safex(x + 1) + (512 * y)].R;
+
+			#region Fix the crenalations at the top and bottom of the heightmap
+			// Fix the heightmap at the poles.
+			int max_x = (TextureHeight - 1) * TextureWidth;
+			for (int x = 0; x < TextureWidth; x++) {
+				Map[x + max_x - TextureWidth] = Map[x + max_x - (TextureWidth * 2)];
+				Map[x + max_x] = Map[x + max_x - TextureWidth];
+				Map[x + TextureWidth] = Map[x + (TextureWidth * 2)];
+				Map[x] = Map[x + TextureWidth];
+
+			}
+			//max_x -= TextureWidth;
+			for (int x = 0; x < TextureWidth; x += 16) {
+				for (int y = 0; y < 32; y++) {
+					int i = y / 2;
+					for (int j = i + 1; j <= 16; j++) {
+						Map[x + j + (y * TextureWidth)] = Map[x + i + (y * TextureWidth)];
+						int mx = x + j + max_x - (y * TextureWidth);
+						if (mx < TextureWidth * TextureHeight)
+							Map[mx] = Map[x + i + max_x - (y * TextureWidth)];
+					}
+				}
+			}
+			Mercator.SetData<Color>(Map);
+			#endregion
+
+			for (int y = 0; y < TextureHeight; y++) {
+				int offset = y * TextureWidth;
+				for (int x = 0; x < TextureWidth; x++) {
+					float h0 = (float)Map[x + (TextureWidth * y)].R;
+					float h1 = (float)Map[x + (TextureWidth * safey(y + 1))].R;
+					float h2 = (float)Map[safex(x + 1) + (TextureWidth * y)].R;
 
 					float Nx = h0 - h2;
 					float Ny = h0 - h1;
@@ -174,7 +322,7 @@ namespace HLSLTest
 					byte cg = (byte)(128 + (255 * Normal.Y));
 					byte cb = (byte)(128 + (255 * Normal.Z));
 					c3 = new Color(cr, cg, cb);
-					pixels[x + (y * 512)] = c3;
+					pixels[x + (y * TextureWidth)] = c3;
 				}
 			}
 

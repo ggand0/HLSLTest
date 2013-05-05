@@ -15,16 +15,20 @@ namespace HLSLTest
 		GraphicsDevice graphics;
 		public TextureCube TextureCube { get; set; }
 
-		public SkySphere(ContentManager content, GraphicsDevice graphcisDevice, TextureCube Texture)
+		public SkySphere(ContentManager content, GraphicsDevice graphcisDevice, TextureCube Texture, float scale)
 		{
 			//model = new Object(content.Load<Model>("skysphere_mesh"), Vector3.Zero, Vector3.Zero, new Vector3(100000),GraphicsDevice);
 			/*model = new Object(new Vector3(1000), "Models\\SkySphereMesh");
 			model.Scale = 0.5f;*/
 			model = new Object(new Vector3(0, 0, 0), "Models\\SphereHighPoly");// "Models\\SkySphereMesh");//Model Model, Vector3 Position, Vector3 Rotation,Vector3 Scale,
 			//model.Scale = 1000;
-			model.Scale = 10000;
+			//model.Scale = 10000;
+			model.Scale = scale;
 
 			TextureCube = Texture;
+			Color[] c = new Color[TextureCube.Size * TextureCube.Size];
+			TextureCube.GetData<Color>(CubeMapFace.PositiveZ, c);
+
 			effect = content.Load<Effect>("SkySphereEffect");
 			effect.Parameters["CubeMap"].SetValue(Texture);
 			//effect = content.Load<Effect>("SkySphere");

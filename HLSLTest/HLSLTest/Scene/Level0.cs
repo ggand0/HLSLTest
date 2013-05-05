@@ -187,7 +187,7 @@ namespace HLSLTest
 
 			//sky = new SkySphere(content, device, content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			//sky = new SkySphere(content, device, content.Load<TextureCube>("Cross"));//("OutputCube0"));
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("SkyBoxTex"));
+			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
 			//Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
 
 			Water.game = game;
@@ -234,8 +234,7 @@ namespace HLSLTest
 
 			// Planet test
 			debugModel = content.Load<Model>("Models\\sphere2");
-			WaterPlanet waterPlanet = new WaterPlanet(device);
-			waterPlanet.LoadContent(content);
+			WaterPlanet waterPlanet = new WaterPlanet(device, content);
 			IcePlanet icePlanet = new IcePlanet(device, content);
 			GasGiant gasGiant = new GasGiant(device, content);
 			RockPlanet rockPlanet = new RockPlanet(device, content);

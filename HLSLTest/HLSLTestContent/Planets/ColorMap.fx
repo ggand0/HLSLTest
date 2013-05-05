@@ -9,9 +9,12 @@ texture Palette;
 sampler PallSampler = sampler_state 
 {
     texture = <Palette>;
-    magfilter	= POINT; 
-	minfilter	= POINT; 
-	mipfilter	= POINT; 
+    /*magfilter	= POINT;
+	minfilter	= POINT;
+	mipfilter	= POINT;*/
+	magfilter	= LINEAR;
+	minfilter	= LINEAR;
+	mipfilter	= LINEAR;
 	AddressU	= CLAMP;  
 	AddressV	= CLAMP;
 };
@@ -19,9 +22,9 @@ texture ColorMap : Diffuse;
 sampler ColorMapSampler = sampler_state 
 {
     texture = <ColorMap>;
-    magfilter	= POINT; 
-	minfilter	= POINT; 
-	mipfilter	= POINT; 
+    magfilter	= LINEAR; 
+	minfilter	= LINEAR; 
+	mipfilter	= LINEAR; 
 	AddressU	= CLAMP;  
 	AddressV	= CLAMP;
 };
@@ -30,7 +33,7 @@ sampler BumpMapSampler = sampler_state
 {
 	Texture = <BumpMap>;
 };
-
+float subtype=0;
 
 
 struct VertexShaderInput
@@ -75,12 +78,14 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	
 	/*float3 LightDir = normalize(input.Light);
     float Diffuse = saturate(dot(LightDir,normalize(input.Normal)));*/
+
 	float3 Normal = (2 * (tex2D(BumpMapSampler,input.TexCoord))) - 1.0;
 	float3 LightDir = normalize(input.Light);
 	float Diffuse = saturate(dot(LightDir,Normal));
 		
-	float4 height = tex2D(ColorMapSampler,input.TexCoord);
-	float4 texCol = tex2D(PallSampler,float2(0,height.x));
+	float4 height = tex2D(ColorMapSampler, input.TexCoord);
+	//float4 texCol = tex2D(PallSampler,float2(0,height.x));
+	float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
 
 	texCol *= Diffuse;
 	

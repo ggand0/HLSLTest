@@ -14,6 +14,8 @@ sampler ColorMapSampler = sampler_state
 	AddressV	= WRAP;
 };
 
+int subtype = 0;
+
 //======================================================================================
 //=
 //=
@@ -175,16 +177,17 @@ PS_OUT PS_ColorMap(VS_OUT input)
 	float y=0;
 	for (int i=0; i<4; i++)
 	{
-	   freq = (2*pow(2,i))-1;
-	   amp=pow(0.5,i);
-	   y+=snoise(input.WP*freq)*amp;
+	   freq = (2 * pow(2 ,i)) - 1;
+	   //amp=pow(0.5, i);
+	   amp=pow(0.25, i);
+	   y += snoise(input.WP * freq) * amp;
 	}
 	
-	y=(y+1)/2;
-	y = 1.0f-pow(y, xOvercast)*2.0f;
+	//y = (y + 1) / 2;
+	y=(y+1)/(1+(subtype*4));
+	y = 1.0f-pow(y, xOvercast) * 2.0f;
 
-	output.Color =  float4(y.x,y.x,y.x,1);
-	
+	output.Color =  float4(y.x ,y.x ,y.x ,1);
 	return output;
 }
 

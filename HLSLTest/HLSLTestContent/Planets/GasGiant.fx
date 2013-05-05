@@ -15,6 +15,8 @@ sampler ColorMapSampler = sampler_state
 	AddressV	= WRAP;
 };
 
+int subtype = 0;
+
 //======================================================================================
 //=
 //=
@@ -62,8 +64,7 @@ float4 PS_ColorMap(VS_OUT input) : COLOR0
 	float amp=2;
 	float freq=1;
 	float y=0;
-	for (int i=0; i<4; i++)
-	{
+	for (int i=0; i<4; i++) {
 	   freq = (2 * pow(2 ,i)) - 1;
 	   //amp=pow(0.5, i);
 	   amp=pow(0.25, i);
@@ -75,8 +76,9 @@ float4 PS_ColorMap(VS_OUT input) : COLOR0
 
 	output.Color =  float4(y.x ,y.x ,y.x ,1);
 	return output;*/
-	 float res=snoise(ColorMapSampler, input.WP*6);
-    float3 dr = float3(2,res+10,2);
+	float res=snoise(ColorMapSampler, input.WP*6);
+    //float3 dr = float3(2,res+10,2);
+	float3 dr = float3(subtype,res+10,subtype);
     float h = snoise(ColorMapSampler, input.WP*dr);
     float4 texCol = float4(h,h,h,1);
 

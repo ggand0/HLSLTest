@@ -263,6 +263,29 @@ namespace HLSLTest
 			UpdateChaseTarget(target);
 			Reset();
 		}
+		public void Initialize(Game1 game, Vector3 target)
+		{
+			// カメラのオフセットを設定します
+			DesiredPositionOffset = new Vector3(0.0f, 2000.0f, 3500.0f);
+			//LookAtOffset = new Vector3(0.0f, 150.0f, 0.0f);// 少し上を見るように調整されてあるようだ
+			LookAtOffset = new Vector3(0.0f, 25.0f, 0.0f);
+
+			// カメラの視点を設定します
+			NearPlaneDistance = 10.0f;
+			FarPlaneDistance = 100000.0f;
+			// カメラのアスペクト比を設定します
+			// これは、グラフィック デバイスを初期化する base.Initalize() の
+			// 呼び出しの後で行う必要があります。
+			AspectRatio = (float)game.GraphicsDevice.Viewport.Width /
+				game.GraphicsDevice.Viewport.Height;
+
+			// カメラで初期リセットを実行し、静止位置で開始するようにます。これを行わないと、カメラは原点で開始し
+			// 追尾対象オブジェクトを追ってワールド中を移動します。ここで実行する理由は、Reset でアスペクト比が必要になるためです。
+			UpdateChaseTarget(target);
+			Reset();
+		}
+
+
 		/// <summary>
 		/// カメラによって追尾されるように値を更新する
 		/// </summary>
@@ -278,6 +301,15 @@ namespace HLSLTest
 			ChaseDirection = target.Position - Position;
 			//Up = target.RotationMatrix.Up;
 		}
+		public void UpdateChaseTarget(Vector3 target)
+		{
+			// ActionGameと違って今は対象の方向と一致していない
+			ChasePosition = target;
+			ChaseDirection = target - Position;
+			//Up = target.RotationMatrix.Up;
+		}
+
+
 		/// <summary>
 		/// カメラの現在位置から、追跡されるオブジェクトの背後の目的のオフセットに向かって
 		/// カメラをアニメーション表示します。カメラのアニメーションは、

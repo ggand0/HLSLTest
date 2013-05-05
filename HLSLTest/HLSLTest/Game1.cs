@@ -74,7 +74,7 @@ namespace HLSLTest
 			Level.content = Content;
 
 			// 最初に表示するシーンを追加
-			PushScene(new Level0(null));
+			PushScene(new Level2(null));
 		}
 
 		/// <summary>
