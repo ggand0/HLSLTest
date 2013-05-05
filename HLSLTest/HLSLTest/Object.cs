@@ -11,6 +11,7 @@ namespace HLSLTest
 	public class Object : IRenderable
 	{
 		public static Game1 game;
+		public static Level level;
 		public static ContentManager content;
 
 
@@ -171,8 +172,8 @@ namespace HLSLTest
 			foreach (ModelMesh mesh in model.Meshes) {
 				foreach (BasicEffect effect in mesh.Effects) {
 					effect.EnableDefaultLighting();
-					effect.Projection = game.camera.Projection;//game.projectionMatrix;
-					effect.View = game.camera.View;//game.viewMatrix;
+					effect.Projection = level.camera.Projection;//game.projectionMatrix;
+					effect.View = level.camera.View;//game.viewMatrix;
 				}
 			}
 
@@ -193,8 +194,8 @@ namespace HLSLTest
 					effect.World = transforms[mesh.ParentBone.Index] * world;
 
 					// 追尾カメラによって提供される行列を使用します
-					effect.View = game.camera.View;
-					effect.Projection = game.camera.Projection;
+					effect.View = level.camera.View;
+					effect.Projection = level.camera.Projection;
 				}
 				mesh.Draw();
 			}
@@ -311,8 +312,8 @@ namespace HLSLTest
 					// "ワールド座標を使用してモデルの位置を変更する場合に、この行列を使用します。"
 					effect.World = transforms[mesh.ParentBone.Index] * _world;//Matrix.Identity * Matrix.CreateScale(Scale);
 					// 追尾カメラによって提供される行列を使用します : ビュー変換と射影変換はcameraに任せる
-					effect.View = game.camera.View;
-					effect.Projection = game.camera.Projection;
+					effect.View = level.camera.View;
+					effect.Projection = level.camera.Projection;
 				}
 				mesh.Draw();
 			}

@@ -83,6 +83,13 @@
     <Compile Include="Graphics\CubeMapReflectMaterial.cs" />
     <Compile Include="Graphics\EnergyShieldEffect.cs" />
     <Compile Include="Misc\KeyConfig.cs" />
+    <None Include="Scene\Game1_bak0.cs" />
+    <Compile Include="Scene\Level.cs" />
+    <Compile Include="Scene\Level0.cs" />
+    <Compile Include="Scene\Level1.cs" />
+    <None Include="Scene\MenuScene.cs" />
+    <None Include="Scene\PauseScene.cs" />
+    <Compile Include="Scene\Scene.cs" />
     <Compile Include="Terrain\HeightMap.cs" />
     <Compile Include="Terrain\PerlinGenerator.cs" />
     <Compile Include="Terrain\SphericalTerrain.cs" />

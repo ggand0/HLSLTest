@@ -13,6 +13,7 @@ namespace HLSLTest
     public class GlassEffect
     {
         public static Game1 game;
+		public static Level level;
 
         private Object glassMesh;
         private Effect glassEffect;
@@ -208,7 +209,8 @@ namespace HLSLTest
             //glassEffect.Parameters["RefractionMap"].SetValue(refractionTarget);// 屈折マップ生成
 			//glassEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);// 屈折マップ生成
             Update();
-			glassEffect.Parameters["RefractionMap"].SetValue(game.EnvironmentalMap);// シーンが映り込んだマップを使う場合
+
+			//glassEffect.Parameters["RefractionMap"].SetValue(level.EnvironmentalMap);// シーンが映り込んだマップを使う場合
         }
 
         public void Update()
@@ -277,7 +279,7 @@ namespace HLSLTest
                 renderer = new PrelightingRenderer(graphics, content);
             }
             renderer = new PrelightingRenderer(graphics, content);
-            renderer.Models = game.Models;
+            renderer.Models = level.Models;
             renderer.Lights = new List<PPPointLight>() {
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),

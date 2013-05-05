@@ -15,7 +15,9 @@ namespace HLSLTest
 		public static float RADIANS_FOR_90DEGREES = MathHelper.ToRadians(90);//(float)(Math.PI / 2.0);
 		public static float RADIANS_FOR_180DEGREES = RADIANS_FOR_90DEGREES * 2;
 
-		private Game1 _gameInstance = null;
+		private Game1 game;
+		public static Level level;
+
 		private BasicEffect basicEffect;
 		private const int CIRCLE_NUM_POINTS = 32;
 		private IndexBuffer _indexBuffer;
@@ -25,12 +27,12 @@ namespace HLSLTest
 
 		public BoundingSphereRenderer(Game1 game)
 		{
-			_gameInstance = game;
+			this.game = game;
 		}
 
 		public void OnCreateDevice()
 		{
-			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)_gameInstance.Services.GetService(typeof(IGraphicsDeviceService));
+			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 
 			basicEffect = new BasicEffect(graphicsService.GraphicsDevice);
 
@@ -39,7 +41,7 @@ namespace HLSLTest
 
 		public void CreateShape()
 		{
-			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)_gameInstance.Services.GetService(typeof(IGraphicsDeviceService));
+			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 
 			/*vertexDecl = new VertexDeclaration(
 			graphicsService.GraphicsDevice,
@@ -81,7 +83,7 @@ namespace HLSLTest
 
 		private void InitializeLineStrip()
 		{
-			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)_gameInstance.Services.GetService(typeof(IGraphicsDeviceService));
+			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 
 			// Initialize an array of indices of type short
 			//short[] lineStripIndices = new short[CIRCLE_NUM_POINTS + 1];
@@ -119,7 +121,7 @@ namespace HLSLTest
 
 		public void Draw(BoundingSphere bs, Color color)
 		{
-			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)_gameInstance.Services.GetService(typeof(IGraphicsDeviceService));
+			IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 			GraphicsDevice device = graphicsService.GraphicsDevice;
 
 			if (bs != null) {
@@ -155,8 +157,8 @@ namespace HLSLTest
 				basicEffect.EnableDefaultLighting();
 				//basicEffect.View = _gameInstance.camera.View;
 				//basicEffect.Projection = _gameInstance.camera.Projection;
-				basicEffect.View = _gameInstance.camera.View;
-				basicEffect.Projection = _gameInstance.camera.Projection;
+				basicEffect.View = level.camera.View;
+				basicEffect.Projection = level.camera.Projection;
 
 				//basicEffect.Begin();
 				foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {

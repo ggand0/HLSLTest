@@ -11,6 +11,8 @@ namespace HLSLTest
 	public class DiscoidEffect
 	{
 		public static Game1 game;
+		public static Level level;
+
 		Effect discoidEffect;
 		ContentManager content;
 		GraphicsDevice graphics;
@@ -58,8 +60,8 @@ namespace HLSLTest
 
 			Vector3 reflectedCameraPosition = CameraPosition;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + discoidMesh.Position.Y * 2;
-			Vector3 reflectedCameraTarget = game.camera.ChasePosition;
-			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - game.camera.LookAtOffset.Y + discoidMesh.Position.Y * 2;
+			Vector3 reflectedCameraTarget = level.camera.ChasePosition;
+			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - level.camera.LookAtOffset.Y + discoidMesh.Position.Y * 2;
 			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 			
@@ -129,7 +131,7 @@ namespace HLSLTest
 			//discoidEffect.Parameters["RimColor"].SetValue(Color.LightGreen.ToVector4());
 			discoidEffect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
 			discoidEffect.Parameters["BaseTexture"].SetValue(tex);
-			discoidEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);
+			discoidEffect.Parameters["RefractionMap"].SetValue(level.Sky.TextureCube);
 			discoidEffect.Parameters["NormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
 			discoidEffect.Parameters["AlphaTest"].SetValue(true);
 			discoidEffect.Parameters["WaveSpeed"].SetValue(0.1f);

@@ -17,6 +17,7 @@ namespace HLSLTest
 	public class Debug
 	{
 		public static Game1 game;
+		public static Level level;
 		public static SpriteBatch spriteBatch;
 		private static readonly int AXIS_DRAW_RANGE = 100000;
 		private static readonly int fontSize = 10;
@@ -42,8 +43,8 @@ namespace HLSLTest
 		public void Draw(GameTime gameTime)
 		{
 			// 軸描画
-			this.basicEffect.View = game.camera.View;
-			this.basicEffect.Projection = game.camera.Projection;
+			this.basicEffect.View = level.camera.View;
+			this.basicEffect.Projection = level.camera.Projection;
 			game.GraphicsDevice.SetVertexBuffer(this.vertexBuffer);
 			//game.GraphicsDevice.DrawPrimitives(PrimitiveType.LineList, 0, 3);
 			foreach (EffectPass pass in this.basicEffect.CurrentTechnique.Passes) {
@@ -60,11 +61,11 @@ namespace HLSLTest
 			spriteBatch.Begin();
 			// 各軸名のスクリーン座標算出＆描画
 			/*for (int i = 0; i < axisStringPos.Length; i++) {
-				Vector3 v = viewport.Project(axisStringPos[i], game.camera.Projection, game.camera.View, Matrix.Identity);
+				Vector3 v = viewport.Project(axisStringPos[i], level.camera.Projection, level.camera.View, Matrix.Identity);
 				spriteBatch.DrawString(font, axisName[i], new Vector2(v.X, v.Y), Color.White);
 			}
 			for (int i = 0; i < axisStringPos.Length; i++) {
-				Vector3 v = viewport.Project(axisStringPos[i], game.camera.Projection, game.camera.View, Matrix.Identity);
+				Vector3 v = viewport.Project(axisStringPos[i], level.camera.Projection, level.camera.View, Matrix.Identity);
 				spriteBatch.DrawString(font, axisName[i], new Vector2(v.X, v.Y) * 10, Color.White);
 			}*/
 			

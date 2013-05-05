@@ -14,7 +14,8 @@ namespace HLSLTest
 {
 	public class PrelightingRenderer
 	{
-		public static Game1 _gameInstance { get; set; }
+		public static Game1 game { get; set; }
+		public static Level level;
 
 		// Normal, depth, and light map render targets
 		RenderTarget2D depthTarg;
@@ -71,8 +72,8 @@ namespace HLSLTest
 			foreach (Object o in Models) {
 				o.CacheEffects();// すでにあるエフェクトを上書きさせないために退避させておく
 				o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする
-				o.Draw(_gameInstance.camera.View, _gameInstance.camera.Projection,
-					_gameInstance.camera.CameraPosition);
+				o.Draw(level.camera.View, level.camera.Projection,
+					level.camera.CameraPosition);
 				o.RestoreEffects();// 退避させておいたエフェクトを戻す
 			}
 

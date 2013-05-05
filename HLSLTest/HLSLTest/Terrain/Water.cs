@@ -12,6 +12,8 @@ namespace HLSLTest
 	public class Water
 	{
 		public static Game1 game;
+		public static Level level;
+
 		Object waterMesh;
 		Effect waterEffect;
 		ContentManager content;
@@ -204,7 +206,7 @@ namespace HLSLTest
 				renderer = new PrelightingRenderer(graphics, content);
 			}
 			renderer = new PrelightingRenderer(graphics, content);
-			renderer.Models = game.Models;
+			renderer.Models = level.Models;
 			renderer.Lights = new List<PPPointLight>() {
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),

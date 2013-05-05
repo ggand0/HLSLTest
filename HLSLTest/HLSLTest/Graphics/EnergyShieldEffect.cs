@@ -11,6 +11,8 @@ namespace HLSLTest
 	public class EnergyShieldEffect
 	{
 		public static Game1 game;
+		public static Level level;
+
 		private Effect effect;
 		private ContentManager content;
 		private GraphicsDevice graphics;
@@ -52,8 +54,8 @@ namespace HLSLTest
 
 			Vector3 reflectedCameraPosition = CameraPosition;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + mesh.Position.Y * 2;
-			Vector3 reflectedCameraTarget = game.camera.ChasePosition;
-			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - game.camera.LookAtOffset.Y + mesh.Position.Y * 2;
+			Vector3 reflectedCameraTarget = level.camera.ChasePosition;
+			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - level.camera.LookAtOffset.Y + mesh.Position.Y * 2;
 			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 
@@ -90,7 +92,7 @@ namespace HLSLTest
 			effect = content.Load<Effect>("Lights\\EnergyShieldEffect");
 			effect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
 			effect.Parameters["BaseTexture"].SetValue(tex);
-			effect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);
+			effect.Parameters["RefractionMap"].SetValue(level.Sky.TextureCube);
 			effect.Parameters["NormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
 			mesh.SetModelEffect(effect, false);
 
