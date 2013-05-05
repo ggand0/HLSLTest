@@ -177,6 +177,8 @@ namespace HLSLTest
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 			:this(HeightMap, CellSize, Height, 0, null, 0, Vector3.Zero, GraphicsDevice, Content)
 		{
+			Texture2D t = new Texture2D(GraphicsDevice, 2, 2);
+			t.SetData<Color>(null);
 		}
 		public Terrain(Texture2D HeightMap, float CellSize, float Height,
 			float baseHeight, Texture2D BaseTexture, float TextureTiling, Vector3 LightDirection,

@@ -75,8 +75,8 @@ namespace HLSLTest
 				CubeMapFace.NegativeY,
 				CubeMapFace.PositiveZ,
 				CubeMapFace.NegativeZ,
-				CubeMapFace.PositiveX,
-				CubeMapFace.NegativeX
+				CubeMapFace.NegativeX,
+				CubeMapFace.PositiveX
 			};
 			cubeHeights = new float[6][,];
 
@@ -98,7 +98,7 @@ namespace HLSLTest
 						//heights[x, y] = amt * height;
 					}
 				}*/
-				
+
 				Color[] heightMapData = new Color[width * length];
 				heightMapCube.GetData<Color>(orients[orientation], heightMapData);
 
@@ -147,7 +147,8 @@ namespace HLSLTest
 				new Vector3(-width/2, 0, 0),// Left
 				new Vector3(width/2, 0, 0),// Right
 			};*/
-			float offset = 2f;// for gapping seams!
+			//float offset = 2f;// for gapping seams!
+			float offset = 2f;
 			Vector3[] offsetToFaces = new Vector3[] {
 				new Vector3(0, length/2.0f-offset, 0),// Top
 				new Vector3(0, -length/2.0f+offset, 0),// Bottom
@@ -179,8 +180,8 @@ namespace HLSLTest
 				for (int z = 0; z < length; z++)
 					for (int x = 0; x < width; x++) {
 						//Vector3 v = new Vector3(x * cellSize, heights[x, z], z * cellSize) + offsetToCenter;
-						//Vector3 v = new Vector3(x * cellSize, cubeHeights[orientation][x, z], z * cellSize) + offsetToCenter;
-						Vector3 v = new Vector3(x * cellSize, 0, z * cellSize) + offsetToCenter;
+						Vector3 v = new Vector3(x * cellSize, cubeHeights[orientation][x, z], z * cellSize) + offsetToCenter;
+						//Vector3 v = new Vector3(x * cellSize, 0, z * cellSize) + offsetToCenter;
 
 						// rotate according to side orientation
 						switch (orientation) {
@@ -198,7 +199,8 @@ namespace HLSLTest
 							case 5: v = new Vector3(v.Y, -v.X, v.Z); break;// Right*/
 						}
 						// 全体を移動させるのは球状に変換した後で。
-						Vector3 position = /*Center +*/ v + offsetToFaces[orientation] * cellSize;
+						Vector3 position = v + offsetToFaces[orientation] * cellSize;
+						//Vector3 position = v;
 
 
 						// UV coordinates range from (0, 0) at grid location (0, 0) to 
@@ -368,7 +370,7 @@ namespace HLSLTest
 							vertices[orientation][i].Position *= 1 / vertices[orientation][i].Position.X;
 							break;
 					}
-					
+
 					//vertices[orientation][i].Position *= length;// lengthを掛ければ元の値に戻ることを確認
 
 					//vertices[orientation][i].Position = vertices[orientation][i].Position * 2 - Vector3.One;// その方向に1引く？
@@ -383,7 +385,7 @@ namespace HLSLTest
 					if (vertices[orientation][i].Position.Y > maxY) maxY = vertices[orientation][i].Position.Y;
 					if (vertices[orientation][i].Position.Z > maxZ) maxZ = vertices[orientation][i].Position.Z;
 
-					vertices[orientation][i].Position = CubeVertexToSphere(vertices[orientation][i].Position);// magic number
+					vertices[orientation][i].Position = CubeVertexToSphere(vertices[orientation][i].Position);
 
 					// -1to1から0to1に戻す必要あり？
 					//vertices[orientation][i].Position += Vector3.One;
@@ -393,8 +395,10 @@ namespace HLSLTest
 					//vertices[orientation][i].Position = vertices[orientation][i].Position / (faceVec[orientation] * 2);
 
 					//vertices[orientation][i].Position *= new Vector3(heightMapCube.Size, 0, heightMapCube.Size);
-					vertices[orientation][i].Position *= 200;
-					//vertices[orientation][i].Position += Center;
+					//vertices[orientation][i].Position *= 200;// これはマジックナンバーすぎるでしょう...2*length?
+					vertices[orientation][i].Position *= Radius;
+					// {X:-0.5827481 Y:0.5664003 Z:-0.5827481}→ {X:-64.19194 Y:62.39118 Z:-64.19194} / {X:-64.10229 Y:62.30404 Z:-64.10229} 
+					vertices[orientation][i].Position += Center;
 				}
 			}
 			int d = 0;
@@ -409,7 +413,7 @@ namespace HLSLTest
 			}*/
 
 
-			TransformVertices();
+			//TransformVertices();
 			for (int i = 0; i < vertices.GetLength(0); i++) {
 				//vertexBuffer[i].SetData<VertexPositionNormalTexture>(vertices[i,]);
 
@@ -418,15 +422,14 @@ namespace HLSLTest
 
 				vertexBuffer[i].SetData<VertexPositionNormalTexture>(vertices[i]);
 			}
-			
+
 		}
 		private void AddIndices()
 		{
-			
+
 			/*for (int i = 0; i < indices.GetLength(0); i++) {
 				for (int j = 0; j < indices.GetLength(1); j++) {
 					//finalIndices[i * j + j] = indices[i, j];
-					
 				}
 				//if (i == 2) break;
 			}*/
@@ -434,8 +437,6 @@ namespace HLSLTest
 				indexBuffer[i].SetData<int>(indices[i]);
 			}
 		}
-
-
 
 		/*public void Draw(bool wireFrame, Matrix View, Matrix Projection)
 		{
@@ -522,7 +523,7 @@ namespace HLSLTest
 			float baseHeight, Texture2D BaseTexture, float TextureTiling, Vector3 LightDirection,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 		{
-			Radius = 50;
+			Radius = 200;
 			Center = new Vector3(0, 200, -200);
 
 			this.baseTexture = BaseTexture;
@@ -532,9 +533,11 @@ namespace HLSLTest
 			this.heightMap = HeightMap;
 			//this.width = HeightMap.Width;
 			//this.length = HeightMap.Height;
-			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\sphericalHeightmap0");
+			//heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\sphericalHeightmap0");
+			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\CubeWrap");
 			this.width = heightMapCube.Size;
 			this.length = heightMapCube.Size;
+			Radius = heightMapCube.Size;
 			//int[] test = new int[heightMapCube.Size]
 			//heightMapCube.GetData<int>(CubeMapFace.NegativeX,);
 
@@ -546,7 +549,7 @@ namespace HLSLTest
 			effect.Parameters["BaseTexture"].SetValue(baseTexture);
 			effect.Parameters["TextureTiling"].SetValue(textureTiling);
 			effect.Parameters["LightDirection"].SetValue(lightDirection);
-			
+
 
 			// 1 vertex per pixel
 			nVertices = width * length;

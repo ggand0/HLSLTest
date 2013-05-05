@@ -97,13 +97,15 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	if (ClipPlaneEnabled)
+	if (ClipPlaneEnabled) {
 		clip(dot(float4(input.WorldPosition, 1), ClipPlane));
+	}
 
 
-    float light = dot(normalize(input.Normal),
+	float light = 1;
+    /*float light = dot(normalize(input.Normal),
 		normalize(LightDirection));
-	light = clamp(light + 0.4f, 0, 1); // Simple ambient lighting
+	light = clamp(light + 0.4f, 0, 1); // Simple ambient lighting*/
 
 
 	float3 rTex = tex2D(RTextureSampler, input.UV * TextureTiling);

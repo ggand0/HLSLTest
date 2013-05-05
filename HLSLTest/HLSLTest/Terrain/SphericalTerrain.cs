@@ -108,7 +108,6 @@ namespace HLSLTest
 		private void CreateIndices()
 		{
 			indices = new int[nIndices];
-
 			int i = 0;
 
 			// For each cell
@@ -154,8 +153,9 @@ namespace HLSLTest
 
 			// Average the influences of the triangles touching each
 			// vertex
-			for (int i = 0; i < nVertices; i++)
+			for (int i = 0; i < nVertices; i++) {
 				vertices[i].Normal.Normalize();
+			}
 		}
 
 		public void Draw(bool wireFrame, Matrix View, Matrix Projection)

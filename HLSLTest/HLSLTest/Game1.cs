@@ -72,7 +72,7 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			// TODO: ここに初期化ロジックを追加します。
-			
+			KeyConfig.LoadXML("KeyConfig", "Xml\\KeyConfig.xml");
 
 			Object.game = this;
 			Object.content = Content;
@@ -225,6 +225,7 @@ namespace HLSLTest
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			//sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Cross"));//("OutputCube0"));
 			Sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("SkyBoxTex"));
+			//Sky = new SkySphere(Content, GraphicsDevice, Content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
 
 			Water.game = this;
 			water = new Water(Content, GraphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
@@ -280,7 +281,7 @@ namespace HLSLTest
 
 
 			// Spherical terrain test
-			sphericalTerrain = new SphericalTerrain2(Content.Load<Texture2D>("Textures\\terrain"), 1, 100, 0,
+			sphericalTerrain = new SphericalTerrain2(Content.Load<Texture2D>("Textures\\terrain"), 1, 50, 0,
 				Content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), GraphicsDevice, Content);
 			sphericalTerrain.WeightMap = Content.Load<Texture2D>("Textures\\color1");
 			sphericalTerrain.RTexture = Content.Load<Texture2D>("Textures\\sand");
@@ -311,6 +312,14 @@ namespace HLSLTest
 
 			JoyStick.Update(1);
             KeyInput.Update();
+
+			if (JoyStick.IsOnKeyDown(0)) {
+				int d = 0;
+			}
+			if (JoyStick.IsOnKeyDown(1)) {
+				int d = 0;
+			}
+
 			Sky.Update(gameTime);
 
 			foreach (Object o in Models) {
@@ -482,7 +491,7 @@ namespace HLSLTest
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			terrain.Draw(true, camera.View, camera.Projection);
+			terrain.Draw(false, camera.View, camera.Projection);
 			sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
 			belndState = GraphicsDevice.BlendState.ToString();

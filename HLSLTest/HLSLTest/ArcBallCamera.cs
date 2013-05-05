@@ -20,7 +20,7 @@ namespace HLSLTest
 		//private static readonly float ZOOM_RATE = 10; // スムーズにズームさせたい時に使用する予定
 
 		private short zoomMode = 0;
-		private float[] zoomState = new float[] { 100, 300, 500, 1000, 2000 };
+		private float[] zoomState = new float[] { 100, 300, 500, 1000, 4000 };
 
 		// Chased object properties
 		public Vector3 ChasePosition { get; set; }
