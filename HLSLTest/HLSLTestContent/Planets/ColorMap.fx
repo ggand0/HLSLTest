@@ -44,6 +44,11 @@ sampler BaseMapSampler = sampler_state
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
+texture BaseNormalTexture;
+sampler BaseNormalSampler = sampler_state
+{
+	Texture = <BaseNormalTexture>;
+};
 
 texture WeightMap;
 sampler WeightMapSampler = sampler_state {
@@ -116,7 +121,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	
 	/*float3 LightDir = normalize(input.Light);
     float Diffuse = saturate(dot(LightDir, normalize(input.Normal)));*/
-
 	float3 Normal = (2 * (tex2D(BumpMapSampler, input.TexCoord))) - 1.0;
 	float3 LightDir = normalize(input.Light);
 	float Diffuse = saturate(dot(LightDir, Normal));
@@ -127,7 +131,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
 		texCol *= Diffuse;
 		output =  AmbientColor + texCol;
-	} else {
+	} else if (renderType == 1)  {
 		// trying multi-texturing
 		float4 BaseColor = tex2D(BaseMapSampler, input.TexCoord);
 		float4 weightMap = tex2D(WeightMapSampler, input.TexCoord);
@@ -146,6 +150,27 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
 		texCol *= Diffuse;
 		//output =  AmbientColor + texCol;
+		output += AmbientColor;
+	} else if (renderType == 2) {
+		// trying multi-texturing
+		float4 BaseColor = tex2D(BaseMapSampler, input.TexCoord);
+		float4 weightMap = tex2D(WeightMapSampler, input.TexCoord);
+
+		float3 NormalTex = (2 * (tex2D(BaseNormalSampler, input.TexCoord))) - 1.0;
+		float DiffuseTex = saturate(dot(LightDir, Normal));// ‰ö‚µ‚¢
+		BaseColor *= DiffuseTex;
+
+		float4 height = tex2D(ColorMapSampler, input.TexCoord);
+		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
+		texCol *= Diffuse;
+		//output+= texCol;
+
+		//output = clamp(1.0f - weightMap.r - weightMap.g, 0, 1);
+
+		//output += weightMap.r * BaseColor + weightMap.g * texCol;
+		output += weightMap.r * BaseColor * texCol + weightMap.g * texCol;
+
+
 		output += AmbientColor;
 	}
 

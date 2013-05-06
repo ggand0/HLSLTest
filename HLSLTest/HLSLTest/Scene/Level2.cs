@@ -15,6 +15,7 @@ namespace HLSLTest
 		public Object Teapot { get; private set; }
 
 		PrelightingRenderer renderer;
+		GridRenderer grid;
 
 		FlameParticleEmitter ps;
 		ExplosionParticleEmitter eps;
@@ -32,13 +33,25 @@ namespace HLSLTest
 			Target.Scale = 20;
 			Models.Add(Target);
 
+			// Initializes camera
 			camera = new ArcBallCamera();
 			camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
+
+			// Set up the reference grid
+			grid = new GridRenderer();
+			grid.GridColor = Color.DarkSeaGreen;//Color.LimeGreen;
+			grid.GridScale = 100f;
+			grid.GridSize = 32;//32;
+			// Set the grid to draw on the x/z plane around the origin
+			grid.WorldMatrix = Matrix.Identity;
 		}
 		public override void Load()
 		{
 			base.Load();
+
+			// Set up the reference grid and sample camera
+			grid.LoadGraphicsContent(device);
 
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
@@ -85,9 +98,12 @@ namespace HLSLTest
 
 			device.Clear(Color.White);
 
+			
+
 			// Terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
+			//planet.Draw(new Vector3(-50, 0, -50), camera.View, camera.Projection, camera.CameraPosition);
 			planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
 
 			// Entities
@@ -98,6 +114,12 @@ namespace HLSLTest
 
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+
+			// Grid
+			grid.ProjectionMatrix = camera.Projection;
+			grid.ViewMatrix = camera.View;
+			// draw the reference grid so it's easier to get our bearings
+			grid.Draw();
 		}
 
 

@@ -23,7 +23,9 @@ namespace HLSLTest
 		public List<Object> Models { get; protected set; }
 		public SkySphere Sky { get; protected set; }
 
-		public Vector3 LightPosition = new Vector3(-2000, 0, 2000);
+		public Vector3 LightPosition
+			= new Vector3(-2000, 0, 2000);
+			//= new Vector3(-200, 500, 200);
 
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
@@ -31,9 +33,9 @@ namespace HLSLTest
 		/// </summary>
 		public void ResetGraphicDevice()
 		{
-			graphics.GraphicsDevice.BlendState = BlendState.Opaque;
-			graphics.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-			graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+			device.BlendState = BlendState.Opaque;
+			device.DepthStencilState = DepthStencilState.Default;
+			device.SamplerStates[0] = SamplerState.LinearWrap;
 		}
 
 		protected virtual void Initialize()
@@ -64,7 +66,7 @@ namespace HLSLTest
 		{
 			// TODO: ここに描画コードを追加します。
 			// Object継承オブジェクトの描画は各Drawで行うことにした。それ以外はDrawModelで描画する。
-			//graphics.GraphicsDevice.Clear(Color.CadetBlue);
+			//device.Clear(Color.CadetBlue);
 			
 		}
 

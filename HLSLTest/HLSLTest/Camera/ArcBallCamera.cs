@@ -9,7 +9,7 @@ namespace HLSLTest
 	/// <summary>
 	/// ターゲットを中心に球状に移動可能なカメラ。カメラ関係を継承使用して整理したいが面倒である
 	/// </summary>
-	public class ArcBallCamera
+	public class ArcBallCamera : Camera
 	{
 		#region Fields
 		// statics
@@ -22,6 +22,12 @@ namespace HLSLTest
 		private short zoomMode = 0;
 		private float[] zoomState = new float[] { 100, 300, 500, 1000, 4000 };
 
+		// Matrix
+		//public Matrix View { get; set; }
+		//public Matrix Projection { get; set; }
+		// Current camera properties
+		public Vector3 Position { get; set; }
+		public Vector3 Velocity { get; set; }
 		// Chased object properties
 		public Vector3 ChasePosition { get; set; }
 		public Vector3 ChaseDirection { get; set; }
@@ -72,7 +78,6 @@ namespace HLSLTest
 			set { stiffness = value; }
 		}
 		private float stiffness = 1800.0f;
-
 		/// <summary>
 		/// スプリングの内部摩擦を近似する物理特性係数。
 		/// 減衰が十分であれば、スプリングが無限に振動しなくなります。
@@ -83,7 +88,6 @@ namespace HLSLTest
 			set { damping = value; }
 		}
 		private float damping = 600.0f;
-
 		/// <summary>
 		/// カメラ本体の重量。オブジェクトが重いほど、軽いオブジェクトと同じ
 		/// 速度で動くように、減衰の少ない硬いスプリングが必要になります。
@@ -95,9 +99,7 @@ namespace HLSLTest
 		}
 		private float mass = 50.0f;
 
-		// Current camera properties
-		public Vector3 Position { get; set; }
-		public Vector3 Velocity { get; set; }
+		
 
 		// Perspective properties
 		/// <summary>
@@ -120,29 +122,9 @@ namespace HLSLTest
 		}
 		private float fieldOfView = MathHelper.ToRadians(45.0f);
 
-		/// <summary>
-		/// 近くのクリップ面との距離。
-		/// </summary>
-		public float NearPlaneDistance
-		{
-			get { return nearPlaneDistance; }
-			set { nearPlaneDistance = value; }
-		}
-		private float nearPlaneDistance = 1.0f;
+		
 
-		/// <summary>
-		/// 遠くのクリップ面との距離。
-		/// </summary>
-		public float FarPlaneDistance
-		{
-			get { return farPlaneDistance; }
-			set { farPlaneDistance = value; }
-		}
-		private float farPlaneDistance = 100000.0f;
-
-		// Matrix
-		public Matrix View { get; set; }
-		public Matrix Projection { get; set; }
+		
 		#endregion
 
 		#region Methods

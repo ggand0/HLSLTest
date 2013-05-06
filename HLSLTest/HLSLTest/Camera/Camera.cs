@@ -12,8 +12,29 @@ namespace HLSLTest
 		public Matrix View { get; set; }
 		public Matrix Projection { get; set; }
 		protected GraphicsDevice GraphicsDevice { get; set; }
-		protected float FarPlaneDistance = 1000000.0f;
+		/// <summary>
+		/// 近くのクリップ面との距離。
+		/// </summary>
+		public float NearPlaneDistance
+		{
+			get { return nearPlaneDistance; }
+			set { nearPlaneDistance = value; }
+		}
+		private float nearPlaneDistance = 1.0f;
 
+		/// <summary>
+		/// 遠くのクリップ面との距離。
+		/// </summary>
+		public float FarPlaneDistance
+		{
+			get { return farPlaneDistance; }
+			set { farPlaneDistance = value; }
+		}
+		private float farPlaneDistance = 100000.0f;
+
+		public Camera()
+		{
+		}
 		public Camera(GraphicsDevice graphicsDevice)
 		{
 			//FarPlaneDistance = 2000;
@@ -33,6 +54,8 @@ namespace HLSLTest
 		{
 		}
 	}
+
+
 
 	public class TargetCamera : Camera
 	{

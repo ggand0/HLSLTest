@@ -100,7 +100,7 @@ namespace HLSLTest
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
-			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
+			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
 			currentRadius = DEF_RADIUS;
 			currentRadius = 100;
 			speed = eps.Velocity.Length();

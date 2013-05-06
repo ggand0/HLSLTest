@@ -1,7 +1,10 @@
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
+float4x4 DefWorld;// added
 
+
+//float3 DefaultPosition;		// added
 float3 v3LightPos;			// The camera's current position
 float3 v3CameraPos;			// The camera's current position
 float3 v3LightDir;			// Direction vector to the light source
@@ -51,9 +54,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);
+	//float4 viewPosition = mul(worldPosition, mul(View, Projection));
     
+	float4 defWorldPosition = mul(input.Position, DefWorld);
 
-	float3 v3Pos = worldPosition.xyz;
+
+	//float3 v3Pos = worldPosition.xyz;
+	float3 v3Pos = defWorldPosition.xyz;
 	float3 v3Ray = v3Pos - v3CameraPos;
 	float fFar = length(v3Ray);
 

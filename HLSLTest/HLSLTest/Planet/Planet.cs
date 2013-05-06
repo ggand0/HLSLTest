@@ -56,7 +56,7 @@ namespace HLSLTest
 		protected GraphicsDevice graphics;
 		public Effect atmosphere { get; protected set; }
 		float p_radius = 200;
-		float a_radius = 205;
+		float a_radius = 220;//205;
 		float c_radius = 200.5f;
 		public float roll;
 		public float pitch;
@@ -64,6 +64,7 @@ namespace HLSLTest
 		protected PlanetRenderType renderType;
 		public Texture2D BlendMap { get; protected set; }
 		protected Texture2D baseTexture, gTexture, bTexture;
+		protected Texture2D baseNormalTexture;
 
 		public Planet(GraphicsDevice graphics, ContentManager content)
 		{
@@ -151,12 +152,17 @@ namespace HLSLTest
 			// ここを惑星ごとに変えるべし
 			SetAtmosphereEffectParametersDetail();
 
-			Matrix World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch);
-				//* Matrix.CreateTranslation(Position);
+			Matrix World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch)
+			* Matrix.CreateTranslation(Position);
+			World.Translation = Position;
+			//Vector3 vl = -level.LightPosition;
 			Vector3 vl = -level.LightPosition;
 			vl.Normalize();
 
 			atmosphere.Parameters["World"].SetValue(World);
+			World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch);
+			atmosphere.Parameters["DefWorld"].SetValue(World);
+
 			atmosphere.Parameters["View"].SetValue(View);
 			atmosphere.Parameters["Projection"].SetValue(Projection);
 			atmosphere.Parameters["v3CameraPos"].SetValue(CameraPosition);
@@ -184,7 +190,10 @@ namespace HLSLTest
 			draw.Parameters["world"].SetValue(World);
 			draw.Parameters["subtype"].SetValue(SubType / 8.0f);*/
 			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
+				//* Matrix.CreateTranslation(Position);
+			World.Translation = Position;
 			Matrix wvp = World * View * Projection;
+			//Vector3 light = -level.LightPosition;
 			Vector3 light = -level.LightPosition;
 			light.Normalize();
 			draw.Parameters["LightDirection"].SetValue(light);
@@ -211,6 +220,7 @@ namespace HLSLTest
 				draw.Parameters["renderType"].SetValue(2);
 
 				draw.Parameters["BaseTexture"].SetValue(baseTexture);
+				draw.Parameters["BaseNormalTexture"].SetValue(baseNormalTexture);
 				draw.Parameters["WeightMap"].SetValue(BlendMap);
 			}
 
@@ -338,27 +348,51 @@ namespace HLSLTest
 
 			// added : make blend maps
 			// とりあえずテクスチャ2パターンで。→3パターンにした
-			BlendMap = new Texture2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color);
-			Color[] blend = new Color[TextureHeight * TextureWidth];
-			float maxHeight = 1;
-			for (int y = 0; y < TextureHeight; y++) {
-				for (int x = 0; x < TextureWidth; x++) {
-					// get height of that pixel
-					// Get color value (0 - 255)
-					float amt = Map[y * TextureWidth + x].R;
-					// Scale to (0 - 1)
-					amt /= 255.0f;
-					// Multiply by max height to get final height
-					float height = amt * maxHeight;// 本当はamt * maxHeightだが、区別出来ればいいだけなので必要なし
+			if (renderType == PlanetRenderType.MultiTextured) {
+				BlendMap = new Texture2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color);
+				Color[] blend = new Color[TextureHeight * TextureWidth];
+				float maxHeight = 1;
+				for (int y = 0; y < TextureHeight; y++) {
+					for (int x = 0; x < TextureWidth; x++) {
+						// get height of that pixel
+						// Get color value (0 - 255)
+						float amt = Map[y * TextureWidth + x].R;
+						// Scale to (0 - 1)
+						amt /= 255.0f;
+						// Multiply by max height to get final height
+						float height = amt * maxHeight;// 本当はamt * maxHeightだが、区別出来ればいいだけなので必要なし
 
-					// determine Base texture or not
-					if (height <= 0.1f) blend[y * TextureWidth + x] = Color.Red;
-					else if (height <= 0.5f) blend[y * TextureWidth + x] = Color.Green;
-					else blend[y * TextureWidth + x] = Color.Blue;
+						// determine Base texture or not
+						if (height <= 0.1f) blend[y * TextureWidth + x] = Color.Red;
+						else if (height <= 0.5f) blend[y * TextureWidth + x] = Color.Green;
+						else blend[y * TextureWidth + x] = Color.Blue;
 
+					}
 				}
+				BlendMap.SetData<Color>(blend);
+			} else if (renderType == PlanetRenderType.OneTexMultiColored) {
+				BlendMap = new Texture2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color);
+				Color[] blend = new Color[TextureHeight * TextureWidth];
+				float maxHeight = 1;
+				for (int y = 0; y < TextureHeight; y++) {
+					for (int x = 0; x < TextureWidth; x++) {
+						// get height of that pixel
+						// Get color value (0 - 255)
+						float amt = Map[y * TextureWidth + x].R;
+						// Scale to (0 - 1)
+						amt /= 255.0f;
+						// Multiply by max height to get final height
+						float height = amt * maxHeight;// 本当はamt * maxHeightだが、区別出来ればいいだけなので必要なし
+
+						// determine Base texture or not
+						if (height <= 0.1f) blend[y * TextureWidth + x] = Color.Red;// 海の部分だけテクスチャにする
+						else blend[y * TextureWidth + x] = Color.Green;
+					}
+				}
+				BlendMap.SetData<Color>(blend);
 			}
-			BlendMap.SetData<Color>(blend);
+
+			if (renderType != PlanetRenderType.MultiColored)
 			using (Stream stream = File.OpenWrite("blendMap.png")) {
 				BlendMap.SaveAsPng(stream, BlendMap.Width, BlendMap.Height);
 				stream.Position = 0;

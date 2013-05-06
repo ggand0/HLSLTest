@@ -30,10 +30,13 @@ namespace HLSLTest
 			draw = content.Load<Effect>("Planets\\ColorMap");
 			Palette = content.Load<Texture2D>("Textures\\Planet\\water2");
 
-			baseTexture = content.Load<Texture2D>("Textures\\water");
-			gTexture = content.Load<Texture2D>("Textures\\grass2");
-			bTexture = content.Load<Texture2D>("Textures\\stone");
+			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10");
+			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10_normal");
+			gTexture = content.Load<Texture2D>("Textures\\Terrain\\grass2");
+			bTexture = content.Load<Texture2D>("Textures\\Terrain\\stone");
 
+			renderType = PlanetRenderType.OneTexMultiColored;
+			SubType = 0;
 			Nz = 1;//128;
 
 			Generate(graphics);

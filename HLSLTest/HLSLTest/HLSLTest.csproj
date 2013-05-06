@@ -73,18 +73,30 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArcBallCamera.cs" />
+    <Compile Include="Camera\ArcBallCamera.cs" />
     <Compile Include="BillboardSystem\BillboardCross.cs" />
     <Compile Include="BillboardSystem\BlillboardSystem.cs" />
+    <None Include="Planet\Cloud Generation\Flow.cs">
+      <SubType>Code</SubType>
+    </None>
     <None Include="Terrain\bak\SphericalTerrain2_bak2.cs" />
+    <None Include="Camera\ArcBallCamera_bak0.cs" />
+    <Compile Include="Camera\RTSCamera.cs" />
+    <Compile Include="Graphics\GridRenderer.cs" />
     <Compile Include="Graphics\BoundingBoxRenderer.cs" />
     <Compile Include="Graphics\BoundingSphereRenderer.cs" />
-    <Compile Include="Camera.cs" />
+    <Compile Include="Camera\Camera.cs" />
     <Compile Include="Graphics\CubeMapReflectMaterial.cs" />
     <Compile Include="Effect\EnergyShieldEffect.cs" />
     <Compile Include="Misc\KeyConfig.cs" />
     <None Include="Scene\Game1_bak0.cs" />
+    <None Include="Planet\Cloud Generation\FrictionMap.cs" />
+    <None Include="Planet\Cloud Generation\GenerateClouds.cs" />
+    <None Include="Planet\Cloud Generation\HeatMap.cs" />
+    <None Include="Planet\Cloud Generation\InitialVelocity.cs" />
+    <None Include="Planet\Cloud Generation\PressureMap.cs" />
     <Compile Include="Planet\MoltenPlanet.cs" />
+    <Compile Include="Planet\Star.cs" />
     <Compile Include="Scene\Level.cs" />
     <Compile Include="Scene\Level0.cs" />
     <Compile Include="Scene\Level1.cs" />

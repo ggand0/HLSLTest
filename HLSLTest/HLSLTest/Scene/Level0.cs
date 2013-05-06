@@ -94,7 +94,7 @@ namespace HLSLTest
 					//r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
 					r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
 			}
-			clouds = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\cloud"), new Vector2(500), cloudPositions);
+			clouds = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Billboard\\cloud"), new Vector2(500), cloudPositions);
 			clouds.EnsureOcclusion = false;
 
 
@@ -102,11 +102,11 @@ namespace HLSLTest
 			ps = new FlameParticleEmitter(device, content, content.Load<Texture2D>("Textures\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
 			/*eps = new ExplosionParticleEmitter(device, content, content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);*/
-			eps = new ExplosionParticleEmitter(device, content, content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 2000, new Vector2(10), 20, 5f);
-			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
+			eps = new ExplosionParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 2000, new Vector2(10), 20, 5f);
+			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 			beamEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f);
-			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
+			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
 
 			// Generate lasers
 			lbs = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
@@ -116,7 +116,7 @@ namespace HLSLTest
 			s = content.Load<Model>("Models\\Ship"); e = content.Load<Model>("Models\\Ship");
 
 
-			treesCross = new BillboardCross(device, content, content.Load<Texture2D>("tree"), new Vector2(10), positions);
+			treesCross = new BillboardCross(device, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
 		}
 		public override void Load()
 		{
@@ -127,7 +127,7 @@ namespace HLSLTest
 
 			// skymap reflect
 			Effect cubeMapEffect = content.Load<Effect>("CubeMapReflect");
-			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(content.Load<TextureCube>("SkyBoxTex"));
+			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"));
 			Teapot.SetModelEffect(cubeMapEffect, false);
 			Teapot.Material = cubeMat;/**/
 			/*Models[3].SetModelEffect(cubeMapEffect, false);
@@ -225,9 +225,9 @@ namespace HLSLTest
 			terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,
 				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
-			terrain.RTexture = content.Load<Texture2D>("Textures\\sand");
-			terrain.GTexture = content.Load<Texture2D>("Textures\\grass");
-			terrain.BTexture = content.Load<Texture2D>("Textures\\stone");
+			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
+			terrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
+			terrain.BTexture = content.Load<Texture2D>("Textures\\Terrain\\stone");
 			terrain.DetailTexture = content.Load<Texture2D>("Textures\\detail0");
 
 
@@ -244,11 +244,11 @@ namespace HLSLTest
 
 			// Spherical terrain test
 			sphericalTerrain = new SphericalTerrain2(content.Load<Texture2D>("Textures\\terrain"), 1, 50, 0,
-				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
+				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
 			sphericalTerrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
-			sphericalTerrain.RTexture = content.Load<Texture2D>("Textures\\sand");
-			sphericalTerrain.GTexture = content.Load<Texture2D>("Textures\\grass");
-			sphericalTerrain.BTexture = content.Load<Texture2D>("Textures\\stone");
+			sphericalTerrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
+			sphericalTerrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
+			sphericalTerrain.BTexture = content.Load<Texture2D>("Textures\\Terrain\\stone");
 			sphericalTerrain.DetailTexture = content.Load<Texture2D>("Textures\\detail0");
 		}
 		public override void Update(GameTime gameTime)

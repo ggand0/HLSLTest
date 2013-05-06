@@ -324,6 +324,36 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <None Include="Planets\Clouds\Clouds.fx">
+      <Name>Clouds</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Planets\Clouds\FluidFlow.fx">
+      <Name>FluidFlow</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Planets\Clouds\Friction.fx">
+      <Name>Friction</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Planets\Clouds\Heatmap.fx">
+      <Name>Heatmap</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Planets\Clouds\InitialVelocity.fx">
+      <Name>InitialVelocity</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Planets\Clouds\bak\FluidFlow.fx">
+      <Name>FluidFlow</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
     <None Include="PPshared.vsi">
       <Name>PPshared</Name>
       <Importer>EffectImporter</Importer>
@@ -414,7 +444,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="tree.dds">
+    <Compile Include="Textures\Billboard\tree.dds">
       <Name>tree</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -434,27 +464,27 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Terrain\sphericalHeightmap0.dds">
+    <Compile Include="Textures\SphericalTerrain\sphericalHeightmap0.dds">
       <Name>sphericalHeightmap0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Terrain\CubeWrap.dds">
+    <Compile Include="Textures\SphericalTerrain\CubeWrap.dds">
       <Name>CubeWrap</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Terrain\sphericalHeightmap1.dds">
+    <Compile Include="Textures\SphericalTerrain\sphericalHeightmap1.dds">
       <Name>sphericalHeightmap1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Terrain\sphericalHeightmap1a.dds">
+    <Compile Include="Textures\SphericalTerrain\sphericalHeightmap1a.dds">
       <Name>sphericalHeightmap1a</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Terrain\sphericalHeightmap2.dds">
+    <Compile Include="Textures\SphericalTerrain\sphericalHeightmap2.dds">
       <Name>sphericalHeightmap2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -495,54 +525,54 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\cloud_tmp.png">
+    <Compile Include="Textures\Billboard\cloud_tmp.png">
       <Name>cloud_tmp</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\cloud.png">
+    <Compile Include="Textures\Billboard\cloud.png">
       <Name>cloud</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\fire.png">
+    <Compile Include="Textures\Particle\fire.png">
       <Name>fire</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\explosion.png">
+    <Compile Include="Textures\Particle\explosion.png">
       <Name>explosion</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\smoke.png">
+    <Compile Include="Textures\Particle\smoke.png">
       <Name>smoke</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\nova_1.png">
+    <Compile Include="Textures\Particle\nova_1.png">
       <Name>nova_1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\sun_0.png">
+    <Compile Include="Textures\Particle\sun_0.png">
       <Name>sun_0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\sun_1.png">
+    <Compile Include="Textures\Particle\sun_1.png">
       <Name>sun_1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -739,21 +769,21 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\nova_2.png">
+    <Compile Include="Textures\Particle\nova_2.png">
       <Name>nova_2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\cloud_mask.png">
+    <Compile Include="Textures\Billboard\cloud_mask.png">
       <Name>cloud_mask</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\cloud_mask2.png">
+    <Compile Include="Textures\Billboard\cloud_mask2.png">
       <Name>cloud_mask2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -795,7 +825,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\grass.png">
+    <Compile Include="Textures\Terrain\grass.png">
       <Name>grass</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -812,7 +842,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\terrain.bmp">
+    <Compile Include="Textures\Terrain\terrain.bmp">
       <Name>terrain</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -824,29 +854,29 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\rocks.bmp">
+    <Compile Include="Textures\Terrain\rocks.bmp">
       <Name>rocks</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\sand.jpg">
+    <Compile Include="Textures\Terrain\sand.jpg">
       <Name>sand</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\stone.jpg">
+    <Compile Include="Textures\Terrain\stone.jpg">
       <Name>stone</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\Rocky.png">
+    <Compile Include="Textures\Terrain\Rocky.png">
       <Name>Rocky</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Snowy.png">
+    <Compile Include="Textures\Terrain\Snowy.png">
       <Name>Snowy</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -860,7 +890,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\Terrain\heightmapCube0.png">
+    <Compile Include="Textures\SphericalTerrain\heightmapCube0.png">
       <Name>heightmapCube0</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -884,15 +914,29 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\water.jpg">
+    <Compile Include="Textures\Terrain\water.jpg">
       <Name>water</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\grass2.jpg">
+    <Compile Include="Textures\Terrain\grass2.jpg">
       <Name>grass2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Terrain\water10.jpg">
+      <Name>water10</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Terrain\water10_normal.jpg">
+      <Name>water10_normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
