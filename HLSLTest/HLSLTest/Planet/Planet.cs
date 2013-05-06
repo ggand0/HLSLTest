@@ -17,6 +17,12 @@ namespace HLSLTest
 		Gas,
 		Molten,
 	};
+	public enum PlanetRenderType
+	{
+		MultiColored,
+		MultiTextured,
+		OneTexMultiColored
+	}
 	public abstract class Planet
 	{
 		public static Game1 game;
@@ -54,6 +60,10 @@ namespace HLSLTest
 		float c_radius = 200.5f;
 		public float roll;
 		public float pitch;
+
+		protected PlanetRenderType renderType;
+		public Texture2D BlendMap { get; protected set; }
+		protected Texture2D baseTexture, gTexture, bTexture;
 
 		public Planet(GraphicsDevice graphics, ContentManager content)
 		{
@@ -179,22 +189,42 @@ namespace HLSLTest
 			light.Normalize();
 			draw.Parameters["LightDirection"].SetValue(light);
 			draw.Parameters["wvp"].SetValue(wvp);
-			draw.Parameters["Palette"].SetValue(Palette);
-			draw.Parameters["ColorMap"].SetValue(Mercator);
-			draw.Parameters["BumpMap"].SetValue(normalmap);
 			draw.Parameters["world"].SetValue(World);
 			draw.Parameters["subtype"].SetValue(SubType / 8.0f);
 
-			//graphics.RasterizerState = RasterizerState.CullNone;
-			for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
-				for (int msh = 0; msh < model.Meshes.Count; msh++) {
-					ModelMesh mesh = model.Meshes[msh];
-					for (int prt = 0; prt < mesh.MeshParts.Count; prt++)
-						mesh.MeshParts[prt].Effect = draw;
 
-					mesh.Draw();
-				}
+			draw.Parameters["Palette"].SetValue(Palette);
+			draw.Parameters["ColorMap"].SetValue(Mercator);
+			draw.Parameters["BumpMap"].SetValue(normalmap);
+
+			if (renderType == PlanetRenderType.MultiColored) {
+				draw.Parameters["renderType"].SetValue(0);
+
+			} else if (renderType == PlanetRenderType.MultiTextured) {
+				draw.Parameters["renderType"].SetValue(1);
+
+				draw.Parameters["BaseTexture"].SetValue(baseTexture);
+				draw.Parameters["GTexture"].SetValue(gTexture);
+				draw.Parameters["BTexture"].SetValue(bTexture);
+				draw.Parameters["WeightMap"].SetValue(BlendMap);
+			} else if (renderType == PlanetRenderType.OneTexMultiColored) {
+				draw.Parameters["renderType"].SetValue(2);
+
+				draw.Parameters["BaseTexture"].SetValue(baseTexture);
+				draw.Parameters["WeightMap"].SetValue(BlendMap);
 			}
+
+
+				//graphics.RasterizerState = RasterizerState.CullNone;
+				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
+					for (int msh = 0; msh < model.Meshes.Count; msh++) {
+						ModelMesh mesh = model.Meshes[msh];
+						for (int prt = 0; prt < mesh.MeshParts.Count; prt++)
+							mesh.MeshParts[prt].Effect = draw;
+
+						mesh.Draw();
+					}
+				}
 
 			// atmosphere scattering setteings
 			SetAtmosphereEffectParameters(Position, View, Projection, CameraPosition);
@@ -303,6 +333,37 @@ namespace HLSLTest
 			}
 			Mercator.SetData<Color>(Map);
 			#endregion
+
+
+
+			// added : make blend maps
+			// とりあえずテクスチャ2パターンで。→3パターンにした
+			BlendMap = new Texture2D(graphics, TextureWidth, TextureHeight, false, SurfaceFormat.Color);
+			Color[] blend = new Color[TextureHeight * TextureWidth];
+			float maxHeight = 1;
+			for (int y = 0; y < TextureHeight; y++) {
+				for (int x = 0; x < TextureWidth; x++) {
+					// get height of that pixel
+					// Get color value (0 - 255)
+					float amt = Map[y * TextureWidth + x].R;
+					// Scale to (0 - 1)
+					amt /= 255.0f;
+					// Multiply by max height to get final height
+					float height = amt * maxHeight;// 本当はamt * maxHeightだが、区別出来ればいいだけなので必要なし
+
+					// determine Base texture or not
+					if (height <= 0.1f) blend[y * TextureWidth + x] = Color.Red;
+					else if (height <= 0.5f) blend[y * TextureWidth + x] = Color.Green;
+					else blend[y * TextureWidth + x] = Color.Blue;
+
+				}
+			}
+			BlendMap.SetData<Color>(blend);
+			using (Stream stream = File.OpenWrite("blendMap.png")) {
+				BlendMap.SaveAsPng(stream, BlendMap.Width, BlendMap.Height);
+				stream.Position = 0;
+			}
+
 
 			for (int y = 0; y < TextureHeight; y++) {
 				int offset = y * TextureWidth;

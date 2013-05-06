@@ -77,10 +77,11 @@ namespace HLSLTest
 
 
 		public EnergyShieldEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, Vector2 size)
+			Vector3 position, Vector2 size, float scale)
 		{
 			this.content = content;
 			this.graphics = graphics;
+			this.Scale = Matrix.CreateScale(scale);
 			mesh = new Object(position, "Models\\SkySphereMesh");
 
 			mesh.ScaleVector = new Vector3(size.X, size.Y, 1);// 元々Blenderで作成した素材なので傾いている。それに合わせて、rescaleする成分を調整

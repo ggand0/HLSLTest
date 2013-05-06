@@ -81,7 +81,7 @@
     <Compile Include="Graphics\BoundingSphereRenderer.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Graphics\CubeMapReflectMaterial.cs" />
-    <Compile Include="Graphics\EnergyShieldEffect.cs" />
+    <Compile Include="Effect\EnergyShieldEffect.cs" />
     <Compile Include="Misc\KeyConfig.cs" />
     <None Include="Scene\Game1_bak0.cs" />
     <Compile Include="Planet\MoltenPlanet.cs" />

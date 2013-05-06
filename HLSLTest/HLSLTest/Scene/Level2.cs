@@ -21,6 +21,7 @@ namespace HLSLTest
 		DiscoidParticleEmitter discoid;
 		ParticleEmitter basicEmitter, beamEmitter;
 		DiscoidEffect discoidEffect;
+		EnergyShieldEffect shieldEffect;
 		Planet planet;
 
 		protected override void Initialize()
@@ -56,6 +57,8 @@ namespace HLSLTest
 
 			DiscoidEffect.game = game;
 			discoidEffect = new DiscoidEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
+			EnergyShieldEffect.game = game;
+			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -72,7 +75,8 @@ namespace HLSLTest
 			}
 
 
-			discoid.Update();
+			//discoidEffect.Update(gameTime);
+			shieldEffect.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -91,6 +95,9 @@ namespace HLSLTest
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
 
+
+			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 		}
 
 

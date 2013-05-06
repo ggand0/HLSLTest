@@ -11,11 +11,12 @@ namespace HLSLTest
 {
 	public class WaterPlanet : Planet
 	{
+		
+
 		public WaterPlanet(GraphicsDevice graphics, ContentManager content)
 			:base(graphics, content)
 		{
 			Type = PlanetType.Water;
-			
 		}
 
 		protected override void LoadContent(ContentManager content)
@@ -28,11 +29,14 @@ namespace HLSLTest
 			terrain = content.Load<Effect>("Planets\\WaterPlanet");
 			draw = content.Load<Effect>("Planets\\ColorMap");
 			Palette = content.Load<Texture2D>("Textures\\Planet\\water2");
-			Nz = 64;//128;
+
+			baseTexture = content.Load<Texture2D>("Textures\\water");
+			gTexture = content.Load<Texture2D>("Textures\\grass2");
+			bTexture = content.Load<Texture2D>("Textures\\stone");
+
+			Nz = 1;//128;
 
 			Generate(graphics);
-			SubType = 1;
 		}
-		
 	}
 }
