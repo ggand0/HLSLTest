@@ -10,6 +10,7 @@ namespace HLSLTest
 {
 	public class Object : IRenderable
 	{
+		#region Fields and Properties
 		public static Game1 game;
 		public static Level level;
 		public static ContentManager content;
@@ -20,8 +21,12 @@ namespace HLSLTest
 		public BoundingSphere transformedBoundingSphere { get; protected set; }
 		protected const float MinimumAltitude = 350.0f;
 		protected const float VelocityScale = 5;
-		protected readonly float BoundingSphereScale = 0.95f;// = 95% scale
+		/// <summary>
+		/// BBのスケール。％で表す。
+		/// </summary>
+		protected readonly float BoundingSphereScale = 0.95f;
 		public Matrix RotationMatrix = Matrix.CreateRotationX(MathHelper.PiOver2);
+		public bool RenderBoudingSphere { get; set; }
 
 
 		public Model Model { get; protected set; }
@@ -70,7 +75,7 @@ namespace HLSLTest
 			set
 			{
 				float newVal = value;
-				// 0~2piにする
+				// 0 to 2piにする
 				while (newVal >= MathHelper.TwoPi) {
 					newVal -= MathHelper.TwoPi;
 				}
@@ -80,8 +85,8 @@ namespace HLSLTest
 				if (_rotation != value) {
 					_rotation = value;
 					RotationMatrix =
-						Matrix.CreateRotationY(MathHelper.PiOver2) *	//x モデルの向き？
-						Matrix.CreateRotationY(_rotation);				//z 回転方向？
+						Matrix.CreateRotationY(MathHelper.PiOver2) *	// x モデルの向き？
+						Matrix.CreateRotationY(_rotation);				// z 回転方向？
 				}
 			}
 		}
@@ -93,7 +98,9 @@ namespace HLSLTest
 		/// エフェクトのパラメータを設定・保持する
 		/// </summary>
 		public Material Material { get; set; }
+		#endregion
 
+		#region Methods
 		protected virtual void Load()
 		{
 		}
@@ -101,7 +108,7 @@ namespace HLSLTest
 		{
 			Model = content.Load<Model>(fileName);
 
-			generateTags();
+			GenerateTags();
 			Effect lightingEffect = content.Load<Effect>("Lights\\LightingEffect");
 			Effect pointLightEffect = content.Load<Effect>("Lights\\PointLightEffect");
 			Effect spotLightEffect = content.Load<Effect>("Lights\\SpotLightEffect");
@@ -211,7 +218,9 @@ namespace HLSLTest
 			transformedBoundingSphere = defBS;
 			_boundingSphereRenderer.Draw(defBS, Color.Red);
 		}
-
+		/// <summary>
+		/// 当たり判定メソッド
+		/// </summary>
 		public virtual bool IsHitWith(Object o)
 		{
 			BoundingSphere targetSphere =
@@ -230,13 +239,13 @@ namespace HLSLTest
 			//UpdateWorldMatrix();
 			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 
-			// Bounding Sphereを更新：_worldの更新後に行うこと。
+			// Bounding Sphereを更新：World行列の更新後に行うこと。
 			transformedBoundingSphere = new BoundingSphere(
 				Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world)
 				, Model.Meshes[0].BoundingSphere.Radius * _world.Forward.Length());
 		}
 
-		private void generateTags()
+		private void GenerateTags()
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
 				foreach (ModelMeshPart part in mesh.MeshParts)
@@ -247,14 +256,18 @@ namespace HLSLTest
 						part.Tag = tag;
 					}
 		}
-		// Store references to all of the model's current effects
+		/// <summary>
+		/// Store references to all of the model's current effects
+		/// </summary>
 		public void CacheEffects()
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
 				foreach (ModelMeshPart part in mesh.MeshParts)
 					((MeshTag)part.Tag).CachedEffect = part.Effect;
 		}
-		// Restore the effects referenced by the model's cache
+		/// <summary>
+		/// Restore the effects referenced by the model's cache
+		/// </summary>
 		public void RestoreEffects()
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
@@ -273,19 +286,24 @@ namespace HLSLTest
 					MeshTag tag = ((MeshTag)part.Tag);
 					// If this ModelMeshPart has a texture, set it to the effect
 					if (/*tag != null && */tag.Texture != null) {// tag自体がnull
-						setEffectParameter(toSet, "BasicTexture", tag.Texture);
-						setEffectParameter(toSet, "TextureEnabled", true);
+						SetEffectParameter(toSet, "BasicTexture", tag.Texture);
+						SetEffectParameter(toSet, "TextureEnabled", true);
 					} else
-						setEffectParameter(toSet, "TextureEnabled", false);
+						SetEffectParameter(toSet, "TextureEnabled", false);
 					// Set our remaining parameters to the effect
-					setEffectParameter(toSet, "DiffuseColor", tag.Color);
-					setEffectParameter(toSet, "SpecularPower", tag.SpecularPower);
+					SetEffectParameter(toSet, "DiffuseColor", tag.Color);
+					SetEffectParameter(toSet, "SpecularPower", tag.SpecularPower);
 					part.Effect = toSet;
 				}
 		}
-		// Sets the specified effect parameter to the given effect, if it
-		// has that parameter
-		void setEffectParameter(Effect effect, string paramName, object val)
+		/// <summary>
+		/// Sets the specified effect parameter to the given effect, if it
+		/// has that parameter
+		/// </summary>
+		/// <param name="effect"></param>
+		/// <param name="paramName"></param>
+		/// <param name="val"></param>
+		public static void SetEffectParameter(Effect effect, string paramName, object val)
 		{
 			if (effect.Parameters[paramName] == null)
 				return;
@@ -337,12 +355,11 @@ namespace HLSLTest
 						((BasicEffect)effect).Projection = Projection;
 						((BasicEffect)effect).EnableDefaultLighting();
 					} else {
-						setEffectParameter(effect, "World", localWorld);
-						setEffectParameter(effect, "View", View);
-						setEffectParameter(effect, "Projection", Projection);
-						setEffectParameter(effect, "CameraPosition", CameraPosition);
+						SetEffectParameter(effect, "World", localWorld);
+						SetEffectParameter(effect, "View", View);
+						SetEffectParameter(effect, "Projection", Projection);
+						SetEffectParameter(effect, "CameraPosition", CameraPosition);
 						//setEffectParameter(effect, "TextureEnabled", true);// どうやらデフォルトでtrueらしい
-
 						//setEffectParameter(effect, "ProjectorEnabled", true);
 					}
 					if (Material is CubeMapReflectMaterial) {//ProjectedTextureMaterial) {
@@ -355,8 +372,12 @@ namespace HLSLTest
 				mesh.Draw();
 			}
 
-			//DrawBoundingSphere();
+			if (RenderBoudingSphere) DrawBoundingSphere();
 		}
+		/// <summary>
+		/// ReflectionMap作成のためにClipPlaneを決定する
+		/// </summary>
+		/// <param name="Plane"></param>
 		public void SetClipPlane(Vector4? Plane)
 		{
 			foreach (ModelMesh mesh in Model.Meshes) {
@@ -371,36 +392,52 @@ namespace HLSLTest
 				}
 			}
 		}
+		#endregion
 
-
-		// Constructor
+		#region Constructors
 		public Object()
+			: this(Vector3.Zero)
 		{
+		}
+		public Object(Vector3 position)
+			: this(1, position)
+		{
+		}
+		public Object(float scale, Vector3 position)
+		{
+			this.Position = position;
+			this.Scale = scale;
+
 			Material = new HLSLTest.Material();
 			IsActive = true;
+			RenderBoudingSphere = true;
 			RotationMatrix = Matrix.Identity;
 			Load();
 			_boundingSphereRenderer = new BoundingSphereRenderer(game);
 			_boundingSphereRenderer.OnCreateDevice();
 		}
-		public Object(Vector3 position)
-			: this()
-		{
-			this.Position = position;
-		}
+
 
 		public Object(string fileName)
+			: this (Vector3.Zero, fileName)
 		{
+		}
+		public Object(Vector3 position, string fileName)
+			: this(position, 1, fileName)
+		{
+		}
+		public Object(Vector3 position, float scale, string fileName)
+		{
+			this.Position = position;
+			this.Scale = scale;
+
 			IsActive = true;
+			RenderBoudingSphere = true;
 			Load(fileName);
 			RotationMatrix = Matrix.Identity;
 			_boundingSphereRenderer = new BoundingSphereRenderer(game);
 			_boundingSphereRenderer.OnCreateDevice();
 		}
-		public Object(Vector3 position, string fileName)
-			: this(fileName)
-		{
-			this.Position = position;
-		}
+		#endregion
 	}
 }

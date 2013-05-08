@@ -65,11 +65,33 @@ namespace HLSLTest
 		public Texture2D BlendMap { get; protected set; }
 		protected Texture2D baseTexture, gTexture, bTexture;
 		protected Texture2D baseNormalTexture;
+		protected bool rotate;
+		protected float rotationSpeed = MathHelper.ToRadians(1);
+		protected bool revolution;
+		protected float revolutionSpeed = MathHelper.ToRadians(1);
+		protected static Vector3 DEF_POSITION = new Vector3(-300, 0, -200);
+		protected static Vector3 DEF_STAR_POSITION = Vector3.Zero;
+		public Vector3 Position { get; protected set; }
+		public Vector3 StarPosition { get; protected set; }
+		public bool IsActive { get; set; }
+
 
 		public Planet(GraphicsDevice graphics, ContentManager content)
+			: this(DEF_STAR_POSITION, graphics, content)
+		{
+		}
+		public Planet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			:this(DEF_POSITION, starPosition, graphics, content)
+		{
+		}
+		public Planet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
 		{
 			this.graphics = graphics;
+			this.StarPosition = starPosition;
+			Position = position;
 			LoadContent(content);
+
+			IsActive = true;
 		}
 		protected virtual void LoadContent(ContentManager content)
 		{
@@ -125,140 +147,6 @@ namespace HLSLTest
 				stream.Position = 0;
 			}
 		}
-
-		protected virtual void SetAtmosphereEffectParametersDetail()
-		{
-			atmosphere.Parameters["fKrESun"].SetValue(0.00025f * 10);
-			atmosphere.Parameters["fKmESun"].SetValue(0.0015f * 10);
-			atmosphere.Parameters["v3InvWavelength"].SetValue(new Vector3(1.0f / (float)Math.Pow(0.650f, 4), 1.0f / (float)Math.Pow(0.570f, 4), 1.0f / (float)Math.Pow(0.475f, 4)));
-		}
-		protected virtual void SetAtmosphereEffectParameters(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
-		{
-			float scale = 1.0f / (a_radius - p_radius);
-
-			atmosphere.Parameters["fOuterRadius"].SetValue(a_radius);
-			atmosphere.Parameters["fInnerRadius"].SetValue(p_radius);
-			atmosphere.Parameters["fOuterRadius2"].SetValue(a_radius * a_radius);
-			atmosphere.Parameters["fInnerRadius2"].SetValue(p_radius * p_radius);
-			atmosphere.Parameters["fKr4PI"].SetValue(0.0025f * 4 * MathHelper.Pi);
-			atmosphere.Parameters["fKm4PI"].SetValue(0.0015f * 4 * MathHelper.Pi);
-			atmosphere.Parameters["fScale"].SetValue(scale);
-			atmosphere.Parameters["fScaleDepth"].SetValue(0.25f);
-			atmosphere.Parameters["fScaleOverScaleDepth"].SetValue(scale / 0.25f);
-			atmosphere.Parameters["fSamples"].SetValue(2.0f);
-			atmosphere.Parameters["nSamples"].SetValue(2);
-
-
-			// ここを惑星ごとに変えるべし
-			SetAtmosphereEffectParametersDetail();
-
-			Matrix World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch)
-			* Matrix.CreateTranslation(Position);
-			World.Translation = Position;
-			//Vector3 vl = -level.LightPosition;
-			Vector3 vl = -level.LightPosition;
-			vl.Normalize();
-
-			atmosphere.Parameters["World"].SetValue(World);
-			World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch);
-			atmosphere.Parameters["DefWorld"].SetValue(World);
-
-			atmosphere.Parameters["View"].SetValue(View);
-			atmosphere.Parameters["Projection"].SetValue(Projection);
-			atmosphere.Parameters["v3CameraPos"].SetValue(CameraPosition);
-
-			atmosphere.Parameters["v3LightDir"].SetValue(vl);
-			atmosphere.Parameters["v3LightPos"].SetValue(level.LightPosition);
-			atmosphere.Parameters["fCameraHeight"].SetValue(CameraPosition.Length());
-			atmosphere.Parameters["fCameraHeight2"].SetValue(CameraPosition.LengthSquared());
-		}
-		public virtual void Draw(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
-		{
-
-			/*//Matrix wvp = World * View * Projection;
-			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
-				//* Matrix.CreateTranslation(Position);
-			Matrix wvp = World * View * Projection;
-			Vector3 light = -level.LightPosition;
-			light.Normalize();
-
-			draw.Parameters["wvp"].SetValue(wvp);
-			// wvp以外は毎フレーム設定する必要ないよな
-			draw.Parameters["Palette"].SetValue(Palette);
-			draw.Parameters["ColorMap"].SetValue(Mercator);
-			draw.Parameters["BumpMap"].SetValue(normalmap);
-			draw.Parameters["world"].SetValue(World);
-			draw.Parameters["subtype"].SetValue(SubType / 8.0f);*/
-			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
-				//* Matrix.CreateTranslation(Position);
-			World.Translation = Position;
-			Matrix wvp = World * View * Projection;
-			//Vector3 light = -level.LightPosition;
-			Vector3 light = -level.LightPosition;
-			light.Normalize();
-			draw.Parameters["LightDirection"].SetValue(light);
-			draw.Parameters["wvp"].SetValue(wvp);
-			draw.Parameters["world"].SetValue(World);
-			draw.Parameters["subtype"].SetValue(SubType / 8.0f);
-
-
-			draw.Parameters["Palette"].SetValue(Palette);
-			draw.Parameters["ColorMap"].SetValue(Mercator);
-			draw.Parameters["BumpMap"].SetValue(normalmap);
-
-			if (renderType == PlanetRenderType.MultiColored) {
-				draw.Parameters["renderType"].SetValue(0);
-
-			} else if (renderType == PlanetRenderType.MultiTextured) {
-				draw.Parameters["renderType"].SetValue(1);
-
-				draw.Parameters["BaseTexture"].SetValue(baseTexture);
-				draw.Parameters["GTexture"].SetValue(gTexture);
-				draw.Parameters["BTexture"].SetValue(bTexture);
-				draw.Parameters["WeightMap"].SetValue(BlendMap);
-			} else if (renderType == PlanetRenderType.OneTexMultiColored) {
-				draw.Parameters["renderType"].SetValue(2);
-
-				draw.Parameters["BaseTexture"].SetValue(baseTexture);
-				draw.Parameters["BaseNormalTexture"].SetValue(baseNormalTexture);
-				draw.Parameters["WeightMap"].SetValue(BlendMap);
-			}
-
-
-				//graphics.RasterizerState = RasterizerState.CullNone;
-				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
-					for (int msh = 0; msh < model.Meshes.Count; msh++) {
-						ModelMesh mesh = model.Meshes[msh];
-						for (int prt = 0; prt < mesh.MeshParts.Count; prt++)
-							mesh.MeshParts[prt].Effect = draw;
-
-						mesh.Draw();
-					}
-				}
-
-			// atmosphere scattering setteings
-			SetAtmosphereEffectParameters(Position, View, Projection, CameraPosition);
-
-
-			// Draw
-			graphics.RasterizerState = RasterizerState.CullClockwise;
-			/*DepthStencilState ds = new DepthStencilState();
-			ds.DepthBufferEnable = false;
-			graphics.DepthStencilState = ds;*/
-			foreach (ModelMesh mesh in sphere.Meshes) {
-				for (int i = 0; i < mesh.MeshParts.Count; i++) {
-					// Set this MeshParts effect (currentEffect) to the desired effect (from .fx file)   
-					mesh.MeshParts[i].Effect = atmosphere;
-				}
-				mesh.Draw();
-			}
-			//graphics.RenderState.CullMode = CullMode.None;
-			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
-			graphics.DepthStencilState = DepthStencilState.Default;
-
-		}
-
-
 		private int safex(int x)
 		{
 			if (x >= TextureWidth)
@@ -393,10 +281,10 @@ namespace HLSLTest
 			}
 
 			if (renderType != PlanetRenderType.MultiColored)
-			using (Stream stream = File.OpenWrite("blendMap.png")) {
-				BlendMap.SaveAsPng(stream, BlendMap.Width, BlendMap.Height);
-				stream.Position = 0;
-			}
+				using (Stream stream = File.OpenWrite("blendMap.png")) {
+					BlendMap.SaveAsPng(stream, BlendMap.Width, BlendMap.Height);
+					stream.Position = 0;
+				}
 
 
 			for (int y = 0; y < TextureHeight; y++) {
@@ -422,6 +310,145 @@ namespace HLSLTest
 			}
 
 			normalmap.SetData(pixels);
+		}
+		protected virtual void SetAtmosphereEffectParametersDetail()
+		{
+			atmosphere.Parameters["fKrESun"].SetValue(0.00025f * 10);
+			atmosphere.Parameters["fKmESun"].SetValue(0.0015f * 10);
+			atmosphere.Parameters["v3InvWavelength"].SetValue(new Vector3(1.0f / (float)Math.Pow(0.650f, 4), 1.0f / (float)Math.Pow(0.570f, 4), 1.0f / (float)Math.Pow(0.475f, 4)));
+		}
+		protected virtual void SetAtmosphereEffectParameters(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			float scale = 1.0f / (a_radius - p_radius);
+
+			atmosphere.Parameters["fOuterRadius"].SetValue(a_radius);
+			atmosphere.Parameters["fInnerRadius"].SetValue(p_radius);
+			atmosphere.Parameters["fOuterRadius2"].SetValue(a_radius * a_radius);
+			atmosphere.Parameters["fInnerRadius2"].SetValue(p_radius * p_radius);
+			atmosphere.Parameters["fKr4PI"].SetValue(0.0025f * 4 * MathHelper.Pi);
+			atmosphere.Parameters["fKm4PI"].SetValue(0.0015f * 4 * MathHelper.Pi);
+			atmosphere.Parameters["fScale"].SetValue(scale);
+			atmosphere.Parameters["fScaleDepth"].SetValue(0.25f);
+			atmosphere.Parameters["fScaleOverScaleDepth"].SetValue(scale / 0.25f);
+			atmosphere.Parameters["fSamples"].SetValue(2.0f);
+			atmosphere.Parameters["nSamples"].SetValue(2);
+
+
+			// ここを惑星ごとに変えるべし
+			SetAtmosphereEffectParametersDetail();
+
+			Matrix World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch)
+			* Matrix.CreateTranslation(Position);
+			World.Translation = Position;
+			//Vector3 vl = -level.LightPosition;
+			Vector3 vl = -level.LightPosition;
+			vl.Normalize();
+
+			atmosphere.Parameters["World"].SetValue(World);
+			World = Matrix.CreateScale(a_radius) * Matrix.CreateRotationX(pitch);
+			atmosphere.Parameters["DefWorld"].SetValue(World);
+
+			atmosphere.Parameters["View"].SetValue(View);
+			atmosphere.Parameters["Projection"].SetValue(Projection);
+			atmosphere.Parameters["v3CameraPos"].SetValue(CameraPosition);
+
+			atmosphere.Parameters["v3LightDir"].SetValue(vl);
+			atmosphere.Parameters["v3LightPos"].SetValue(level.LightPosition);
+			atmosphere.Parameters["fCameraHeight"].SetValue(CameraPosition.Length());
+			atmosphere.Parameters["fCameraHeight2"].SetValue(CameraPosition.LengthSquared());
+		}
+		public virtual void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+
+			/*//Matrix wvp = World * View * Projection;
+			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch);
+				//* Matrix.CreateTranslation(Position);
+			Matrix wvp = World * View * Projection;
+			Vector3 light = -level.LightPosition;
+			light.Normalize();
+
+			draw.Parameters["wvp"].SetValue(wvp);
+			// wvp以外は毎フレーム設定する必要ないよな
+			draw.Parameters["Palette"].SetValue(Palette);
+			draw.Parameters["ColorMap"].SetValue(Mercator);
+			draw.Parameters["BumpMap"].SetValue(normalmap);
+			draw.Parameters["world"].SetValue(World);
+			draw.Parameters["subtype"].SetValue(SubType / 8.0f);*/
+			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch)
+				* Matrix.CreateTranslation(Position);
+			Matrix wvp = World * View * Projection;
+			//Vector3 light = -level.LightPosition;
+			Vector3 light = -level.LightPosition;
+			light.Normalize();
+			draw.Parameters["LightDirection"].SetValue(light);
+			draw.Parameters["wvp"].SetValue(wvp);
+			draw.Parameters["world"].SetValue(World);
+			draw.Parameters["subtype"].SetValue(SubType / 8.0f);
+
+
+			draw.Parameters["Palette"].SetValue(Palette);
+			draw.Parameters["ColorMap"].SetValue(Mercator);
+			draw.Parameters["BumpMap"].SetValue(normalmap);
+
+			if (renderType == PlanetRenderType.MultiColored) {
+				draw.Parameters["renderType"].SetValue(0);
+
+			} else if (renderType == PlanetRenderType.MultiTextured) {
+				draw.Parameters["renderType"].SetValue(1);
+
+				draw.Parameters["BaseTexture"].SetValue(baseTexture);
+				draw.Parameters["GTexture"].SetValue(gTexture);
+				draw.Parameters["BTexture"].SetValue(bTexture);
+				draw.Parameters["WeightMap"].SetValue(BlendMap);
+			} else if (renderType == PlanetRenderType.OneTexMultiColored) {
+				draw.Parameters["renderType"].SetValue(2);
+
+				draw.Parameters["BaseTexture"].SetValue(baseTexture);
+				draw.Parameters["BaseNormalTexture"].SetValue(baseNormalTexture);
+				draw.Parameters["WeightMap"].SetValue(BlendMap);
+			}
+
+
+				//graphics.RasterizerState = RasterizerState.CullNone;
+				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
+					for (int msh = 0; msh < model.Meshes.Count; msh++) {
+						ModelMesh mesh = model.Meshes[msh];
+						for (int prt = 0; prt < mesh.MeshParts.Count; prt++)
+							mesh.MeshParts[prt].Effect = draw;
+
+						mesh.Draw();
+					}
+				}
+
+			// atmosphere scattering setteings
+			SetAtmosphereEffectParameters(View, Projection, CameraPosition);
+
+
+			// Draw
+			graphics.RasterizerState = RasterizerState.CullClockwise;
+			/*DepthStencilState ds = new DepthStencilState();
+			ds.DepthBufferEnable = false;
+			graphics.DepthStencilState = ds;*/
+			foreach (ModelMesh mesh in sphere.Meshes) {
+				for (int i = 0; i < mesh.MeshParts.Count; i++) {
+					// Set this MeshParts effect (currentEffect) to the desired effect (from .fx file)   
+					mesh.MeshParts[i].Effect = atmosphere;
+				}
+				mesh.Draw();
+			}
+			//graphics.RenderState.CullMode = CullMode.None;
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphics.DepthStencilState = DepthStencilState.Default;
+
+		}
+		public virtual void Update(GameTime gameTime)
+		{
+			if (rotate) {
+				roll += rotationSpeed;
+			}
+			if (revolution) {
+				Position += new Vector3((float)Math.Cos(revolutionSpeed), 0, (float)Math.Sign(revolutionSpeed));
+			}
 		}
 	}
 }

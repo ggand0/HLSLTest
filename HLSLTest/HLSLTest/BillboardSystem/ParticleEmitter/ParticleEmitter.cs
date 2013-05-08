@@ -57,7 +57,7 @@ namespace HLSLTest
 		{
 			return (float)(min + r.NextDouble() * (max - min));
 		}
-		protected void RandomDirectionExplosion()
+		protected virtual void RandomDirectionExplosion()
 		{
 			for (int i = 0; i < ParticleNum; i++) {
 				float duration = (float)(rand.Next(0, 20)) / 10f + 2;

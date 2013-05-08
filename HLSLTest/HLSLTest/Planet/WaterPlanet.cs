@@ -13,10 +13,16 @@ namespace HLSLTest
 	{
 		
 
-		public WaterPlanet(GraphicsDevice graphics, ContentManager content)
-			:base(graphics, content)
+		public WaterPlanet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			:this(DEF_POSITION, starPosition, graphics, content)
+		{
+		}
+		public WaterPlanet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			: base(position, starPosition, graphics, content)
 		{
 			Type = PlanetType.Water;
+			rotate = true;
+			revolution = true;
 		}
 
 		protected override void LoadContent(ContentManager content)

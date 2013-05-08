@@ -33,6 +33,7 @@ namespace HLSLTest
 			ruv.Normalize();
 			return ruv;
 		}
+		
 
 
 		public DiscoidParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,

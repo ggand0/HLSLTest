@@ -37,8 +37,10 @@ namespace HLSLTest
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 
-			//this.graphics.PreferredBackBufferWidth = 1280;
-			//this.graphics.PreferredBackBufferHeight = 720;
+			//this.graphics.PreferredBackBufferWidth = 1920;
+			//this.graphics.PreferredBackBufferHeight = 1080;
+			//this.graphics.PreferredBackBufferWidth = 640;
+			//this.graphics.PreferredBackBufferHeight = 480;
 		}
 
 		/// <summary>

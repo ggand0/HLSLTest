@@ -32,7 +32,7 @@ namespace HLSLTest
 		Vector3 start = new Vector3(200, 50, 0), end = new Vector3(-50, -50, 0);
 		BillboardCross treesCross;
 
-		DiscoidEffect discoidEffect;
+		EnergyRingEffect discoidEffect;
 		BillboardSystem softParticle;
 		GlassEffect glassEffect;
 
@@ -215,8 +215,8 @@ namespace HLSLTest
 
 
 			// discoid effect : Skyの後に初期化
-			DiscoidEffect.game = game;
-			discoidEffect = new DiscoidEffect(content, device, new Vector3(0, 50, 0), new Vector2(300));
+			EnergyRingEffect.game = game;
+			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 50, 0), new Vector2(300));
 
 			// Terrain
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
@@ -234,7 +234,7 @@ namespace HLSLTest
 
 			// Planet test
 			debugModel = content.Load<Model>("Models\\sphere2");
-			WaterPlanet waterPlanet = new WaterPlanet(device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(Vector3.Zero, device, content);
 			IcePlanet icePlanet = new IcePlanet(device, content);
 			GasGiant gasGiant = new GasGiant(device, content);
 			RockPlanet rockPlanet = new RockPlanet(device, content);

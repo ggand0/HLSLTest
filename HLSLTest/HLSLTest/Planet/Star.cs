@@ -82,17 +82,25 @@ namespace HLSLTest
             new Flare( 2.0f, 1.4f, new Color( 25,  50, 100), "flare3"),
         };
 
-		public void LoadContent(GraphicsDevice graphics, ContentManager cont)
+		public Star(GraphicsDevice graphics, ContentManager content, StarType starType)
 		{
+			SetType(starType);
+			LoadContent(graphics, content);
+		}
+
+		public void LoadContent(GraphicsDevice graphics, ContentManager content)
+		{
+			sphere = content.Load<Model>("Models\\sphere");
+
 			occlusionQuery = new OcclusionQuery(graphics);
-			starEffect = cont.Load<Effect>("Shaders\\StarShader");
-			glowSprite = cont.Load<Texture2D>("Textures\\glow");
+			starEffect = content.Load<Effect>("Planets\\Star");
+			glowSprite = content.Load<Texture2D>("Textures\\glow");
 			spriteBatch = new SpriteBatch(graphics);
-			graphics = graphics;
+			this.graphics = graphics;
 
 
 			foreach (Flare flare in flares) {
-				flare.Texture = cont.Load<Texture2D>("Textures\\" + flare.TextureName);
+				flare.Texture = content.Load<Texture2D>("Textures\\" + flare.TextureName);
 			}
 		}
 
@@ -167,7 +175,11 @@ namespace HLSLTest
 				}
 			
 			//graphics.RenderState.DepthBufferEnable = true;
-			graphics.DepthStencilState = DepthStencilState.Default;
+			//graphics.DepthStencilState = DepthStencilState.Default;
+			graphics.DepthStencilState = DepthStencilState.DepthRead;
+			graphics.BlendState = BlendState.AlphaBlend;
+			//graphics.BlendState = BlendState.Additive;
+			graphics.RasterizerState = RasterizerState.CullNone;
 			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(-level.LightPosition);
 			Matrix wvp = World * View * Projection;
 			starEffect.Parameters["wvp"].SetValue(wvp);
@@ -191,7 +203,9 @@ namespace HLSLTest
 				DrawGlow(TransformPosition(View, Projection, -level.LightPosition));
 				DrawFlares(TransformPosition(View, Projection, -level.LightPosition));
 			}
-
+			graphics.BlendState = BlendState.Opaque;
+			graphics.DepthStencilState = DepthStencilState.Default;
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
 		}
 
 		/// <summary>
@@ -204,7 +218,8 @@ namespace HLSLTest
 			float scale = glowSize * 2 / glowSprite.Width;
 
 			//spriteBatch.Begin(SpriteBlendMode.AlphaBlend);
-			spriteBatch.Begin();
+			//spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+			spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
 			spriteBatch.Draw(glowSprite, lightPosition, null, new Color(color), 0,
 							 origin, scale, SpriteEffects.None, 0);
 
@@ -242,7 +257,7 @@ namespace HLSLTest
 
 			// Draw the flare sprites using additive blending.
 			//spriteBatch.Begin(SpriteBlendMode.Additive);
-			spriteBatch.Begin();
+			spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
 
 			foreach (Flare flare in flares) {
 				// Compute the position of this flare sprite.

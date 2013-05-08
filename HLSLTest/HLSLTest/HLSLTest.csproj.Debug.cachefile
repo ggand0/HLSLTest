@@ -160,3 +160,13 @@ Content\Textures\Terrain\water.xnb
 Content\Textures\Terrain\grass2.xnb
 Content\Textures\Terrain\water10.xnb
 Content\Textures\Terrain\water10_normal.xnb
+Content\Planets\Star.xnb
+Content\Textures\flare1.xnb
+Content\Textures\flare2.xnb
+Content\Textures\flare3.xnb
+Content\Textures\noise.xnb
+Content\Textures\ring.xnb
+Content\Textures\glow.xnb
+Content\Models\Asteroid.xnb
+Content\Models\asteroid1_0.xnb
+Content\Lights\AsteroidLightingEffect.xnb

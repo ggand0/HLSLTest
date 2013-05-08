@@ -324,6 +324,17 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Models\Asteroid.x">
+      <Name>Asteroid</Name>
+      <Importer>XImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Lights\AsteroidLightingEffect.fx">
+      <Name>AsteroidLightingEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="Planets\Clouds\Clouds.fx">
       <Name>Clouds</Name>
       <Importer>EffectImporter</Importer>
@@ -354,6 +365,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </None>
+    <Compile Include="Planets\Star.fx">
+      <Name>Star</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="PPshared.vsi">
       <Name>PPshared</Name>
       <Importer>EffectImporter</Importer>
@@ -937,6 +953,40 @@
   <ItemGroup>
     <Compile Include="Textures\Terrain\water10_normal.jpg">
       <Name>water10_normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\flare1.png">
+      <Name>flare1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\flare2.png">
+      <Name>flare2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\flare3.png">
+      <Name>flare3</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\noise.jpg">
+      <Name>noise</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\ring.png">
+      <Name>ring</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\glow.png">
+      <Name>glow</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

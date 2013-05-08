@@ -31,7 +31,7 @@ namespace HLSLTest
 		{
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-			eps.Update();
+			//eps.Update();
 			//currentRadius += speed * 0.05f;
 			if (currentRadius >= MAX_RADIUS) {
 				currentRadius = DEF_RADIUS;
@@ -60,7 +60,7 @@ namespace HLSLTest
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 
 			graphics.BlendState = BlendState.Opaque;
-			eps.Draw(View, Projection, Up, Right);
+			//eps.Draw(View, Projection, Up, Right);
 		}
 		/// <summary>
 		/// エフェクトファイル内のパラメータを設定する

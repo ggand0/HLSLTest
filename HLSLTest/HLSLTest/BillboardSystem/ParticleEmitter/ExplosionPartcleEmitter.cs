@@ -22,7 +22,28 @@ namespace HLSLTest
 		public float speed = 4.0f;
 		public float innerRadius = 0.5f;
 		public float outerRadius = 1.5f;
-		protected override void MoveParticle()
+
+		public bool Reset { get; set; }
+		public int Type { get; private set; }
+
+		protected override void RandomDirectionExplosion()
+		{
+			for (int i = 0; i < ParticleNum; i++) {
+				float duration = (float)(rand.Next(0, 20)) / 10f + 2;
+				float x = Level2.NextDouble(rand, -1, 1);
+				float y = Level2.NextDouble(rand, -1, 1);
+				float z = Level2.NextDouble(rand, -1, 1);
+
+				//float s = (float)rand.NextDouble() + 1.0f;
+				float s = (float)rand.NextDouble() + 1.0f;
+				Vector3 direction = Vector3.Normalize(
+					new Vector3(x, y, z)) *
+					(((float)rand.NextDouble() * 3f) + 6f);
+
+				AddParticle(Position + new Vector3(0, -2, 0), direction, s);
+			}
+		}
+		protected void DiscoidExplosion()
 		{
 			/*var speed = 4.0f;
 			var innerRadius = 0.5f;
@@ -45,20 +66,35 @@ namespace HLSLTest
 				Vector3 velocity = ruv * speed;
 
 				if (i == 0) Velocity = velocity;
-				
+
 				//AddParticle(position + new Vector3(0, -2, 0), direction, duration, s);
 				AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
 			}
+		}
+		protected override void MoveParticle()
+		{
+			switch (Type) {
+				case 0:
+					DiscoidExplosion();
+					break;
+				case 1:
+					RandomDirectionExplosion();
+					break;
+			}
+			
 		}
 
 
 		public override void Update()
 		{
 			//MakeExplosion(Vector3.Zero, nParticles);
+
+			if (Reset) {
+				MoveParticle();
+				Reset = false;
+			}
 			if (activeParticlesNum > 0) {
 				UpdateParticles();
-			} else {
-				string debug = "ok";// 全てのパーティクルのアクション停止確認
 			}
 		}
 		public override void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
@@ -105,10 +141,18 @@ namespace HLSLTest
 		// Constructor
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
-			:base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
+			//:base:(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
+			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, 0)
+		{
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, int type)//Action moveFunction)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			//emitNumPerFrame = 100;//50;
 			speed = 4.0f * 5;
+			
+			this.Type = type;
 			MoveParticle();
 		}
 	}

@@ -54,7 +54,8 @@ float WaveLength = 0.6;
 float WaveHeight = 0.2;
 float Time = 0;
 float WaveSpeed = 0.5f;//0.04f;
-
+float StartTime = 0;
+float LifeSpan = 9999;
 
 struct VertexShaderInput
 {
@@ -73,7 +74,7 @@ struct VertexShaderOutput
 	float3 ViewDirection : TEXCOORD3;
 	float4 PositionCopy : TEXCOORD4;
 	float2 NormalMapPosition : TEXCOORD5;
-	//float2 UV : TEXCOORD5;
+	float2 RelativeTime : TEXCOORD6;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -102,6 +103,12 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	//float3 ViewDir = normalize(vecEye - PosWorldr);
 	output.ViewDirection = ViewDir;
 	//output.UV = input.UV;
+
+
+	// Determine how long this effect has been alive
+	float relativeTime = (Time - StartTime);
+	output.RelativeTime = relativeTime;
+	
 
 	// animation
 	output.NormalMapPosition = input.TexCoord / WaveLength;
@@ -143,7 +150,16 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 	//return (rim + ambient + specular + diffuse)	+ float4(RefractColor0, 0.5f);
 	//return rim + float4(RefractColor0, 0.1f) * 0.05f  + ambient + specular + diffuse;
-	return rim;
+
+
+
+
+	// Fade out towards end of life
+	float d = clamp(1.0f - pow((input.RelativeTime / LifeSpan), 10), 0, 1);
+
+
+	//return rim * float4(1,1,1,d);
+	return float4(rim * d);
 }
 
 technique Technique1

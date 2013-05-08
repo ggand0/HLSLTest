@@ -31,9 +31,9 @@ namespace HLSLTest
 		// Chased object properties
 		public Vector3 ChasePosition { get; set; }
 		public Vector3 ChaseDirection { get; set; }
-		public Vector3 Up { get; private set; }
-		public Vector3 Right { get; private set; }
-		public Vector3 Direction { get; private set; }
+		//public Vector3 Up { get; private set; }
+		//public Vector3 Right { get; private set; }
+		//public Vector3 Direction { get; private set; }
 
 		// Desired camera pos
 		public Vector3 DesiredPositionOffset { get; set; }

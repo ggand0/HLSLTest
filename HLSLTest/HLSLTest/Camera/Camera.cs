@@ -11,6 +11,10 @@ namespace HLSLTest
 	{
 		public Matrix View { get; set; }
 		public Matrix Projection { get; set; }
+		public Vector3 Up { get; protected set; }
+		public Vector3 Right { get; protected set; }
+		public Vector3 Direction { get; protected set; }
+
 		protected GraphicsDevice GraphicsDevice { get; set; }
 		/// <summary>
 		/// 近くのクリップ面との距離。

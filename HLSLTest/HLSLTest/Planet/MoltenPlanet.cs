@@ -35,11 +35,11 @@ namespace HLSLTest
 			Generate(graphics);
 		}
 
-		public override void Draw(Vector3 Position, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			draw.Parameters["Lava"].SetValue(lava);// added
 
-			base.Draw(Position, View, Projection, CameraPosition);
+			base.Draw(View, Projection, CameraPosition);
 		}
 	}
 }

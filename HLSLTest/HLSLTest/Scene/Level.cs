@@ -19,8 +19,11 @@ namespace HLSLTest
 
 		public ArcBallCamera camera { get; protected set; }
 		protected Debug debug;
+		protected EffectManager effectManager;
+		protected bool displayGrid;
 
 		public List<Object> Models { get; protected set; }
+		//public List<IRenderable>  { get; protected set; }
 		public SkySphere Sky { get; protected set; }
 
 		public Vector3 LightPosition
@@ -38,16 +41,33 @@ namespace HLSLTest
 			device.SamplerStates[0] = SamplerState.LinearWrap;
 		}
 
+		protected virtual void Collide()
+		{
+		}
 		protected virtual void Initialize()
 		{
+			effectManager = new EffectManager();
+
 			EnergyShieldEffect.level = this;
 			BoundingSphereRenderer.level = this;
 			Object.level = this;
 			PrelightingRenderer.level = this;
 			Water.level = this;
 			GlassEffect.level = this;
-			DiscoidEffect.level = this;
+			EnergyRingEffect.level = this;
 			Planet.level = this;
+			Star.level = this;
+		}
+		protected virtual void HandleInput()
+		{
+			if (JoyStick.IsOnKeyDown(6)) {
+				displayGrid = displayGrid ? false : true;
+			}
+			// Startボタンが押された時にPause Sceneにする
+			if (JoyStick.IsOnKeyDown(8)) {
+				//PushScene(new PauseMenu(this));
+				return;
+			}
 		}
 		public override void Load()
 		{
@@ -55,12 +75,7 @@ namespace HLSLTest
 		}
 		public override void Update(GameTime gameTime)
 		{
-
-			// Startボタンが押された時にPause Sceneにする
-			if (JoyStick.IsOnKeyDown(8)) {
-				//PushScene(new PauseMenu(this));
-				return;
-			}
+			HandleInput();
 		}
 		public override void Draw(GameTime gameTime)
 		{

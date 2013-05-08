@@ -73,6 +73,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Asteroid.cs" />
     <Compile Include="Camera\ArcBallCamera.cs" />
     <Compile Include="BillboardSystem\BillboardCross.cs" />
     <Compile Include="BillboardSystem\BlillboardSystem.cs" />
@@ -82,6 +83,9 @@
     <None Include="Terrain\bak\SphericalTerrain2_bak2.cs" />
     <None Include="Camera\ArcBallCamera_bak0.cs" />
     <Compile Include="Camera\RTSCamera.cs" />
+    <Compile Include="Effect\SpecialEffect.cs" />
+    <Compile Include="Effect\EffectManager.cs" />
+    <Compile Include="Effect\ExplosionEffect.cs" />
     <Compile Include="Graphics\GridRenderer.cs" />
     <Compile Include="Graphics\BoundingBoxRenderer.cs" />
     <Compile Include="Graphics\BoundingSphereRenderer.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="Debug.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\DiscoidParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ExplosionPartcleEmitter.cs" />
-    <Compile Include="Effect\DiscoidEffect.cs" />
+    <Compile Include="Effect\EnergyRingEffect.cs" />
     <Compile Include="Graphics\GlassEffect.cs" />
     <Compile Include="Graphics\IRenderable.cs" />
     <Compile Include="Misc\JoyStick.cs" />
