@@ -28,6 +28,7 @@ namespace HLSLTest
 		Star star;
 		List<Object> asteroids;
 		Random random;
+		List<ExplosionEffect> ex = new List<ExplosionEffect>();
 
 		public static float NextDouble(Random r, double min, double max)
 		{
@@ -101,7 +102,9 @@ namespace HLSLTest
 			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
 			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
-			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, true);
+			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, true, "Xml\\Particle\\particleExplosion0.xml");
+
+			// pre-load
 		}
 
 		protected override void Collide()
@@ -111,7 +114,7 @@ namespace HLSLTest
 			foreach (Object o in asteroids) {
 				if (discoidEffect.IsHitWith(o.transformedBoundingSphere)) {
 					o.IsActive = false;
-					effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One));
+					effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false));
 				}
 			}
 
@@ -149,7 +152,7 @@ namespace HLSLTest
 			if (planet.IsActive) planet.Update(gameTime);
 
 
-			discoidEffect.Update(gameTime);
+			//discoidEffect.Update(gameTime);
 			//shieldEffect.Update(gameTime);
 			explosionTest.Update(gameTime);
 
@@ -183,7 +186,7 @@ namespace HLSLTest
 			}
 
 
-			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			explosionTest.Draw(gameTime, camera);
 

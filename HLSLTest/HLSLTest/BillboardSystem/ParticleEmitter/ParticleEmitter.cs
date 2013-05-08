@@ -356,6 +356,12 @@ namespace HLSLTest
 			this.maxEmitFrameCount = particleNum / emitNumPerFrame;
 			blendState = BlendState.AlphaBlend;
 		}
+
+		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position)
+		{
+			this.graphicsDevice = graphicsDevice;
+			this.Position = position;
+		}
 	}
 
 }

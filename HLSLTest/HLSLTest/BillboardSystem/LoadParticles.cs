@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
 	/// <summary>
 	/// Now implementing...
 	/// </summary>
-	public static class LoadParticleSettings
+	public class LoadParticleSettings
 	{
 		#region sample method
 		public static void LoadXML(string objectName, string fileName)
@@ -73,40 +76,79 @@ namespace HLSLTest
 			}
 		}
 		#endregion
-		public static void Load(ParticleEmitter particle, string fileName)
+
+		private object GetValue(string type, string value)
 		{
+			switch (type) {
+				case "int":
+					return Int32.Parse(value);
+				case "float":
+					return float.Parse(value);
+				default:
+					return value;
+			}
+		}
+
+		//public List<object> Load(string fileName)
+		public List<ParticleEmitter> Load(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string fileName)
+		{
+			List<ParticleEmitter> emitters = new List<ParticleEmitter>();
+			//List<object> emitters = new List<object>();
 			XmlReader xmlReader = XmlReader.Create(fileName);
 
 			while (xmlReader.Read()) {// XMLファイルを１ノードずつ読み込む
 				xmlReader.MoveToContent();
 
 				if (xmlReader.NodeType == XmlNodeType.Element) {
-					if (xmlReader.Name == "obj") {
+					if (xmlReader.Name == "Item") {
 						xmlReader.MoveToAttribute(0);
-						if (xmlReader.Name == "Name" && xmlReader.Value == "ParticleSettings") {
-							// 以下、各パラメータを読み込む処理
+
+						if (xmlReader.Name == "Type") {
+							var emitterType = Type.GetType(xmlReader.Value);// stringからとりあえず型だけ取得
+
+
+							//var emitter = Activator.CreateInstance(emitterType, new object[]{});// stringからインスタンス生成
+							List<object> arguments = new List<object>();
+							arguments.Add(graphicsDevice);
+							arguments.Add(content);
+							arguments.Add(position);
+
+							xmlReader.MoveToContent();
+							xmlReader.Read();
+
+							// 以下、Itemタグ内の各パラメータを読み込む処理
+							// Nameが"arguments"の要素はコンストラクタの引数として読み込み後に与える
 							while (!(xmlReader.NodeType == XmlNodeType.EndElement
-								&& xmlReader.Name == "obj")) {
+								&& xmlReader.Name == "Item")) {
 								xmlReader.Read();
+								//xmlReader.MoveToElement();
 
-								//Type type = this.GetType();
 								xmlReader.MoveToFirstAttribute();
-								if (xmlReader.Name == "type") {
-									if (xmlReader.Value == "key") {
-										xmlReader.MoveToContent();
+								if (xmlReader.Name == "use") {
+									if (xmlReader.Value == "argument") {// 引数として与えるべき要素なら
+										xmlReader.MoveToNextAttribute();
+										string type = xmlReader.Value;
 
-										//switch (xmlReader.Name) {
-										
+										xmlReader.MoveToContent();
+										//arguments.Add(xmlReader.Value);
+										arguments.Add(GetValue(type, xmlReader.ReadString()));
 									}
 								}
+								
 							}
 
+							ParticleEmitter emitter = (ParticleEmitter)Activator.CreateInstance(emitterType, arguments);// stringからインスタンス生成
+							emitters.Add(emitter);
 						}
 					}
 				}
 
 
 			}
+
+			return emitters;
 		}
+
+
 	}
 }

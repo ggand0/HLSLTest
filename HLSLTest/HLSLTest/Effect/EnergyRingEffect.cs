@@ -45,7 +45,7 @@ namespace HLSLTest
 				count = 0;
 				start = DateTime.Now;
 			}
-			eps.Update();
+			//eps.Update();
 
 			Scale = Matrix.CreateScale(currentRadius);
 			//discoidMesh.ScaleVector = new Vector3(currentRadius, currentRadius, 50);
@@ -127,7 +127,7 @@ namespace HLSLTest
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
 			
 			graphics.BlendState = BlendState.Opaque;
-			eps.Draw(View, Projection, Up, Right);
+			//eps.Draw(View, Projection, Up, Right);
 		}
         /// <summary>
         /// エフェクトファイル内のパラメータを設定する
@@ -213,10 +213,13 @@ namespace HLSLTest
 
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
-			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), position, 2000, new Vector2(10), FREQUENCY / 60.0f, 5f);
+			eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), position, 2000, new Vector2(10), FREQUENCY / 60.0f, 5f, 1);
 			currentRadius = DEF_RADIUS;
 			//currentRadius = 100;
-			speed = eps.Velocity.Length();
+
+
+			//speed = eps.Velocity.Length();
+			speed = 20;
 		}
 	}
 }

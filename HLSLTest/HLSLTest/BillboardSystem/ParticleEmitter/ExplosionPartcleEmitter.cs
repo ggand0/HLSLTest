@@ -13,6 +13,7 @@ namespace HLSLTest
 	{
 		public Vector3 Velocity { get; set; }
 
+
 		private Vector3 RandomUnitVectorInPlane(Matrix xform, Vector3 axis)
 		{
 			xform *= Matrix.CreateFromAxisAngle(axis, (float)NextDouble(rand, 0.0, 360.0));
@@ -20,7 +21,7 @@ namespace HLSLTest
 			ruv.Normalize();
 			return ruv;
 		}
-		public float speed = 4.0f;
+		public float Speed { get; set; }
 		public float innerRadius = 0.5f;
 		public float outerRadius = 1.5f;
 
@@ -35,12 +36,12 @@ namespace HLSLTest
 		{
 			for (int i = 0; i < ParticleNum; i++) {
 				float duration = (float)(rand.Next(0, 20)) / 10f + 2;
-				float x = Level2.NextDouble(rand, -1, 1);
-				float y = Level2.NextDouble(rand, -1, 1);
-				float z = Level2.NextDouble(rand, -1, 1);
+				float x = ((float)rand.NextDouble() - 0.5f) * 1.5f;//Level2.NextDouble(rand, -1, 1);
+				float y = ((float)rand.NextDouble() - 0.5f) * 1.5f;
+				float z = ((float)rand.NextDouble() - 0.5f) * 1.5f;
 
 				//float s = (float)rand.NextDouble() + 1.0f;
-				float s = (float)rand.NextDouble() + 1.0f;
+				float s = (float)rand.NextDouble() + Speed;
 				Vector3 direction = Vector3.Normalize(
 					new Vector3(x, y, z)) *
 					(((float)rand.NextDouble() * 3f) + 6f);
@@ -68,12 +69,12 @@ namespace HLSLTest
 
 				// The velocity vector is simply the unit vector modified by the speed.  The velocity vector is used by the 
 				// Particle Animator component to move the particles.
-				Vector3 velocity = ruv * speed;
+				Vector3 velocity = ruv * Speed;
 
 				if (i == 0) Velocity = velocity;
 
 				//AddParticle(position + new Vector3(0, -2, 0), direction, duration, s);
-				AddParticle(pos + new Vector3(0, 2, 0), velocity, speed);
+				AddParticle(pos + new Vector3(0, 2, 0), velocity, Speed);
 			}
 		}
 		protected override void MoveParticle()
@@ -104,7 +105,8 @@ namespace HLSLTest
 			//MakeExplosion(Vector3.Zero, nParticles);
 
 			if (Reset) {
-				MoveParticle();
+				//MoveParticle();
+				Run();
 				Reset = false;
 			}
 			if (activeParticlesNum > 0) {
@@ -161,13 +163,33 @@ namespace HLSLTest
 		}
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime, int type)//Action moveFunction)
+			: this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, 0, 5.0f)
+		{
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)//Action moveFunction)
 			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			//emitNumPerFrame = 100;//50;
-			this.Type = type;
-			speed = 4.0f * 5;
-			MoveParticle();
+			this.Type = movementType;
+			this.Speed = speed;
+			//speed = 4.0f * 5;
+			//MoveParticle();
 		}
+
+
+		// XML loading test
+		public void Initialize(Texture2D texture, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)
+		{
+
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string filePath)
+			:base (graphicsDevice, content, position)
+		{
+
+		}
+
 
 		// lua scripting test
 		public Vector3 CreateVector(float x, float y, float z)
@@ -193,7 +215,7 @@ namespace HLSLTest
 			EnableScripting = true;
 			this.scriptPath = scriptPath;
 
-			// Create new Lua instance
+			/*// Create new Lua instance
 			lua = new Lua();
 			// Register Function params 1= name you use IN lua, to call this method
 			// 2 = object target, the object, whos function you are registering
@@ -207,7 +229,15 @@ namespace HLSLTest
 			
 			//lua["Vector3"] = new Vector3();
 			Vector3 a = Vector3.Zero;
-			//lua.RegisterFunction("Vector3Multipy", null, GetType().GetMethod("Vector3.Multiply"));
+			//lua.RegisterFunction("Vector3Multipy", null, GetType().GetMethod("Vector3.Multiply"));*/
+
+			//MoveParticle();
+		}
+		//public bool Available { get; private set; }
+		public void Run()
+		{
+			MoveParticle();
+			//Available = false;
 		}
 	}
 

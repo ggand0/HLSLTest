@@ -80,7 +80,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asteroid.cs" />
+    <Compile Include="Planet\Asteroid.cs" />
     <Compile Include="Camera\ArcBallCamera.cs" />
     <Compile Include="BillboardSystem\BillboardCross.cs" />
     <Compile Include="BillboardSystem\BlillboardSystem.cs" />
