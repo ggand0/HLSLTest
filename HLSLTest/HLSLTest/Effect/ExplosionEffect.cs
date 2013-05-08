@@ -19,7 +19,8 @@ namespace HLSLTest
 		private GraphicsDevice graphics;
 
 		private Matrix Scale;
-		private ExplosionParticleEmitter explosion;
+		private ExplosionParticleEmitter explosion, spark;
+
 		private float speed;
 		public bool Repeat { get; private set; }
 		
@@ -64,16 +65,33 @@ namespace HLSLTest
 		}
 		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
 			Vector3 position, Vector2 size, bool repeat)
+			: this(content, graphics, position, size, repeat, false)
+		{
+		}
+
+		// lua scripting test
+		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, Vector2 size, bool repeat, bool enableScripting)
 		{
 			this.content = content;
 			this.graphics = graphics;
 			this.Position = position;
 			this.Repeat = repeat;
 
-			// XML/スクリプトから読みこむようにしたい！
-			explosion = new ExplosionParticleEmitter(graphics, content,
-				content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 200, new Vector2(30), 3, 0, 1);
-			speed = explosion.Velocity.Length();
+			if (!enableScripting) {
+				// XML/スクリプトから読みこむようにしたい！
+				explosion = new ExplosionParticleEmitter(graphics, content,
+					content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 200, new Vector2(30), 3, 0, 0);
+				spark = new ExplosionParticleEmitter(graphics, content,
+					content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), position, 50, new Vector2(5), 3, 0, 0);
+				speed = explosion.Velocity.Length();
+			} else {
+				explosion = new ExplosionParticleEmitter(graphics, content,
+					content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 200, new Vector2(30), 3, 0, "Script\\explosion0.lua");
+				/*spark = new ExplosionParticleEmitter(graphics, content,
+					content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), position, 50, new Vector2(5), 3, 0, "Script\\explosion0.lua");*/
+				speed = explosion.Velocity.Length();
+			}
 		}
 	}
 }

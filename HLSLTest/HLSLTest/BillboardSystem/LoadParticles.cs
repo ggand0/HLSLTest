@@ -6,8 +6,12 @@ using System.Xml;
 
 namespace HLSLTest
 {
-	public static class LoadParticles
+	/// <summary>
+	/// Now implementing...
+	/// </summary>
+	public static class LoadParticleSettings
 	{
+		#region sample method
 		public static void LoadXML(string objectName, string fileName)
 		{
 			XmlReader xmlReader = XmlReader.Create(fileName);
@@ -65,6 +69,42 @@ namespace HLSLTest
 						}
 					}
 				}
+
+			}
+		}
+		#endregion
+		public static void Load(ParticleEmitter particle, string fileName)
+		{
+			XmlReader xmlReader = XmlReader.Create(fileName);
+
+			while (xmlReader.Read()) {// XMLファイルを１ノードずつ読み込む
+				xmlReader.MoveToContent();
+
+				if (xmlReader.NodeType == XmlNodeType.Element) {
+					if (xmlReader.Name == "obj") {
+						xmlReader.MoveToAttribute(0);
+						if (xmlReader.Name == "Name" && xmlReader.Value == "ParticleSettings") {
+							// 以下、各パラメータを読み込む処理
+							while (!(xmlReader.NodeType == XmlNodeType.EndElement
+								&& xmlReader.Name == "obj")) {
+								xmlReader.Read();
+
+								//Type type = this.GetType();
+								xmlReader.MoveToFirstAttribute();
+								if (xmlReader.Name == "type") {
+									if (xmlReader.Value == "key") {
+										xmlReader.MoveToContent();
+
+										//switch (xmlReader.Name) {
+										
+									}
+								}
+							}
+
+						}
+					}
+				}
+
 
 			}
 		}

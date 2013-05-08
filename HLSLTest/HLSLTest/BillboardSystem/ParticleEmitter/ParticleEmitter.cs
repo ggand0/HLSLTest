@@ -196,7 +196,7 @@ namespace HLSLTest
 			vertexBuffers.SetData<ParticleVertex>(particles);
 			indexBuffers.SetData<int>(indices);
 		}
-		protected void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
+		public void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
 			this.AddParticle(Position, Direction, 0, Speed);
 			// If there are no available particles, give up

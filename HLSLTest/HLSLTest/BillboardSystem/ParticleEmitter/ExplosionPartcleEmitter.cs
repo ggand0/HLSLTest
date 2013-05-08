@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using LuaInterface;
 
 namespace HLSLTest
 {
@@ -25,6 +26,10 @@ namespace HLSLTest
 
 		public bool Reset { get; set; }
 		public int Type { get; private set; }
+
+		public bool EnableScripting { get; private set; }
+		private Lua lua;
+		private string scriptPath;
 
 		protected override void RandomDirectionExplosion()
 		{
@@ -73,15 +78,24 @@ namespace HLSLTest
 		}
 		protected override void MoveParticle()
 		{
-			switch (Type) {
-				case 0:
-					DiscoidExplosion();
-					break;
-				case 1:
-					RandomDirectionExplosion();
-					break;
+			if (EnableScripting) {
+				if (lua != null) {
+					var x = lua["Random"];
+					//lua["Random"] = rand;
+					lua.DoFile(scriptPath); // Execute file, full of Lua stuff
+				} else {
+					throw new Exception("Lua instance is null ! Initialize it in constructors.");
+				}
+			} else {
+				switch (Type) {
+					case 0:
+						RandomDirectionExplosion();
+						break;
+					case 1:
+						DiscoidExplosion();
+						break;
+				}
 			}
-			
 		}
 
 
@@ -150,10 +164,50 @@ namespace HLSLTest
 			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
 			//emitNumPerFrame = 100;//50;
-			speed = 4.0f * 5;
-			
 			this.Type = type;
+			speed = 4.0f * 5;
 			MoveParticle();
+		}
+
+		// lua scripting test
+		public Vector3 CreateVector(float x, float y, float z)
+		{
+			return new Vector3(x, y, z);
+		}
+		public Vector3 MultiplyVector(Vector3 v, float value)
+		{
+			return v * value;
+		}
+		public Vector3 NormalizeVector(Vector3 v)
+		{
+			return Vector3.Normalize(v);
+		}
+		public Vector3 AddVector(Vector3 v1, Vector3 v2)
+		{
+			return v1 + v2;
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, string scriptPath)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
+		{
+			EnableScripting = true;
+			this.scriptPath = scriptPath;
+
+			// Create new Lua instance
+			lua = new Lua();
+			// Register Function params 1= name you use IN lua, to call this method
+			// 2 = object target, the object, whos function you are registering
+			// 3 = Method you want to call 
+			lua.RegisterFunction("Addparticle", this, GetType().GetMethod("AddParticle"));
+			//lua.DoString("LuaName()"); // Executes Lua code. This example calls MyFunction()
+
+			object[] test = lua.DoString("luanet.load_assembly('Microsoft.Xna.Framework')");
+			lua["ExplosionParticleEmitter"] = this;
+			lua["Random"] = rand;
+			
+			//lua["Vector3"] = new Vector3();
+			Vector3 a = Vector3.Zero;
+			//lua.RegisterFunction("Vector3Multipy", null, GetType().GetMethod("Vector3.Multiply"));
 		}
 	}
 
