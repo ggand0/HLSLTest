@@ -155,18 +155,18 @@ namespace HLSLTest
 
 
 		// Constructor
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			//:base:(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
-			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, 0)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, FadeInTime, 0)
 		{
 		}
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime, int type)//Action moveFunction)
-			: this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, 0, 5.0f)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, FadeInTime, 0, 5.0f)
 		{
 		}
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)//Action moveFunction)
 			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
 		{
@@ -186,6 +186,10 @@ namespace HLSLTest
 		}
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string filePath)
 			:base (graphicsDevice, content, position)
+		{
+
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture)
 		{
 
 		}

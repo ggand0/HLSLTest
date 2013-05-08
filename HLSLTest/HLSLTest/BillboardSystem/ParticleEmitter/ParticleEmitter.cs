@@ -357,11 +357,15 @@ namespace HLSLTest
 			blendState = BlendState.AlphaBlend;
 		}
 
+
+		// XML loading test
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position)
 		{
 			this.graphicsDevice = graphicsDevice;
 			this.Position = position;
 		}
+		public ParticleEmitter()
+		{ }
 	}
 
 }

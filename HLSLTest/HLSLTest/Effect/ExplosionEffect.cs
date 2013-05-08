@@ -24,7 +24,7 @@ namespace HLSLTest
 		private Matrix Scale;
 		private ExplosionParticleEmitter explosion, spark, flare;
 		//private List<ExplosionParticleEmitter> emitters;
-		private List<ParticleEmitter> emitters;
+		private List<ExplosionParticleEmitter> emitters;
 
 		private float speed;
 		public bool Repeat { get; private set; }
@@ -99,15 +99,15 @@ namespace HLSLTest
 			this.Repeat = repeat;
 
 			//emitters = new List<ExplosionParticleEmitter>();
-			emitters = new List<ParticleEmitter>();
+			emitters = new List<ExplosionParticleEmitter>();
 			if (!enableXML) {
 				// XML/スクリプトから読みこむようにしたい！
 				explosion = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 200, new Vector2(50), 3, 0);
+					position, content.Load<Texture2D>("Textures\\Particle\\explosion"), 200, new Vector2(50), 3, 0);
 				spark = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), position, 20, new Vector2(10), 3, 0);
+					position, content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), 20, new Vector2(10), 3, 0);
 				flare = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), position, 10, new Vector2(80), 0.2f, 0);
+					position, content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), 10, new Vector2(80), 0.2f, 0);
 				speed = explosion.Velocity.Length();
 
 				spark.Speed = 2;
@@ -132,8 +132,8 @@ namespace HLSLTest
 				Available = true;*/
 
 				LoadParticleSettings load = new LoadParticleSettings();
-				//emitters = (List<ExplosionParticleEmitter>)load.Load(fileName);
-				emitters = load.Load(graphics, content, position, fileName);
+				emitters = (List<ExplosionParticleEmitter>)load.Load(graphics, content, position, fileName);
+				//emitters = load.Load(graphics, content, position, fileName);
 			}
 			Run();
 		}

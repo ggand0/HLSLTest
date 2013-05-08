@@ -77,22 +77,26 @@ namespace HLSLTest
 		}
 		#endregion
 
-		private object GetValue(string type, string value)
+		private object GetValue(string type, string value, ContentManager content)
 		{
 			switch (type) {
 				case "int":
 					return Int32.Parse(value);
 				case "float":
 					return float.Parse(value);
+				case "Vector2":
+					return new Vector2(float.Parse(value), float.Parse(value));
+				case "Texture2D":
+					return content.Load<Texture2D>(value);
 				default:
 					return value;
 			}
 		}
 
 		//public List<object> Load(string fileName)
-		public List<ParticleEmitter> Load(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string fileName)
+		public List<ExplosionParticleEmitter> Load(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string fileName)
 		{
-			List<ParticleEmitter> emitters = new List<ParticleEmitter>();
+			List<ExplosionParticleEmitter> emitters = new List<ExplosionParticleEmitter>();
 			//List<object> emitters = new List<object>();
 			XmlReader xmlReader = XmlReader.Create(fileName);
 
@@ -129,15 +133,19 @@ namespace HLSLTest
 										xmlReader.MoveToNextAttribute();
 										string type = xmlReader.Value;
 
+
 										xmlReader.MoveToContent();
 										//arguments.Add(xmlReader.Value);
-										arguments.Add(GetValue(type, xmlReader.ReadString()));
+										arguments.Add(GetValue(type, xmlReader.ReadString(), content));
 									}
 								}
 								
 							}
 
-							ParticleEmitter emitter = (ParticleEmitter)Activator.CreateInstance(emitterType, arguments);// stringからインスタンス生成
+							object[] test = new object[] { graphicsDevice, content, position, arguments[3] };
+							//ParticleEmitter emitter = (ParticleEmitter)Activator.CreateInstance(emitterType, arguments);// stringからインスタンス生成
+							ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(emitterType, arguments.ToArray());// stringからインスタンス生成
+							//ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(typeof(ExplosionParticleEmitter), test);// stringからインスタンス生成
 							emitters.Add(emitter);
 						}
 					}
