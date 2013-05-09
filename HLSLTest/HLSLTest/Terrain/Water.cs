@@ -166,9 +166,9 @@ namespace HLSLTest
 
 			graphicsDevice.BlendState = BlendState.AlphaBlend;
 			//graphics.DepthStencilState = DepthStencilState.None;
-			graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
-			waterMesh.Draw(View, Projection, CameraPosition);
+			//graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+			//waterMesh.Draw(View, Projection, CameraPosition);
 
 			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 			waterMesh.Draw(View, Projection, CameraPosition);
@@ -190,6 +190,7 @@ namespace HLSLTest
 				* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 
 			waterEffect = content.Load<Effect>("WaterEffectV3");
+			//waterEffect = content.Load<Effect>("WaterEffectV2");
 			waterMesh.SetModelEffect(waterEffect, false);
 			waterEffect.Parameters["viewportWidth"].SetValue(graphicsDevice.Viewport.Width);
 			waterEffect.Parameters["viewportHeight"].SetValue(graphicsDevice.Viewport.Height);

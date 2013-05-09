@@ -22,6 +22,10 @@ sampler2D reflectionSampler = sampler_state {
 texture WaterNormalMap;
 sampler2D waterNormalSampler = sampler_state {
 	texture = <WaterNormalMap>;
+	MinFilter = Point;
+	MagFilter = Point;
+	AddressU = Mirror;
+	AddressV = Mirror;
 };
 float WaveLength = 0.6;
 float WaveHeight = 0.2;
@@ -60,7 +64,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.ReflectionPosition = mul(input.Position, rwvp);
 	//output.UV = input.UV;
 
-	output.NormalMapPosition = input.UV/WaveLength;
+	output.NormalMapPosition = input.UV / WaveLength;
 	output.NormalMapPosition.y -= Time * WaveSpeed;
 	output.WorldPosition = mul(input.Position, World);
 

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class Terrain
+	public class Terrain : IRenderable
 	{
 		private VertexPositionNormalTexture[] vertices; // Vertex array
 		private VertexBuffer vertexBuffer; // Vertex buffer
@@ -135,6 +135,10 @@ namespace HLSLTest
 				vertices[i].Normal.Normalize();
 		}
 
+		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			this.Draw(false, View, Projection);
+		}
 		public void Draw(bool wireFrame, Matrix View, Matrix Projection)
 		{
             if (wireFrame) {
@@ -161,18 +165,28 @@ namespace HLSLTest
 			effect.Parameters["DetailDistance"].SetValue(DetailDistance);
 			effect.Parameters["DetailTextureTiling"].SetValue(DetailTextureTiling);
 
+			//graphicsDevice.BlendState = BlendState.AlphaBlend;
+			//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 			effect.Techniques[0].Passes[0].Apply();
 
-			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
-				nVertices, 0, nIndices / 3);
+			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, nVertices, 0, nIndices / 3);
 
 			// Un-set the buffers
 			graphicsDevice.SetVertexBuffer(null);
 			graphicsDevice.Indices = null;
-            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+			graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 		}
 
 		public float BaseHeight { get; private set; }
+		public void SetClipPlane(Vector4? Plane)
+		{
+			effect.Parameters["ClipPlaneEnabled"].SetValue(Plane.HasValue);
+			if (Plane.HasValue)
+				effect.Parameters["ClipPlane"].SetValue(Plane.Value);
+		}
+
 		public Terrain(Texture2D HeightMap, float CellSize, float Height,
 			GraphicsDevice GraphicsDevice, ContentManager Content)
 			:this(HeightMap, CellSize, Height, 0, null, 0, Vector3.Zero, GraphicsDevice, Content)

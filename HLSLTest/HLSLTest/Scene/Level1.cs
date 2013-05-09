@@ -33,23 +33,29 @@ namespace HLSLTest
 
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
 
-			Water.game = game;
-			water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000));
-			//water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
-			water.Objects.Add(Sky);
-			//water.Objects.Add(models[0]); water.Objects.Add(models[1]);
-			foreach (Object o in Models) {
-				water.Objects.Add(o);
-			}
-			water.Initialize();
 
-			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 2500, -1500,
+			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 100, 0,
 				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
 			terrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
 			terrain.BTexture = content.Load<Texture2D>("Textures\\Terrain\\stone");
 			terrain.DetailTexture = content.Load<Texture2D>("Textures\\detail0");
+
+
+			Water.game = game;
+			water = new Water(content, device, new Vector3(0, 100, 0), new Vector2(1000, 1000));
+			//water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
+			water.Objects.Add(Sky);
+			water.Objects.Add(terrain);
+			//water.Objects.Add(models[0]); water.Objects.Add(models[1]);
+			foreach (Object o in Models) {
+				water.Objects.Add(o);
+			}
+			water.Initialize();
+
+
+			
 		}
 		public override void Update(GameTime gameTime)
 		{
