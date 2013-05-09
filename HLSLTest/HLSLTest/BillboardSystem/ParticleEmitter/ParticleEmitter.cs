@@ -328,9 +328,30 @@ namespace HLSLTest
 		}
 
 
+		public void Initialize()
+		{
+			// Create vertex and index buffers to accomodate all particles
+			vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
+				ParticleNum * 4, BufferUsage.WriteOnly);
+			indexBuffers = new IndexBuffer(graphicsDevice,
+				IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
+				BufferUsage.WriteOnly);
+			GenerateParticles();
+			
+			start = DateTime.Now;
+
+			this.emitNumPerFrame = 10;
+			this.maxEmitFrameCount = ParticleNum / emitNumPerFrame;
+			blendState = BlendState.AlphaBlend;
+		}
 		// Constructor
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position , int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
+			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, true)
+		{
+		}
+		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, bool initialize)
 		{
 			//Lifespan = 1;
 
@@ -342,19 +363,13 @@ namespace HLSLTest
 			this.Position = position;
 			this.FadeInTime = FadeInTime;
 
-			// Create vertex and index buffers to accomodate all particles
-			vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
-				particleNum * 4, BufferUsage.WriteOnly);
-			indexBuffers = new IndexBuffer(graphicsDevice,
-				IndexElementSize.ThirtyTwoBits, particleNum * 6,
-				BufferUsage.WriteOnly);
-			GenerateParticles();
 			effect = content.Load<Effect>("Billboard\\ParticleEffect");
-			start = DateTime.Now;
 
-			this.emitNumPerFrame = 10;
-			this.maxEmitFrameCount = particleNum / emitNumPerFrame;
-			blendState = BlendState.AlphaBlend;
+			// 指定された場合は初期化。
+			// 大量に使うときなど、初期化を後にしたい時はfalseを与える。
+			if (initialize) {
+				Initialize();
+			}
 		}
 
 
@@ -365,7 +380,8 @@ namespace HLSLTest
 			this.Position = position;
 		}
 		public ParticleEmitter()
-		{ }
+		{
+		}
 	}
 
 }

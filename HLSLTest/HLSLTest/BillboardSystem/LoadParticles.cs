@@ -144,6 +144,7 @@ namespace HLSLTest
 
 							object[] test = new object[] { graphicsDevice, content, position, arguments[3] };
 							//ParticleEmitter emitter = (ParticleEmitter)Activator.CreateInstance(emitterType, arguments);// stringからインスタンス生成
+							arguments.Add(false);
 							ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(emitterType, arguments.ToArray());// stringからインスタンス生成
 							//ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(typeof(ExplosionParticleEmitter), test);// stringからインスタンス生成
 							emitters.Add(emitter);

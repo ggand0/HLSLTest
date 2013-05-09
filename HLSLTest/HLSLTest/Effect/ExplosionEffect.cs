@@ -1,17 +1,20 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+
 
 namespace HLSLTest
 {
 	/// <summary>
 	/// 爆発エフェクトを描画するクラス。複数のパーティクルエミッタを使用する。
 	/// </summary>
-	public class ExplosionEffect : SpecialEffect
+	public class ExplosionEffect : SpecialEffect, ICloneable
 	{
 		public static Level level;
 		//private static bool initialized;
@@ -24,7 +27,7 @@ namespace HLSLTest
 		private Matrix Scale;
 		private ExplosionParticleEmitter explosion, spark, flare;
 		//private List<ExplosionParticleEmitter> emitters;
-		private List<ExplosionParticleEmitter> emitters;
+		public List<ExplosionParticleEmitter> emitters;
 
 		private float speed;
 		public bool Repeat { get; private set; }
@@ -81,7 +84,7 @@ namespace HLSLTest
 		}
 		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
 			Vector3 position, Vector2 size, bool repeat)
-			: this(content, graphics, position, size, repeat, false, "particle\\defExplostionParticleSettings")
+			: this(content, graphics, position, size, repeat, false, "particle\\defExplostionParticleSettings", true)
 		{
 			this.content = content;
 			this.graphics = graphics;
@@ -91,12 +94,13 @@ namespace HLSLTest
 
 		// lua scripting test
 		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, Vector2 size, bool repeat, bool enableXML, string fileName)
+			Vector3 position, Vector2 size, bool repeat, bool enableXML, string fileName, bool run)
 		{
 			this.content = content;
 			this.graphics = graphics;
 			this.Position = position;
 			this.Repeat = repeat;
+
 
 			//emitters = new List<ExplosionParticleEmitter>();
 			emitters = new List<ExplosionParticleEmitter>();
@@ -131,18 +135,64 @@ namespace HLSLTest
 				emitters.Add(spark);
 				Available = true;*/
 
+				// XML test
 				LoadParticleSettings load = new LoadParticleSettings();
 				emitters = (List<ExplosionParticleEmitter>)load.Load(graphics, content, position, fileName);
-				//emitters = load.Load(graphics, content, position, fileName);
+				//emitters = load.Load(graphics, content, position, fileName);/**/
+
+				// struct test
+
 			}
-			Run();
+
+
+			// 大量に使用する時など、すぐに走らせたくないときはfalseを
+			// 引数に与えておく
+			if (run) {
+				Run();
+			}
 		}
+		// settings test
+		/*public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, bool repeat, ParticleSettings settings)//string fileName)
+		{
+			this.content = content;
+			this.graphics = graphics;
+			this.Position = position;
+			this.Repeat = repeat;
+
+			emitters = settings.emitters;
+			Run();
+		}*/
+
+
 		public void Run()
 		{
 			foreach (ExplosionParticleEmitter e in emitters) {
+				e.Initialize();
 				e.Run();
 			}
 			Available = false;
+		}
+		public object Clone()
+		{
+			//return this.Clone();
+			//return MemberwiseClone();
+			ExplosionEffect cloned = (ExplosionEffect)MemberwiseClone();
+
+			// 参照型フィールドの複製を作成する
+			if (this.emitters != null) {
+				/*for (int i = 0; i < emitters.Count; i++) {
+					cloned.emitters[i] = (ExplosionParticleEmitter)this.emitters[i].Clone();
+				}
+				cloned.emitters = (List<ExplosionParticleEmitter>)this.emitters.Clone();*/
+
+				cloned.emitters = new List<ExplosionParticleEmitter>();
+				for (int i = 0; i < emitters.Count; i++) {
+					cloned.emitters.Add((ExplosionParticleEmitter)this.emitters[i].Clone());
+				}
+			}
+
+			return cloned;
 		}
 	}
 }

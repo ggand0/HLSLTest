@@ -9,7 +9,7 @@ using LuaInterface;
 
 namespace HLSLTest
 {
-	public class ExplosionParticleEmitter : ParticleEmitter
+	public class ExplosionParticleEmitter : ParticleEmitter, ICloneable
 	{
 		public Vector3 Velocity { get; set; }
 
@@ -167,8 +167,13 @@ namespace HLSLTest
 		{
 		}
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)//Action moveFunction)
-			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
+			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed)//Action moveFunction)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, true)
+		{
+		}
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
+			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed, bool initialize)//Action moveFunction)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, initialize)
 		{
 			//emitNumPerFrame = 100;//50;
 			this.Type = movementType;
@@ -178,7 +183,7 @@ namespace HLSLTest
 		}
 
 
-		// XML loading test
+		// XML loading debug
 		public void Initialize(Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)
 		{
@@ -191,7 +196,6 @@ namespace HLSLTest
 		}
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture)
 		{
-
 		}
 
 
@@ -213,8 +217,8 @@ namespace HLSLTest
 			return v1 + v2;
 		}
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime, string scriptPath)
-			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
+			Vector2 particleSize, float lifespan, float fadeInTime, string scriptPath)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime)
 		{
 			EnableScripting = true;
 			this.scriptPath = scriptPath;
@@ -242,6 +246,38 @@ namespace HLSLTest
 		{
 			MoveParticle();
 			//Available = false;
+		}
+		public object Clone()
+		{
+			ExplosionParticleEmitter cloned = (ExplosionParticleEmitter)MemberwiseClone();
+
+			/*protected VertexBuffer vertexBuffers;
+			protected IndexBuffer indexBuffers;
+			protected GraphicsDevice graphicsDevice;
+			protected Effect effect;*/
+
+
+			string d1 = cloned.activeParticlesNum.ToString();
+			string d2 = cloned.start.ToString();
+
+			// Newしないと最初の1つしか描画されない
+			cloned.vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
+				ParticleNum * 4, BufferUsage.WriteOnly);
+			cloned.indexBuffers = new IndexBuffer(graphicsDevice,
+				IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
+				BufferUsage.WriteOnly);
+
+			// 使いまわすと問題が発生するので必要
+			if (this.effect != null) {
+				cloned.effect = this.effect.Clone();
+			}
+			//cloned.particles = (ParticleVertex[])this.particles.Clone();
+			//cloned.start = DateTime.Now;
+			//cloned.activeParticlesNum = 0;
+
+			
+
+			return cloned;
 		}
 	}
 

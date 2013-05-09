@@ -80,6 +80,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="Planet\Asteroid.cs" />
     <Compile Include="Camera\ArcBallCamera.cs" />
     <Compile Include="BillboardSystem\BillboardCross.cs" />

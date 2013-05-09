@@ -23,27 +23,22 @@ namespace HLSLTest
 		ParticleEmitter basicEmitter, beamEmitter;
 		EnergyRingEffect discoidEffect;
 		EnergyShieldEffect shieldEffect;
-		ExplosionEffect explosionTest;
+		ExplosionEffect explosionTest, smallExplosion;
 		Planet planet;
 		Star star;
 		List<Object> asteroids;
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
+		private bool spawned;
+		private int count;
+		//ParticleSettings setting;
 
 		public static float NextDouble(Random r, double min, double max)
 		{
 			return (float)(min + r.NextDouble() * (max - min));
 		}
-		protected override void Initialize()
+		private void AddAsteroids()
 		{
-			base.Initialize();
-			Models = new List<Object>();
-			Target = new Object(new Vector3(0, 20, 0), "Models\\cube");
-			Target.Scale = 20;
-			Models.Add(Target);
-
-			random = new Random();
-			asteroids = new List<Object>();
 			Effect lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
 			Object.SetEffectParameter(lightingEffect, "LightDirection", -LightPosition);
 			Object.SetEffectParameter(lightingEffect, "SpecularPower", 200);
@@ -61,6 +56,20 @@ namespace HLSLTest
 				asteroids[i].Scale = 0.02f;//0.1f;
 				asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
 			}/**/
+		}
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Models = new List<Object>();
+			Target = new Object(new Vector3(0, 20, 0), "Models\\cube");
+			Target.Scale = 20;
+			Models.Add(Target);
+
+			random = new Random();
+			asteroids = new List<Object>();
+			AddAsteroids();
+			spawned = true;
+			
 
 			// Initializes camera
 			camera = new ArcBallCamera();
@@ -102,9 +111,11 @@ namespace HLSLTest
 			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
 			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
-			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, true, "Xml\\Particle\\particleExplosion0.xml");
+			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, true, "Xml\\Particle\\particleExplosion0.xml", true);
+			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, true, "Xml\\Particle\\particleExplosion0.xml", false);
 
 			// pre-load
+			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
 		}
 
 		protected override void Collide()
@@ -114,13 +125,25 @@ namespace HLSLTest
 			foreach (Object o in asteroids) {
 				if (discoidEffect.IsHitWith(o.transformedBoundingSphere)) {
 					o.IsActive = false;
-					effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false));
+					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false));
+					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false, true, "Xml\\Particle\\particleExplosion0.xml"));
+
+					ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();// positionは与えなおさないとｗ
+					e.Position = o.Position;
+					foreach (ExplosionParticleEmitter ep in e.emitters) {
+						ep.Position = e.Position;// もう既にparticlesは初期化されてしまってるので手遅れｗｗ
+					}
+					e.Run();
+					effectManager.Add(e);
+
+					//ExplosionEffect e = new ExplosionEffect(content, device, o.Position, false, setting);
+					//effectManager.Add(e);
 				}
 			}
 
 			BoundingSphere bs = new BoundingSphere(planet.Position, 200);
 			if (discoidEffect.IsHitWith(bs)) {
-				planet.IsActive = false;
+				//planet.IsActive = false;
 				//effectManager.Add(new ExplosionEffect(content, device, planet.Position, Vector2.One));
 			}
 			
@@ -135,6 +158,16 @@ namespace HLSLTest
 		}
 		public override void Update(GameTime gameTime)
 		{
+			float elapsed = (float)gameTime.TotalGameTime.TotalSeconds;
+			count++;
+			if (count % 1001 == 0) {
+				spawned = false;
+			}
+			if (!spawned) {
+				AddAsteroids();
+				spawned = true;
+			}
+
 			base.Update(gameTime);
 
 			camera.UpdateChaseTarget(Vector3.Zero);
@@ -152,13 +185,13 @@ namespace HLSLTest
 			if (planet.IsActive) planet.Update(gameTime);
 
 
-			//discoidEffect.Update(gameTime);
+			discoidEffect.Update(gameTime);
 			//shieldEffect.Update(gameTime);
 			explosionTest.Update(gameTime);
 
 			Collide();
 
-			effectManager.Update(gameTime);
+			 effectManager.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -186,9 +219,9 @@ namespace HLSLTest
 			}
 
 
-			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			explosionTest.Draw(gameTime, camera);
+			//explosionTest.Draw(gameTime, camera);
 
 			// Grid
 			if (displayGrid) {

@@ -39,7 +39,7 @@ namespace HLSLTest
 			currentRadius += speed * 0.005f * 20;
 
 			//if (currentRadius >= MAX_RADIUS) {
-			if (count > FREQUENCY) {
+			if (count >= FREQUENCY) {
 				currentRadius = DEF_RADIUS;
 				eps.Reset = true;
 				count = 0;

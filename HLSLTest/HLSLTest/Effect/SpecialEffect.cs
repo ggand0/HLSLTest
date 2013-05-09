@@ -13,7 +13,8 @@ namespace HLSLTest
 		public static int MAX_LIFE_SPAN = 10000;
 		protected int count;
 
-		public Vector3 Position { get; protected set; }
+		//public Vector3 Position { get; protected set; }
+		public Vector3 Position { get; set; }
 		public bool Removable { get; protected set; }
 
 		public virtual void Update(GameTime gameTime)
