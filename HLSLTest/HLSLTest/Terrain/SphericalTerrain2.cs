@@ -510,7 +510,7 @@ namespace HLSLTest
 			this.heightMap = HeightMap;
 			//this.width = HeightMap.Width;
 			//this.length = HeightMap.Height;
-			heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\sphericalHeightmap2");
+			heightMapCube = Content.Load<TextureCube>("Textures\\SphericalTerrain\\sphericalHeightmap2");
 			//heightMapCube = Content.Load<TextureCube>("Textures\\Terrain\\CubeWrap");
 			this.width = heightMapCube.Size;
 			this.length = heightMapCube.Size;

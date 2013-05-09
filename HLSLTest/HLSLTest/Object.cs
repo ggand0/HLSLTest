@@ -366,7 +366,7 @@ namespace HLSLTest
 						int d = 0;
 					}
 					if (Material != null) {
-						Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
+						//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
 					}
 				}
 				mesh.Draw();

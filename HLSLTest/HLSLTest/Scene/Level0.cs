@@ -85,7 +85,7 @@ namespace HLSLTest
 				positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 10, (float)r.NextDouble() * 200 - 100);
 			}
 			//trees = new BillboardSystem(device, content, content.Load<Texture2D>("tree"), new Vector2(800), positions);
-			trees = new BillboardSystem(device, content, content.Load<Texture2D>("tree"), new Vector2(10), positions);
+			trees = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
 
 			// Generate clouds
 			Vector3[] cloudPositions = new Vector3[350];
@@ -99,7 +99,7 @@ namespace HLSLTest
 
 
 			// Generate particles
-			ps = new FlameParticleEmitter(device, content, content.Load<Texture2D>("Textures\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
+			ps = new FlameParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
 			/*eps = new ExplosionParticleEmitter(device, content, content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);*/
 			eps = new ExplosionParticleEmitter(device, content, Vector3.Zero, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
@@ -156,6 +156,9 @@ namespace HLSLTest
 			Models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
 			Models[1].SetModelEffect(shadowEffect, true);
 			Ground.SetModelEffect(shadowEffect, true);
+			foreach (Object o in Models) {
+				o.RenderBoudingSphere = false;
+			}
 
 
 			renderer = new PrelightingRenderer(device, content);
@@ -222,8 +225,8 @@ namespace HLSLTest
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
-			terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,
-				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
+			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 2500, -1500,
+				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
 			terrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
@@ -243,7 +246,7 @@ namespace HLSLTest
 
 
 			// Spherical terrain test
-			sphericalTerrain = new SphericalTerrain2(content.Load<Texture2D>("Textures\\terrain"), 1, 50, 0,
+			sphericalTerrain = new SphericalTerrain2(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 1, 50, 0,
 				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
 			sphericalTerrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			sphericalTerrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");

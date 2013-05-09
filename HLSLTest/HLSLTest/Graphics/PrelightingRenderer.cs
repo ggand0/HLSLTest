@@ -66,6 +66,7 @@ namespace HLSLTest
 
 			// Clear the render target to 1 (infinite depth)
 			graphicsDevice.Clear(Color.White);
+			graphicsDevice.BlendState = BlendState.Opaque;
 
 			// Draw each model with the PPDepthNormal effect
 			// 法線マップと深度マップをDrawするエフェクトをセットしてそれぞれ書き込む

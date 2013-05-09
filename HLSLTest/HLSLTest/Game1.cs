@@ -28,10 +28,6 @@ namespace HLSLTest
 		public SpriteFont menuFont { get; private set; }
 		public Stack<Scene> scenes = new Stack<Scene>();
 
-
-		
-		
-
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -39,8 +35,6 @@ namespace HLSLTest
 
 			//this.graphics.PreferredBackBufferWidth = 1920;
 			//this.graphics.PreferredBackBufferHeight = 1080;
-			//this.graphics.PreferredBackBufferWidth = 640;
-			//this.graphics.PreferredBackBufferHeight = 480;
 		}
 
 		/// <summary>
@@ -76,7 +70,8 @@ namespace HLSLTest
 			Level.content = Content;
 
 			// 最初に表示するシーンを追加
-			PushScene(new Level2(null));
+			//PushScene(new Level2(null));
+			PushScene(new Level0(null));
 		}
 
 		/// <summary>

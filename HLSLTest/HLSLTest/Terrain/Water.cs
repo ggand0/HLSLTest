@@ -199,7 +199,7 @@ namespace HLSLTest
 			//reflectionTarg = new RenderTarget2D(graphics, 2048, 2048, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
 			waterEffect.Parameters["WaterNormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
-			waterEffect.Parameters["Mask"].SetValue(content.Load<Texture2D>("Textures\\cloud_mask2"));
+			waterEffect.Parameters["Mask"].SetValue(content.Load<Texture2D>("Textures\\Billboard\\cloud_mask2"));
 
 
 			/**/if (renderer == null) {
