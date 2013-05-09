@@ -69,101 +69,6 @@ namespace HLSLTest
 				 e.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			 }
 		}
-        /// <summary>
-        /// エフェクトファイル内のパラメータを設定する
-        /// </summary>
-		private void SetEffectParameters(Vector3 CameraPosition, Vector3 CameraDirection)
-		{
-		}
-
-
-		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, Vector2 size)
-			:this (content, graphics, position, size, false)
-		{
-		}
-		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, Vector2 size, bool repeat)
-			: this(content, graphics, position, size, repeat, false, "particle\\defExplostionParticleSettings", true)
-		{
-			this.content = content;
-			this.graphics = graphics;
-			this.Position = position;
-			this.Repeat = repeat;
-		}
-
-		// lua scripting test
-		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, Vector2 size, bool repeat, bool enableXML, string fileName, bool run)
-		{
-			this.content = content;
-			this.graphics = graphics;
-			this.Position = position;
-			this.Repeat = repeat;
-
-
-			//emitters = new List<ExplosionParticleEmitter>();
-			emitters = new List<ExplosionParticleEmitter>();
-			if (!enableXML) {
-				// XML/スクリプトから読みこむようにしたい！
-				explosion = new ExplosionParticleEmitter(graphics, content,
-					position, content.Load<Texture2D>("Textures\\Particle\\explosion"), 200, new Vector2(50), 3, 0);
-				spark = new ExplosionParticleEmitter(graphics, content,
-					position, content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), 20, new Vector2(10), 3, 0);
-				flare = new ExplosionParticleEmitter(graphics, content,
-					position, content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), 10, new Vector2(80), 0.2f, 0);
-				speed = explosion.Velocity.Length();
-
-				spark.Speed = 2;
-				explosion.Speed = 0.0f;
-				flare.Speed = 0.1f;
-				emitters.Add(flare);
-				emitters.Add(explosion);
-				emitters.Add(spark);
-			} else {
-				// lua test
-				/*explosion = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 50, new Vector2(20), 3, 0, "Script\\explosion0.lua");
-				spark = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), position, 20, new Vector2(10), 3, 0, "Script\\explosion1.lua");
-				flare = new ExplosionParticleEmitter(graphics, content,
-					content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), position, 10, new Vector2(80), 0.2f, 0, "Script\\explosion2.lua");
-				//speed = explosion.Velocity.Length();
-				
-				emitters.Add(flare);
-				emitters.Add(explosion);
-				emitters.Add(spark);
-				Available = true;*/
-
-				// XML test
-				LoadParticleSettings load = new LoadParticleSettings();
-				emitters = (List<ExplosionParticleEmitter>)load.Load(graphics, content, position, fileName);
-				//emitters = load.Load(graphics, content, position, fileName);/**/
-
-				// struct test
-
-			}
-
-
-			// 大量に使用する時など、すぐに走らせたくないときはfalseを
-			// 引数に与えておく
-			if (run) {
-				Run();
-			}
-		}
-		// settings test
-		/*public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
-			Vector3 position, bool repeat, ParticleSettings settings)//string fileName)
-		{
-			this.content = content;
-			this.graphics = graphics;
-			this.Position = position;
-			this.Repeat = repeat;
-
-			emitters = settings.emitters;
-			Run();
-		}*/
-
 
 		public void Run()
 		{
@@ -175,17 +80,11 @@ namespace HLSLTest
 		}
 		public object Clone()
 		{
-			//return this.Clone();
-			//return MemberwiseClone();
 			ExplosionEffect cloned = (ExplosionEffect)MemberwiseClone();
 
 			// 参照型フィールドの複製を作成する
 			if (this.emitters != null) {
-				/*for (int i = 0; i < emitters.Count; i++) {
-					cloned.emitters[i] = (ExplosionParticleEmitter)this.emitters[i].Clone();
-				}
-				cloned.emitters = (List<ExplosionParticleEmitter>)this.emitters.Clone();*/
-
+				// Listを直接Clone出来ないのでこのような操作を行っている
 				cloned.emitters = new List<ExplosionParticleEmitter>();
 				for (int i = 0; i < emitters.Count; i++) {
 					cloned.emitters.Add((ExplosionParticleEmitter)this.emitters[i].Clone());
@@ -194,6 +93,85 @@ namespace HLSLTest
 
 			return cloned;
 		}
+		#region Constructors
+		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, Vector2 size)
+			:this (content, graphics, position, size, false)
+		{
+		}
+		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, Vector2 size, bool repeat)
+		{
+			this.content = content;
+			this.graphics = graphics;
+			this.Position = position;
+			this.Repeat = repeat;
+
+			explosion = new ExplosionParticleEmitter(graphics, content,
+					position, content.Load<Texture2D>("Textures\\Particle\\explosion"), 200, new Vector2(50), 3, 0);
+			spark = new ExplosionParticleEmitter(graphics, content,
+				position, content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), 20, new Vector2(10), 3, 0);
+			flare = new ExplosionParticleEmitter(graphics, content,
+				position, content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), 10, new Vector2(80), 0.2f, 0);
+			speed = explosion.Velocity.Length();
+
+			spark.Speed = 2;
+			explosion.Speed = 0.0f;
+			flare.Speed = 0.1f;
+			emitters.Add(flare);
+			emitters.Add(explosion);
+			emitters.Add(spark);
+		}
+
+
+		/// <summary>
+		/// ファイルから情報をロードしてエミッタを生成する。
+		/// runをfalseにする場合は、実行メソッドを後で手動で呼ぶ必要がある。
+		/// </summary>
+		/// <param name="content"></param>
+		/// <param name="graphics"></param>
+		/// <param name="position"></param>
+		/// <param name="size"></param>
+		/// <param name="repeat"></param>
+		/// <param name="filePath">ロードするファイルの相対パス</param>
+		/// <param name="run">すぐ動作させるかどうか。</param>
+		public ExplosionEffect(ContentManager content, GraphicsDevice graphics,
+			Vector3 position, Vector2 size, bool repeat, string filePath, bool run)
+		{
+			this.content = content;
+			this.graphics = graphics;
+			this.Position = position;
+			this.Repeat = repeat;
+			emitters = new List<ExplosionParticleEmitter>();
+
+			// lua test
+			/*explosion = new ExplosionParticleEmitter(graphics, content,
+				content.Load<Texture2D>("Textures\\Particle\\explosion"), position, 50, new Vector2(20), 3, 0, "Script\\explosion0.lua");
+			spark = new ExplosionParticleEmitter(graphics, content,
+				content.Load<Texture2D>("Textures\\Mercury\\FlowerBurst"), position, 20, new Vector2(10), 3, 0, "Script\\explosion1.lua");
+			flare = new ExplosionParticleEmitter(graphics, content,
+				content.Load<Texture2D>("Textures\\Mercury\\LensFlare"), position, 10, new Vector2(80), 0.2f, 0, "Script\\explosion2.lua");
+			//speed = explosion.Velocity.Length();
+				
+			emitters.Add(flare);
+			emitters.Add(explosion);
+			emitters.Add(spark);
+			Available = true;*/
+
+
+			// Load emitters from XML the file.
+			LoadParticleSettings load = new LoadParticleSettings();
+			emitters = (List<ExplosionParticleEmitter>)load.Load(graphics, content, position, filePath);
+			//emitters = load.Load(graphics, content, position, fileName);
+
+
+			// 大量に使用する時など、すぐに走らせたくないときは、
+			// falseを引数に与えておく
+			if (run) {
+				Run();
+			}
+		}
+		#endregion
 	}
 }
 

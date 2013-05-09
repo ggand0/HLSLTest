@@ -30,7 +30,6 @@ namespace HLSLTest
 		public Texture2D Texture { get; private set; }
 		public Color ParticleColor { get; set; }
 		public BlendState blendState { get; set; }
-		//public int EffectType { get; private set; }// refactoring後に消す
 
 		/// <summary>
 		/// Position of this emitter.
@@ -199,25 +198,6 @@ namespace HLSLTest
 		public void AddParticle(Vector3 Position, Vector3 Direction, float Speed)
 		{
 			this.AddParticle(Position, Direction, 0, Speed);
-			// If there are no available particles, give up
-			/*if (activeParticlesNum + 4 == ParticleNum * 4) {
-				return;
-			}
-
-			// Determine the index at which this particle should be created
-			int index = OffsetIndex(activeStart, activeParticlesNum);
-			activeParticlesNum += 4;
-
-			// Determine the start time
-			float startTime = (float)(DateTime.Now - start).TotalSeconds;
-
-			// Set the particle settings to each of the particle's vertices
-			for (int i = 0; i < 4; i++) {
-				particles[index + i].StartPosition = Position;
-				particles[index + i].Direction = Direction;
-				particles[index + i].Speed = Speed;
-				particles[index + i].StartTime = startTime;
-			}*/
 		}
 		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed)
 		{
@@ -249,41 +229,8 @@ namespace HLSLTest
 		}
 		public virtual void Update()
 		{
-			/*switch (EffectType) {
-				default:
-					MakeFlame();
-					break;
-				case 1:
-					MakeDiscoid(Vector3.Zero);
-					break;
-				case 2:
-					MakeLaser(Vector3.Zero);
-					break;
-			}*/
 			MoveParticle();
 			UpdateParticles();
-			/*float now = (float)(DateTime.Now - start).TotalSeconds;
-			int startIndex = activeStart;
-			int end = activeParticlesNum;
-
-			// For each particle marked as active...
-			for (int i = 0; i < end; i++) {
-				// If this particle has gotten older than 'lifespan'...
-				if (particles[activeStart].StartTime < now - Lifespan) {
-					// Advance the active particle start position past
-					// the particle's index and reduce the number of
-					// active particles by 1
-					activeStart++;
-					activeParticlesNum--;
-					if (activeStart == particles.Length) {
-						activeStart = 0;
-					}
-				}
-			}
-
-			// Update the vertex and index buffers
-			vertexBuffers.SetData<ParticleVertex>(particles);
-			indexBuffers.SetData<int>(indices);*/
 		}
 		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
@@ -344,44 +291,34 @@ namespace HLSLTest
 			this.maxEmitFrameCount = ParticleNum / emitNumPerFrame;
 			blendState = BlendState.AlphaBlend;
 		}
-		// Constructor
+
+
+		#region Constructors
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position , int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, true)
 		{
 		}
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime, bool initialize)
+			Vector2 particleSize, float lifespan, float fadeInTime, bool initialize)
 		{
-			//Lifespan = 1;
-
 			this.ParticleNum = particleNum;
 			this.ParticleSize = particleSize;
 			this.Lifespan = lifespan;
 			this.graphicsDevice = graphicsDevice;
 			this.Texture = texture;
 			this.Position = position;
-			this.FadeInTime = FadeInTime;
+			this.FadeInTime = fadeInTime;
 
 			effect = content.Load<Effect>("Billboard\\ParticleEffect");
 
-			// 指定された場合は初期化。
-			// 大量に使うときなど、初期化を後にしたい時はfalseを与える。
+			// 基本的にはすぐに初期化。
+			// Cloneして使うときなどはfalseを与えておく。
 			if (initialize) {
 				Initialize();
 			}
 		}
-
-
-		// XML loading test
-		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position)
-		{
-			this.graphicsDevice = graphicsDevice;
-			this.Position = position;
-		}
-		public ParticleEmitter()
-		{
-		}
+		#endregion
 	}
 
 }

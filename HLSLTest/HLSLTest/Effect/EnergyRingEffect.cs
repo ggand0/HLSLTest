@@ -213,7 +213,7 @@ namespace HLSLTest
 
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), position, 2000, new Vector2(10), 20, 5f);
-			eps = new ExplosionParticleEmitter(graphics, content, position, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), FREQUENCY / 60.0f, 5f, 1);
+			eps = new ExplosionParticleEmitter(graphics, content, position, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), FREQUENCY / 60.0f, 5f, 1, 4.0f);
 			currentRadius = DEF_RADIUS;
 			//currentRadius = 100;
 

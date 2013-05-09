@@ -111,8 +111,8 @@ namespace HLSLTest
 			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
 			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
-			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, true, "Xml\\Particle\\particleExplosion0.xml", true);
-			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, true, "Xml\\Particle\\particleExplosion0.xml", false);
+			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
+			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
 
 			// pre-load
 			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");

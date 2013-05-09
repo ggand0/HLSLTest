@@ -152,27 +152,64 @@ namespace HLSLTest
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 		}
+		public void Run()
+		{
+			MoveParticle();
+		}
+		public object Clone()
+		{
+			ExplosionParticleEmitter cloned = (ExplosionParticleEmitter)MemberwiseClone();
 
+			string d1 = cloned.activeParticlesNum.ToString();
+			string d2 = cloned.start.ToString();
 
-		// Constructor
+			// Newしないと最初の1つしか描画されない
+			cloned.vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
+				ParticleNum * 4, BufferUsage.WriteOnly);
+			cloned.indexBuffers = new IndexBuffer(graphicsDevice,
+				IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
+				BufferUsage.WriteOnly);
+
+			// 使いまわしても良いかもしれない
+			if (this.effect != null) {
+				cloned.effect = this.effect.Clone();
+			}
+
+			return cloned;
+		}
+
+		#region Constructor
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			//:base:(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
-			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, FadeInTime, 0)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, FadeInTime, 0, 4.0f)
 		{
 		}
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime, int type)//Action moveFunction)
+		/*public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
+			Vector2 particleSize, float lifespan, float FadeInTime, int type)
 			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, FadeInTime, 0, 5.0f)
 		{
-		}
+		}*/
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
-			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed)//Action moveFunction)
-			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, true)
+			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, fadeInTime, movementType, speed, true)
 		{
 		}
+		/// <summary>
+		/// 個々のパラメータを細かに設定させるタイプのコンストラクタにしているが、
+		/// 構造体にまとめてもいいかもしれない。
+		/// </summary>
+		/// <param name="position">エミッタの中心位置。パーティクルの出現位置</param>
+		/// <param name="texture"></param>
+		/// <param name="particleNum"></param>
+		/// <param name="particleSize"></param>
+		/// <param name="lifespan">パーティクルの寿命[second]</param>
+		/// <param name="fadeInTime">フェードインする時間[second]。0ならば即座に描画される</param>
+		/// <param name="movementType">移動のタイプ</param>
+		/// <param name="speed">速さ</param>
+		/// <param name="initialize">すぐに初期化するかどうか</param>
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
-			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed, bool initialize)//Action moveFunction)
+			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed, bool initialize)
 			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, initialize)
 		{
 			//emitNumPerFrame = 100;//50;
@@ -181,25 +218,9 @@ namespace HLSLTest
 			//speed = 4.0f * 5;
 			//MoveParticle();
 		}
+		#endregion
 
-
-		// XML loading debug
-		public void Initialize(Texture2D texture, int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime, int movementType, float speed)
-		{
-
-		}
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, string filePath)
-			:base (graphicsDevice, content, position)
-		{
-
-		}
-		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture)
-		{
-		}
-
-
-		// lua scripting test
+		#region Lua scripting test
 		public Vector3 CreateVector(float x, float y, float z)
 		{
 			return new Vector3(x, y, z);
@@ -241,44 +262,10 @@ namespace HLSLTest
 
 			//MoveParticle();
 		}
-		//public bool Available { get; private set; }
-		public void Run()
-		{
-			MoveParticle();
-			//Available = false;
-		}
-		public object Clone()
-		{
-			ExplosionParticleEmitter cloned = (ExplosionParticleEmitter)MemberwiseClone();
-
-			/*protected VertexBuffer vertexBuffers;
-			protected IndexBuffer indexBuffers;
-			protected GraphicsDevice graphicsDevice;
-			protected Effect effect;*/
+		#endregion
 
 
-			string d1 = cloned.activeParticlesNum.ToString();
-			string d2 = cloned.start.ToString();
-
-			// Newしないと最初の1つしか描画されない
-			cloned.vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
-				ParticleNum * 4, BufferUsage.WriteOnly);
-			cloned.indexBuffers = new IndexBuffer(graphicsDevice,
-				IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
-				BufferUsage.WriteOnly);
-
-			// 使いまわすと問題が発生するので必要
-			if (this.effect != null) {
-				cloned.effect = this.effect.Clone();
-			}
-			//cloned.particles = (ParticleVertex[])this.particles.Clone();
-			//cloned.start = DateTime.Now;
-			//cloned.activeParticlesNum = 0;
-
-			
-
-			return cloned;
-		}
+		
 	}
 
 }
