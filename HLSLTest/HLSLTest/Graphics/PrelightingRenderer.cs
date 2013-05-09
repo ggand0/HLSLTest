@@ -289,15 +289,19 @@ namespace HLSLTest
 
 		// 外部からLMやSMを、指定のビュー行列を使って作成したい場合に使う
 		#region For building reflection map
-		public dynamic drawDepthNormalMap(List<Object> models/*, RenderTarget2D nt, RenderTarget2D dt*/
+		// dynamic→voidへ変更。面倒でも参照渡しさせた方が良い。
+		public void drawDepthNormalMap(List<Object> models, RenderTarget2D nt, RenderTarget2D dt/**/
 			, Matrix view, Matrix projection, Vector3 cameraPos)
 		{
-			RenderTarget2D nt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
-			RenderTarget2D dt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+			//RenderTarget2D nt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			//RenderTarget2D dt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+			//nt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			//dt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			// Set the render targets to 'slots' 1 and 2
 			graphicsDevice.SetRenderTargets(nt, dt);
+			
 			// Clear the render target to 1 (infinite depth)
 			graphicsDevice.Clear(Color.White);
 			// Draw each model with the PPDepthNormal effect
@@ -311,7 +315,7 @@ namespace HLSLTest
 			}
 			// Un-set the render targets
 			graphicsDevice.SetRenderTargets(null);
-
+			
 			/*if (!hasSaved) {
 				using (Stream stream = File.OpenWrite("reflected lighdepthtmap.png")) {
 					dt.SaveAsPng(stream, dt.Width, dt.Height);
@@ -320,9 +324,9 @@ namespace HLSLTest
 				}
 			}*/
 
-			return new {
+			/*return new {
 				dt, nt
-			};
+			};*/
 		}
 		public RenderTarget2D drawLightMap(List<Object> models, RenderTarget2D dt, RenderTarget2D nt
 			, Matrix view, Matrix projection, Vector3 cameraPos)

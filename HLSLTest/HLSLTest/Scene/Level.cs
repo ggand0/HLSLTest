@@ -46,6 +46,7 @@ namespace HLSLTest
 		}
 		protected virtual void Initialize()
 		{
+			Models = new List<Object>();
 			effectManager = new EffectManager();
 
 			EnergyShieldEffect.level = this;

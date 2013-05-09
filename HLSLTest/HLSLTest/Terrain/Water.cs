@@ -17,7 +17,7 @@ namespace HLSLTest
 		Object waterMesh;
 		Effect waterEffect;
 		ContentManager content;
-		GraphicsDevice graphics;
+		GraphicsDevice graphicsDevice;
 		RenderTarget2D reflectionTarg;
 		public List<IRenderable> Objects = new List<IRenderable>();
 		bool hasSaved;
@@ -50,19 +50,8 @@ namespace HLSLTest
 
 			// Create a temporary camera to render the reflected scene
 			// ArcBallCameraのLookAtOffsetの関係でずれたりするから、出来れば同じ型のクラスのほうがいいだろう
-			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
+			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphicsDevice);
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた
-			//ArcBallCamera reflectionCamera = new ArcBallCamera(reflectedCameraPosition, reflectedCameraTarget, Vector3.Down);
-			// reflectionのviewがおかしいのか...??
-
-			// これ、ネットから拾ってきたmatrixだったのを忘れてた
-			/*Matrix reflectionMatrix = Matrix.Identity
-				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f) * 
-				//Matrix.CreateScale(1f, -1f, 1f)	 
-				//Matrix.CreateTranslation(0f, -waterMesh.Position.Y, 0f)
-				;
-			Matrix reflectedViewMatrix = reflectionMatrix * camera.View;*/
-
 
 			// Set the reflection camera's view matrix to the water effect
 			waterEffect.Parameters["ReflectedView"].SetValue(reflectionCamera.View);
@@ -75,25 +64,35 @@ namespace HLSLTest
 			// lt, stを使うmodelsのために初期化:light map, shadow mapを作り直す。（めんどくさい）
 			//models[1].RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
 			// あー分かった、モデルの回転が異常なのではなくて、BlendStateなどがおかしい！（だから透過して見えるので、表面が見えて回転しているようにみえる）
-			var depthNormal = renderer.drawDepthNormalMap(models
-						//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
-						, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
-			RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt
-				, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
-				//, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
-			//RenderTarget2D st = renderer.drawShadowDepthMap(models);
+
+			//var depthNormal = renderer.drawDepthNormalMap(models, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+			int viewWidth = graphicsDevice.Viewport.Width;
+			int viewHeight = graphicsDevice.Viewport.Height;
+			RenderTarget2D nt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);;
+			RenderTarget2D dt = new RenderTarget2D(graphicsDevice, viewWidth, viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+			renderer.drawDepthNormalMap(models, nt, dt, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+
+			//RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+			RenderTarget2D lt = renderer.drawLightMap(models, dt, nt, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
+
 			renderer.drawShadowDepthMap();
 			renderer.prepareMainPass(models, lt);
 
+			// DisposeしないとVRAMが数秒で食い尽くされてしまうので要注意
+			nt.Dispose();
+			dt.Dispose();
+			lt.Dispose();
+
+			
 			// Set the render target
-			graphics.SetRenderTarget(reflectionTarg);
-			graphics.Clear(Color.Black);
+			graphicsDevice.SetRenderTarget(reflectionTarg);
+			graphicsDevice.Clear(Color.Black);
 
 			// Draw all objects with clip plane
 			// ここを弄ると面白い演出が出来るかも
 			foreach (IRenderable renderable in Objects) {
 				renderable.SetClipPlane(clipPlane);
-				string cullState = graphics.RasterizerState.ToString();
+				string cullState = graphicsDevice.RasterizerState.ToString();
 
 				if (renderable is Object) {
 					(renderable as Object).Update(new GameTime());
@@ -105,8 +104,8 @@ namespace HLSLTest
 
 				renderable.SetClipPlane(null);
 			}
-			graphics.SetRenderTarget(null);
-			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphicsDevice.SetRenderTarget(null);
+			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
 
 			/*// Set the render target
@@ -161,24 +160,28 @@ namespace HLSLTest
 		/// </summary>
 		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
-			graphics.BlendState = BlendState.AlphaBlend;
-			//graphics.DepthStencilState = DepthStencilState.None;
 			// 本文にはDraw関数の記述は無かったが、恐らくSkySphere.Drawと同様だろう
-			waterMesh.World = Matrix.CreateScale(waterMesh.ScaleVector) * waterMesh.RotationMatrix * Matrix.CreateTranslation(waterMesh.Position);// スケールにベクトルを使用していることに注意
-			graphics.RasterizerState = RasterizerState.CullClockwise;
-			waterMesh.Draw(View, Projection, CameraPosition);
-			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			waterMesh.World = Matrix.CreateScale(waterMesh.ScaleVector) * waterMesh.RotationMatrix
+				* Matrix.CreateTranslation(waterMesh.Position);// スケールにベクトルを使用していることに注意
+
+			graphicsDevice.BlendState = BlendState.AlphaBlend;
+			//graphics.DepthStencilState = DepthStencilState.None;
+			graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+
 			waterMesh.Draw(View, Projection, CameraPosition);
 
-			graphics.BlendState = BlendState.Opaque;
-			graphics.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			waterMesh.Draw(View, Projection, CameraPosition);
+
+			graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 		}
 
-		public Water(ContentManager content, GraphicsDevice graphics,
+		public Water(ContentManager content, GraphicsDevice graphicsDevice,
 			Vector3 position, Vector2 size)
 		{
 			this.content = content;
-			this.graphics = graphics;
+			this.graphicsDevice = graphicsDevice;
 			//waterMesh = new Object(content.Load<Model>("plane"), position, Vector3.Zero, new Vector3(size.X, 1, size.Y), graphics);
 			waterMesh = new Object(position, "Models\\WaterMesh");
 			//waterMesh.ScaleVector = new Vector3(size.X, 1, size.Y);
@@ -188,12 +191,12 @@ namespace HLSLTest
 
 			waterEffect = content.Load<Effect>("WaterEffectV3");
 			waterMesh.SetModelEffect(waterEffect, false);
-			waterEffect.Parameters["viewportWidth"].SetValue(graphics.Viewport.Width);
-			waterEffect.Parameters["viewportHeight"].SetValue(graphics.Viewport.Height);
+			waterEffect.Parameters["viewportWidth"].SetValue(graphicsDevice.Viewport.Width);
+			waterEffect.Parameters["viewportHeight"].SetValue(graphicsDevice.Viewport.Height);
 
 
 			//reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
-			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+			reflectionTarg = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//PresentationParameters pp = graphics.PresentationParameters;
 			//reflectionTarg = new RenderTarget2D(graphics, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//reflectionTarg = new RenderTarget2D(graphics, 2048, 2048, false, SurfaceFormat.Color, DepthFormat.Depth24);
@@ -203,9 +206,9 @@ namespace HLSLTest
 
 
 			/**/if (renderer == null) {
-				renderer = new PrelightingRenderer(graphics, content);
+				renderer = new PrelightingRenderer(graphicsDevice, content);
 			}
-			renderer = new PrelightingRenderer(graphics, content);
+			renderer = new PrelightingRenderer(graphicsDevice, content);
 			renderer.Models = level.Models;
 			renderer.Lights = new List<PPPointLight>() {
 				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),

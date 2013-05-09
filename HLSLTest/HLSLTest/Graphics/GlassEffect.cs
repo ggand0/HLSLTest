@@ -74,7 +74,7 @@ namespace HLSLTest
             // lt, stを使うmodelsのために初期化:light map, shadow mapを作り直す。（めんどくさい）
             //models[1].RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))* Matrix.CreateRotationX(MathHelper.ToRadians(-90));
             // あー分かった、モデルの回転が異常なのではなくて、BlendStateなどがおかしい！（だから透過して見えるので、表面が見えて回転しているようにみえる）
-            var depthNormal = renderer.drawDepthNormalMap(models
+            /*var depthNormal = renderer.drawDepthNormalMap(models
                 //, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
                         , reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
             RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt
@@ -82,7 +82,7 @@ namespace HLSLTest
             //, reflectedViewMatrix, reflectionCamera.Projection, reflectionCamera.Position);
             //RenderTarget2D st = renderer.drawShadowDepthMap(models);
             renderer.drawShadowDepthMap();
-            renderer.prepareMainPass(models, lt);
+            renderer.prepareMainPass(models, lt);*/
 
             // Set the render target
             graphics.SetRenderTarget(reflectionTarget);
@@ -156,12 +156,12 @@ namespace HLSLTest
 			//Vector4 clipPlane = new Vector4(planeNormalDirection, (camera.CameraPosition - glassMesh.Position).Length());// 手前にあるものは屈折しないのでクリップ
 			Vector4 clipPlane = new Vector4(planeNormalDirection, 20000);
 
-            var depthNormal = renderer.drawDepthNormalMap(models
+            /*var depthNormal = renderer.drawDepthNormalMap(models
                         , camera.View, camera.Projection, camera.Position);
             RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt
                 , camera.View, camera.Projection, camera.Position);
             renderer.drawShadowDepthMap();
-            renderer.prepareMainPass(models, lt);
+            renderer.prepareMainPass(models, lt);*/
 
             // Set the render target
             graphics.SetRenderTarget(refractionTarget);

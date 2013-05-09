@@ -35,6 +35,8 @@ namespace HLSLTest
 
 			//this.graphics.PreferredBackBufferWidth = 1920;
 			//this.graphics.PreferredBackBufferHeight = 1080;
+			//this.graphics.PreferredBackBufferWidth = 600;
+			//this.graphics.PreferredBackBufferHeight = 400;
 		}
 
 		/// <summary>
@@ -71,7 +73,8 @@ namespace HLSLTest
 
 			// 最初に表示するシーンを追加
 			//PushScene(new Level2(null));
-			PushScene(new Level0(null));
+			//PushScene(new Level0(null));
+			PushScene(new Level1(null));
 		}
 
 		/// <summary>

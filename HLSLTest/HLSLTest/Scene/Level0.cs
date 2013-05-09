@@ -42,6 +42,7 @@ namespace HLSLTest
 		SphericalTerrain2 sphericalTerrain;
 
 
+
 		public Level0(Scene previousScene)
 			: base(previousScene)
 		{
@@ -384,10 +385,14 @@ namespace HLSLTest
 			string belndState = device.BlendState.ToString();
 			string depthState = device.DepthStencilState.ToString();
 			string rasterizerState = device.RasterizerState.ToString();
+
+
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
+
 			//glassEffect.PreDraw(camera, gameTime);
 			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
+
 			renderer.Draw();
 			device.Clear(Color.Black);
 
