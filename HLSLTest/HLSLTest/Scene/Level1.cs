@@ -34,7 +34,7 @@ namespace HLSLTest
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
 
 
-			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 100, 0,
+			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 8000, -6000,
 				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
@@ -44,7 +44,7 @@ namespace HLSLTest
 
 
 			Water.game = game;
-			water = new Water(content, device, new Vector3(0, 100, 0), new Vector2(1000, 1000));
+			water = new Water(content, device, new Vector3(0, -1800, -4000), new Vector2(5000, 5000));
 			//water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(Sky);
 			water.Objects.Add(terrain);
@@ -70,7 +70,7 @@ namespace HLSLTest
 			//renderer.Update();
 			camera.UpdateChaseTarget(Vector3.Zero);
 			camera.Update(gameTime);
-			water.Update();
+			water.Update(gameTime);
 			//Ground.Update(gameTime);
 		}
 		public override void Draw(GameTime gameTime)

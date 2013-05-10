@@ -20,6 +20,9 @@ namespace HLSLTest
 			this.Attenuation = Attenuation;
 		}
 
+		public virtual void Update(GameTime gameTime)
+		{
+		}
 		public void SetEffectParameters(Effect effect)
 		{
 			effect.Parameters["LightPosition"].SetValue(Position);

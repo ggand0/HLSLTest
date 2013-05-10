@@ -14,7 +14,7 @@ namespace HLSLTest
 {
 	public class PrelightingRenderer
 	{
-		public static Game1 game { get; set; }
+		public static Game1 game;
 		public static Level level;
 
 		// Normal, depth, and light map render targets
@@ -26,7 +26,9 @@ namespace HLSLTest
 		Effect depthNormalEffect;
 		Effect lightingEffect;
 
-		// Point light (sphere) mesh
+		/// <summary>
+		/// Point light (sphere) mesh
+		/// </summary>
 		Model lightMesh;
 
 		// List of models, lights, and the camera
@@ -58,8 +60,9 @@ namespace HLSLTest
 		SpriteBatch spriteBatch;
 		RenderTarget2D shadowBlurTarg;
 		Effect shadowBlurEffect;
+		bool hasSaved;
 
-		void drawDepthNormalMap()
+		private void DrawDepthNormalMap()
 		{
 			// Set the render targets to 'slots' 1 and 2
 			graphicsDevice.SetRenderTargets(normalTarg, depthTarg);
@@ -81,7 +84,7 @@ namespace HLSLTest
 			// Un-set the render targets
 			graphicsDevice.SetRenderTargets(null);
 		}
-		void drawLightMap()
+		private void DrawLightMap()
 		{
 			// Set the depth and normal map info to the effect
 			lightingEffect.Parameters["DepthTexture"].SetValue(depthTarg);
@@ -153,7 +156,7 @@ namespace HLSLTest
 				}
 			}*/
 		}
-		void prepareMainPass()
+		private void PrepareMainPass()
 		{
 			foreach (Object o in Models)
 				foreach (ModelMesh mesh in o.Model.Meshes)
@@ -188,8 +191,7 @@ namespace HLSLTest
 							part.Effect.Parameters["ShadowMult"].SetValue(ShadowMult);
 					}
 		}
-		bool hasSaved;
-		public void drawShadowDepthMap()
+		public void DrawShadowDepthMap()
 		{
 			// Calculate view and projection matrices for the "light"
 			// shadows are being calculated for
@@ -198,7 +200,7 @@ namespace HLSLTest
 			shadowView = Matrix.CreateLookAt(ShadowLightPosition, ShadowLightTarget, Vector3.Up);//Vector3.UnitX);
 
 			shadowProjection = Matrix.CreatePerspectiveFieldOfView(
-			MathHelper.ToRadians(90), 1, 1, shadowFarPlane);//45
+				MathHelper.ToRadians(90), 1, 1, shadowFarPlane);//45
 
 #if DEBUG_MODE
 			// Set render target
@@ -233,6 +235,7 @@ namespace HLSLTest
 
 			// Clear the render target to 1 (infinite depth)
 			graphicsDevice.Clear(Color.White);
+
 			// Draw each model with the ShadowDepthEffect effect
 			foreach (Object o in Models) {
 				o.CacheEffects();
@@ -254,7 +257,7 @@ namespace HLSLTest
 				}
 			}*/
 		}
-		void blurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
+		private void BlurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
 		{
 			// Set the target render target
 			graphicsDevice.SetRenderTarget(to);
@@ -458,25 +461,25 @@ namespace HLSLTest
 		}
 		#endregion
 
-		public void Update()
+		public void Update(GameTime gameTime)
 		{
-			bool d = JoyStick.onStickDirectionChanged;
+			foreach (PPPointLight light in Lights) {
+				light.Update(gameTime);
+			}
 
-			if (d) {
-				hasSaved = false;
-				d = false;
-			}/**/
+			ShadowLightPosition = Lights[0].Position;
+			//ShadowLightTarget = (Lights[0] as PointLightCircle).Center;
 		}
 		public void Draw()
 		{
-			drawDepthNormalMap();
-			drawLightMap();
+			DrawDepthNormalMap();
+			DrawLightMap();
 			if (DoShadowMapping) {
-				drawShadowDepthMap();
-				blurShadow(shadowBlurTarg, shadowDepthTarg, 0);
-				blurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
+				DrawShadowDepthMap();
+				BlurShadow(shadowBlurTarg, shadowDepthTarg, 0);
+				BlurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
 			}
-			prepareMainPass();
+			PrepareMainPass();
 		}
 
 		public PrelightingRenderer(GraphicsDevice GraphicsDevice, ContentManager Content)
@@ -485,11 +488,11 @@ namespace HLSLTest
 			viewHeight = GraphicsDevice.Viewport.Height;
 			// Create the three render targets
 			depthTarg = new RenderTarget2D(GraphicsDevice, viewWidth,
-			viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+				viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
 			normalTarg = new RenderTarget2D(GraphicsDevice, viewWidth,
-			viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
-			lightTarg = new RenderTarget2D(GraphicsDevice, viewWidth,
-			viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+				viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+				lightTarg = new RenderTarget2D(GraphicsDevice, viewWidth,
+				viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
 			// Load effects
 			depthNormalEffect = Content.Load<Effect>("PPDepthNormal");

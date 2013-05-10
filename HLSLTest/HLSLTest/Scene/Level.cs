@@ -69,6 +69,10 @@ namespace HLSLTest
 				//PushScene(new PauseMenu(this));
 				return;
 			}
+			if (JoyStick.IsOnKeyDown(6)) {
+				//PushScene(new PauseMenu(this));
+				return;
+			}
 		}
 		public override void Load()
 		{

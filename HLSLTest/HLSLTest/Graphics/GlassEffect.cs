@@ -208,17 +208,18 @@ namespace HLSLTest
             // Set the reflected scene to its effect parameter in the water effect
             //glassEffect.Parameters["RefractionMap"].SetValue(refractionTarget);// 屈折マップ生成
 			//glassEffect.Parameters["RefractionMap"].SetValue(game.Sky.TextureCube);// 屈折マップ生成
-            Update();
+
+            //Update();
 
 			//glassEffect.Parameters["RefractionMap"].SetValue(level.EnvironmentalMap);// シーンが映り込んだマップを使う場合
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (JoyStick.onStickDirectionChanged) {
                 hasSaved = false;
             }
-            renderer.Update();
+            renderer.Update(gameTime);
         }
         public void PreDraw(ArcBallCamera camera, GameTime gameTime)
         {

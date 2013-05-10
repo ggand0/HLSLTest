@@ -52,6 +52,9 @@ namespace HLSLTest
 		{
 			base.Initialize();
 
+			PrelightingRenderer.game = game;
+			
+
 			Target = new Object(new Vector3(0, 20, 0), "Models\\cube");
 			Target.Scale = 20;
 			//Target = new Object(new Vector3(0, 0, 0), "Models\\tank");
@@ -123,17 +126,20 @@ namespace HLSLTest
 		{
 			base.Load();
 
-			PrelightingRenderer.game = game;
-			debug = new Debug();
+			//sky = new SkySphere(content, device, content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
+			//sky = new SkySphere(content, device, content.Load<TextureCube>("Cross"));//("OutputCube0"));
+			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 10000);
+			//Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
 
 			// skymap reflect
 			Effect cubeMapEffect = content.Load<Effect>("CubeMapReflect");
-			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"));
+			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Sky.TextureCube);
 			Teapot.SetModelEffect(cubeMapEffect, false);
 			Teapot.Material = cubeMat;/**/
 			/*Models[3].SetModelEffect(cubeMapEffect, false);
 			Models[3].Material = cubeMat;
 			Models[3].Scale = 50;*/
+
 
 			// projection
 			/*Effect effect = content.Load<Effect>("TextureProjectionEffect");
@@ -148,6 +154,7 @@ namespace HLSLTest
 			mat.Scale = 0.05f;//2
 			models[0].Material = mat;
 			models[1].Material = mat;*/
+
 
 			// light map
 			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
@@ -172,27 +179,29 @@ namespace HLSLTest
 				200),
 				new PPPointLight(new Vector3(0, 100, 100), Color.Green * .85f,
 				200),*/
-				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				/*new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),
 				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
-				20000)/**/
+				20000)*/
+				new PointLightCircle(new Vector3(0,200,0), new Vector3(200, 200, 0), Color.White, 20000),
+				new PPPointLight(new Vector3(0, 500, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				40000),
 			};
+
 			// setup shadows
-			renderer.ShadowLightPosition = new Vector3(500, 500, 0);//new Vector3(1500, 1500, 2000);
-			renderer.ShadowLightTarget = new Vector3(0, 300, 0);//new Vector3(0, 150, 0)
-			//renderer.ShadowLightPosition = new Vector3(200, 100, 0);//new Vector3(1500, 1500, 2000);
+			/*//renderer.ShadowLightPosition = new Vector3(200, 100, 0);//new Vector3(1500, 1500, 2000);
 			//renderer.ShadowLightTarget = new Vector3(-50, -50, 0);//new Vector3(0, 150, 0)
-			//renderer.ShadowLightPosition = new Vector3(0, 150, 0);//new Vector3(1500, 1500, 2000);
-			//renderer.ShadowLightTarget = new Vector3(0, 0, 0);//new Vector3(0, 150, 0)
+			renderer.ShadowLightPosition = new Vector3(0, 150, 0);//new Vector3(1500, 1500, 2000);
+			renderer.ShadowLightTarget = new Vector3(0, 0, 0);//new Vector3(0, 150, 0)
+
+			renderer.ShadowLightPosition = new Vector3(500, 500, 0);//new Vector3(1500, 1500, 2000);
+			renderer.ShadowLightTarget = new Vector3(0, 300, 0);//new Vector3(0, 150, 0)*/
+			renderer.ShadowLightPosition = new Vector3(500, 500, 0);
+			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
 
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
-
-
-			//sky = new SkySphere(content, device, content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
-			//sky = new SkySphere(content, device, content.Load<TextureCube>("Cross"));//("OutputCube0"));
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
-			//Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
+			
 
 			Water.game = game;
 			water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000));
@@ -254,6 +263,9 @@ namespace HLSLTest
 			sphericalTerrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
 			sphericalTerrain.BTexture = content.Load<Texture2D>("Textures\\Terrain\\stone");
 			sphericalTerrain.DetailTexture = content.Load<Texture2D>("Textures\\detail0");
+
+
+			debug = new Debug();
 		}
 		public override void Update(GameTime gameTime)
 		{
@@ -265,10 +277,10 @@ namespace HLSLTest
 				o.Update(gameTime);
 			}
 
-			renderer.Update();
+			renderer.Update(gameTime);
 			camera.UpdateChaseTarget(Target);
 			camera.Update(gameTime);
-			water.Update();
+			water.Update(gameTime);
 			//Ground.Update(gameTime);
 
 
@@ -375,8 +387,6 @@ namespace HLSLTest
 		{
 
 			base.Draw(gameTime);
-
-
 #if DEBUG_MODE
 			device.Clear(Color.CornflowerBlue);
 			renderer.Draw();
@@ -385,7 +395,6 @@ namespace HLSLTest
 			string belndState = device.BlendState.ToString();
 			string depthState = device.DepthStencilState.ToString();
 			string rasterizerState = device.RasterizerState.ToString();
-
 
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
@@ -399,8 +408,8 @@ namespace HLSLTest
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			terrain.Draw(false, camera.View, camera.Projection);
-			sphericalTerrain.Draw(false, camera.View, camera.Projection);
+			//terrain.Draw(false, camera.View, camera.Projection);
+			//sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
 			belndState = device.BlendState.ToString();
 			depthState = device.DepthStencilState.ToString();
@@ -428,24 +437,14 @@ namespace HLSLTest
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
+
 			// laser test
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
-			// glassEffect test
-			//glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
-
-
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection);
 
-			// for debug
-			belndState = device.BlendState.ToString();
-			depthState = device.DepthStencilState.ToString();
-			//s.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(start), camera.View, camera.Projection);
-			//e.Draw(Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(end), camera.View, camera.Projection);
-			BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-100, 0, 0), new Vector3(-0, 100, -100)), device, camera.View, camera.Projection, Color.White);
-			//debugModel.Draw(Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(0, 200, 0)), camera.View, camera.Projection);
-			//debug.Draw(gameTime);
-			//ResetGraphicDevice();
+			//BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-100, 0, 0), new Vector3(-0, 100, -100)), device, camera.View, camera.Projection, Color.White);
+
 #endif
 
 			/*ResetGraphicDevice();

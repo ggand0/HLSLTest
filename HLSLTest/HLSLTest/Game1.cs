@@ -28,6 +28,9 @@ namespace HLSLTest
 		public SpriteFont menuFont { get; private set; }
 		public Stack<Scene> scenes = new Stack<Scene>();
 
+		public Level[] Levels { get; private set; }
+		public int LevelNum { get; private set; }
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -53,7 +56,6 @@ namespace HLSLTest
 			Object.game = this;
 			Object.content = Content;
 
-
 			base.Initialize();
 		}
 
@@ -71,10 +73,15 @@ namespace HLSLTest
 			Level.device = GraphicsDevice;
 			Level.content = Content;
 
+
+			// Create levels
+			Levels = new Level[] { new Level0(null), new Level1(null), new Level2(null) };
+			LevelNum = 0;
+
 			// 最初に表示するシーンを追加
 			//PushScene(new Level2(null));
-			//PushScene(new Level0(null));
-			PushScene(new Level1(null));
+			PushScene(new Level0(null));
+			//PushScene(new Level1(null));
 		}
 
 		/// <summary>
@@ -84,6 +91,12 @@ namespace HLSLTest
 		protected override void UnloadContent()
 		{
 			// TODO: ここで ContentManager 以外のすべてのコンテンツをアンロードします。
+		}
+		public void PushLevel()
+		{
+			PushScene(Levels[LevelNum]);
+			LevelNum++;
+			if (LevelNum >= Levels.Length) LevelNum = 0;
 		}
 		public void PushScene(Scene scene)
 		{

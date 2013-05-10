@@ -75,7 +75,7 @@ namespace HLSLTest
 			//RenderTarget2D lt = renderer.drawLightMap(models, depthNormal.dt, depthNormal.nt, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
 			RenderTarget2D lt = renderer.drawLightMap(models, dt, nt, reflectionCamera.View, reflectionCamera.Projection, reflectionCamera.Position);
 
-			renderer.drawShadowDepthMap();
+			renderer.DrawShadowDepthMap();
 			renderer.prepareMainPass(models, lt);
 
 			// DisposeしないとVRAMが数秒で食い尽くされてしまうので要注意
@@ -143,12 +143,12 @@ namespace HLSLTest
 		}
 
 
-		public void Update()
+		public void Update(GameTime gameTime)
 		{
 			if (JoyStick.onStickDirectionChanged) {
 				hasSaved = false;
 			}
-			renderer.Update();
+			renderer.Update(gameTime);
 		}
 		public void PreDraw(ArcBallCamera camera, GameTime gameTime)
 		{
