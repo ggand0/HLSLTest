@@ -142,10 +142,10 @@ namespace HLSLTest
 			// 色の決定
 			SubType = r.Next(8);
 
-			using (Stream stream = File.OpenWrite("permtex.png")) {
+			/*using (Stream stream = File.OpenWrite("permtex.png")) {
 				PermTex.SaveAsPng(stream, PermTex.Width, PermTex.Height);
 				stream.Position = 0;
-			}
+			}*/
 		}
 		private int safex(int x)
 		{

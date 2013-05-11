@@ -20,7 +20,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     VertexShaderOutput output;
 
 	// Calculate the screen space position
-    float4x4 wvp = mul(World, mul(View, Projection));	
+    float4x4 wvp = mul(World, mul(View, Projection));
 	float4 position = mul(input.Position, wvp);// スクリーン座標計算
 
     output.Position = position;
@@ -35,7 +35,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	// limited to [0, 1]
 	float depth = clamp(input.ScreenPosition.z / FarPlane, 0, 1);
 
-	return float4(depth, depth*depth, 0, 1);
+	return float4(depth, depth * depth, 0, 1);
 }
 
 technique Technique1

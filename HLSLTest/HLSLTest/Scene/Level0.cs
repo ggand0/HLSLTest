@@ -15,7 +15,6 @@ namespace HLSLTest
 
 		PrelightingRenderer renderer;
 		
-		
 		Water water;
 		BillboardSystem trees;
 		BillboardSystem clouds;
@@ -72,7 +71,7 @@ namespace HLSLTest
 			Models.Add(Ground);
 			Models.Add(Target);
 			Models.Add(Teapot);
-			Models.Add(new Object(new Vector3(0, 150, 0), "Models\\SkySphereMesh"));
+			//Models.Add(new Object(new Vector3(0, 150, 0), "Models\\SkySphereMesh"));
 
 			camera = new ArcBallCamera();
 			camera.Initialize(game, Target);
@@ -131,7 +130,7 @@ namespace HLSLTest
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 10000);
 			//Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
 
-			// skymap reflect
+			// setup skymap reflection effect
 			Effect cubeMapEffect = content.Load<Effect>("CubeMapReflect");
 			CubeMapReflectMaterial cubeMat = new CubeMapReflectMaterial(Sky.TextureCube);
 			Teapot.SetModelEffect(cubeMapEffect, false);
@@ -159,33 +158,30 @@ namespace HLSLTest
 			// light map
 			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
 			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
-			//models[0].SetModelEffect(lightingEffect, true);			// set effect to each modelmeshpart
-			//models[1].SetModelEffect(lightingEffect, true);
-			Models[0].SetModelEffect(shadowEffect, true);				// set effect to each modelmeshpart
-			Models[1].SetModelEffect(shadowEffect, true);
-			Ground.SetModelEffect(shadowEffect, true);
 			foreach (Object o in Models) {
 				o.RenderBoudingSphere = false;
+				o.SetModelEffect(shadowEffect, true);
 			}
 
 
 			renderer = new PrelightingRenderer(device, content);
 			renderer.Models = Models;
 			renderer.Camera = camera;
-			renderer.Lights = new List<PPPointLight>() {
-				/*new PPPointLight(new Vector3(-100, 100, 0), Color.Red * .85f,
-				200),
-				new PPPointLight(new Vector3(100, 100, 0), Color.Blue * .85f,
-				200),
-				new PPPointLight(new Vector3(0, 100, 100), Color.Green * .85f,
-				200),*/
+			renderer.Lights = new List<PointLight>() {
+				new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
+				new PointLight(new Vector3(0, 500, 0), Color.White * .85f, 2000),
+
+				new PointLight(new Vector3(-100, 100, 0), Color.Red * .85f,	2000),
+				new PointLight(new Vector3(100, 100, 0), Color.Blue * .85f,	2000),
+				new PointLight(new Vector3(0, 100, 100), Color.Green * .85f, 2000),/**/
+				/*new PointLight(new Vector3(-1000, 100, 0), Color.Red * .85f,	2000),
+				new PointLight(new Vector3(1000, 1000, 0), Color.Blue * .85f,	2000),
+				new PointLight(new Vector3(0, 1000, 1000), Color.Green * .85f, 2000),*/
+
 				/*new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),
 				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000)*/
-				new PointLightCircle(new Vector3(0,200,0), new Vector3(200, 200, 0), Color.White, 20000),
-				new PPPointLight(new Vector3(0, 500, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
-				40000),
 			};
 
 			// setup shadows
@@ -251,7 +247,6 @@ namespace HLSLTest
 			IcePlanet icePlanet = new IcePlanet(device, content);
 			GasGiant gasGiant = new GasGiant(device, content);
 			RockPlanet rockPlanet = new RockPlanet(device, content);
-
 			planet = rockPlanet;
 
 
@@ -284,15 +279,15 @@ namespace HLSLTest
 			//Ground.Update(gameTime);
 
 
-			// update particles
+			// Update particles
 			ps.Update();
 			discoid.Update();
 			eps.Update();
 			basicEmitter.Update();
 			beamEmitter.Update();
 
+			// Other effects
 			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
-
 			discoidEffect.Update(gameTime);
 		}
 
@@ -381,7 +376,7 @@ namespace HLSLTest
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, new GameTime());// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 			glassEffect.PreDraw(camera, gameTime);
-			renderer.Draw();
+			renderer.PreDraw();
 		}
 		public override void Draw(GameTime gameTime)
 		{
@@ -401,10 +396,10 @@ namespace HLSLTest
 
 			//glassEffect.PreDraw(camera, gameTime);
 			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
+			renderer.PreDraw();
 
-			renderer.Draw();
 			device.Clear(Color.Black);
-
+			
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -439,7 +434,8 @@ namespace HLSLTest
 
 
 			// laser test
-			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
+			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
+			renderer.Draw(gameTime);
 
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection);
 

@@ -30,6 +30,7 @@ namespace HLSLTest
 
 		public Level[] Levels { get; private set; }
 		public int LevelNum { get; private set; }
+		public bool MoveNextLevel { get; set; }
 
 		public Game1()
 		{
@@ -54,6 +55,7 @@ namespace HLSLTest
 			KeyConfig.LoadXML("KeyConfig", "Xml\\KeyConfig.xml");
 			Scene.Initialize(this, spriteBatch, Content);
 			Object.game = this;
+			PointLight.game = this;
 			Object.content = Content;
 
 			base.Initialize();
@@ -94,8 +96,19 @@ namespace HLSLTest
 		}
 		public void PushLevel()
 		{
-			PushScene(Levels[LevelNum]);
 			LevelNum++;
+			//PushScene(Levels[LevelNum]);
+			switch (LevelNum) {
+				case 0:
+					PushScene(new Level0(null));
+					break;
+				case 1:
+					PushScene(new Level1(null));
+					break;
+				case 2:
+					PushScene(new Level2(null));
+					break;
+			}
 			if (LevelNum >= Levels.Length) LevelNum = 0;
 		}
 		public void PushScene(Scene scene)
@@ -130,7 +143,13 @@ namespace HLSLTest
 				if (scenes.Count > 0) {
 					currentScene = scenes.Peek();
 				} else {
-					this.Exit();
+					if (MoveNextLevel) {
+						PushLevel();
+						currentScene = scenes.Peek();
+						MoveNextLevel = false;
+					} else {
+						this.Exit();
+					}
 					break;
 				}
 			}

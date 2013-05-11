@@ -7,22 +7,34 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace HLSLTest
 {
-	public class PPPointLight
+	public class PointLight
 	{
+		public static Game1 game;
 		public Vector3 Position { get; set; }
 		public Color Color { get; set; }
 		public float Attenuation { get; set; }
 
-		public PPPointLight(Vector3 Position, Color Color, float Attenuation)
+		protected BoundingSphereRenderer _boundingSphereRenderer;
+		//public BoundingSphere transformedBoundingSphere { get; protected set; }
+
+		public PointLight(Vector3 Position, Color Color, float Attenuation)
 		{
 			this.Position = Position;
 			this.Color = Color;
 			this.Attenuation = Attenuation;
+			_boundingSphereRenderer = new BoundingSphereRenderer(game);
+			_boundingSphereRenderer.OnCreateDevice();
 		}
 
 		public virtual void Update(GameTime gameTime)
 		{
 		}
+		public void DrawBoundingSphere()
+		{
+			BoundingSphere defBS = new BoundingSphere(Position, 10);
+			_boundingSphereRenderer.Draw(defBS, this.Color);
+		}
+
 		public void SetEffectParameters(Effect effect)
 		{
 			effect.Parameters["LightPosition"].SetValue(Position);

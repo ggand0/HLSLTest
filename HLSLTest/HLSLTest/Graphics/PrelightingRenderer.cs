@@ -33,7 +33,7 @@ namespace HLSLTest
 
 		// List of models, lights, and the camera
 		public List<Object> Models { get; set; }
-		public List<PPPointLight> Lights { get; set; }
+		public List<PointLight> Lights { get; set; }
 		public ArcBallCamera Camera { get; set; }
 		GraphicsDevice graphicsDevice;
 		int viewWidth = 0, viewHeight = 0;
@@ -60,7 +60,76 @@ namespace HLSLTest
 		SpriteBatch spriteBatch;
 		RenderTarget2D shadowBlurTarg;
 		Effect shadowBlurEffect;
-		bool hasSaved;
+
+
+
+		QuadRenderer quadRenderer;
+		/// <summary>
+		/// Our frustum corners in world space
+		/// </summary>
+		private Vector3[] _cornersWorldSpace = new Vector3[8];
+		/// <summary>
+		/// Our frustum corners in view space
+		/// </summary>
+		private Vector3[] _cornersViewSpace = new Vector3[8];
+		/// <summary>
+		/// Compute the frustum corners for a camera.
+		/// Its used to reconstruct the pixel position using only the depth value.
+		/// Read here for more information
+		/// http://mynameismjp.wordpress.com/2009/03/10/reconstructing-position-from-depth/
+		/// </summary>
+		/// <param name="camera"> Current rendering camera </param>
+		private void ComputeFrustumCorners(ArcBallCamera camera)
+		{
+			camera.Frustum.GetCorners(_cornersWorldSpace);
+			//Matrix matView = camera.EyeTransform; //this is the inverse of our camera transform
+			Matrix matView = camera.View; //this is the inverse of our camera transform
+			Vector3.Transform(_cornersWorldSpace, ref matView, _cornersViewSpace); //put the frustum into view space
+			for (int i = 0; i < 4; i++) //take only the 4 farthest points
+            {
+				_currentFrustumCorners[i] = _cornersViewSpace[i + 4];
+			}
+			Vector3 temp = _currentFrustumCorners[3];
+			_currentFrustumCorners[3] = _currentFrustumCorners[2];
+			_currentFrustumCorners[2] = temp;
+		}
+		/// <summary>
+		/// Our final corners, the 4 farthest points on the view space frustum
+		/// </summary>
+		private Vector3[] _currentFrustumCorners = new Vector3[4];
+		/// <summary>
+		/// This method computes the frustum corners applied to a quad that can be smaller than
+		/// our screen. This is useful because instead of drawing a full-screen quad for each
+		/// point light, we can draw smaller quads that fit the light's bounding sphere in screen-space,
+		/// avoiding unecessary pixel shader operations
+		/// </summary>
+		/// <param name="effect">The effect we want to apply those corners</param>
+		/// <param name="topLeftVertex"> The top left vertex, in screen space [-1..1]</param>
+		/// <param name="bottomRightVertex">The bottom right vertex, in screen space [-1..1]</param>
+		private void ApplyFrustumCorners(Effect effect, Vector2 topLeftVertex, Vector2 bottomRightVertex)
+		{
+			float dx = _currentFrustumCorners[1].X - _currentFrustumCorners[0].X;
+			float dy = _currentFrustumCorners[0].Y - _currentFrustumCorners[2].Y;
+
+			Vector3[] _localFrustumCorners = new Vector3[4];
+			_localFrustumCorners[0] = _currentFrustumCorners[2];
+			_localFrustumCorners[0].X += dx * (topLeftVertex.X * 0.5f + 0.5f);
+			_localFrustumCorners[0].Y += dy * (bottomRightVertex.Y * 0.5f + 0.5f);
+
+			_localFrustumCorners[1] = _currentFrustumCorners[2];
+			_localFrustumCorners[1].X += dx * (bottomRightVertex.X * 0.5f + 0.5f);
+			_localFrustumCorners[1].Y += dy * (bottomRightVertex.Y * 0.5f + 0.5f);
+
+			_localFrustumCorners[2] = _currentFrustumCorners[2];
+			_localFrustumCorners[2].X += dx * (topLeftVertex.X * 0.5f + 0.5f);
+			_localFrustumCorners[2].Y += dy * (topLeftVertex.Y * 0.5f + 0.5f);
+
+			_localFrustumCorners[3] = _currentFrustumCorners[2];
+			_localFrustumCorners[3].X += dx * (bottomRightVertex.X * 0.5f + 0.5f);
+			_localFrustumCorners[3].Y += dy * (topLeftVertex.Y * 0.5f + 0.5f);
+
+			effect.Parameters["FrustumCorners"].SetValue(_localFrustumCorners);
+		}
 
 		private void DrawDepthNormalMap()
 		{
@@ -83,6 +152,17 @@ namespace HLSLTest
 
 			// Un-set the render targets
 			graphicsDevice.SetRenderTargets(null);
+
+			if (JoyStick.IsOnKeyDown(8)) {
+				using (Stream stream = File.OpenWrite("lighting_normalmap.png")) {
+					normalTarg.SaveAsPng(stream, normalTarg.Width, normalTarg.Height);
+					stream.Position = 0;
+				}
+				using (Stream stream = File.OpenWrite("lighting_depthmap.png")) {
+					depthTarg.SaveAsPng(stream, depthTarg.Width, depthTarg.Height);
+					stream.Position = 0;
+				}
+			}
 		}
 		private void DrawLightMap()
 		{
@@ -101,7 +181,7 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(lightTarg);
 
 			// Clear the render target to black (no light)
-			graphicsDevice.Clear(Color.Black);
+			graphicsDevice.Clear(Color.Transparent);// transparent black!
 
 			// Set the render target to the graphics device
 			/*graphicsDevice.SetRenderTarget(lightTarg);
@@ -113,13 +193,15 @@ namespace HLSLTest
 			graphicsDevice.BlendState = BlendState.Additive;
 			graphicsDevice.DepthStencilState = DepthStencilState.None;
 
-			foreach (PPPointLight light in Lights) {
+
+			//ComputeFrustumCorners(level.camera);
+			foreach (PointLight light in Lights) {
 				// Set the light's parameters to the effect
 				light.SetEffectParameters(lightingEffect);
 
 				// Calculate the world * view * projection matrix and set it to the effect
 				Matrix wvp = (Matrix.CreateScale(light.Attenuation)
-				* Matrix.CreateTranslation(light.Position)) * viewProjection;
+					* Matrix.CreateTranslation(light.Position)) * viewProjection;
 				lightingEffect.Parameters["WorldViewProjection"].SetValue(wvp);
 
 				// Determine the distance between the light and camera
@@ -130,31 +212,105 @@ namespace HLSLTest
 				// to draw the inside of the sphere instead of the outside
 				if (dist < light.Attenuation) {
 					graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+					//graphicsDevice.RasterizerState = RasterizerState.CullNone;
+				} else {
+					string debug = "";
 				}
+
+
 				// Draw the point-light-sphere
 				// Additiveにしてるから個々の光源の色が加算される？
 				lightMesh.Meshes[0].Draw();// ここでライトマップを作成する（重要）
+				//lightingEffect.CurrentTechnique.Passes[0].Apply();
+				//quadRenderer.RenderQuad(graphicsDevice, -Vector2.One, Vector2.One);
+
 
 				// Revert the cull mode
 				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 			}
+			// Un-set the render target
+			graphicsDevice.SetRenderTarget(null);
+
+			// debug
+			/*foreach (PointLight light in Lights) {
+				// Set the light's parameters to the effect
+				light.SetEffectParameters(lightingEffect);
+				// Calculate the world * view * projection matrix and set it to the effect
+				Matrix wvp = (Matrix.CreateScale(light.Attenuation)
+					* Matrix.CreateTranslation(light.Position)) * viewProjection;
+				lightingEffect.Parameters["WorldViewProjection"].SetValue(wvp);
+				// Determine the distance between the light and camera
+				//float dist = Vector3.Distance(((FreeCamera)Camera).Position,
+				float dist = Vector3.Distance(Camera.Position, light.Position);
+
+				// If the camera is inside the light-sphere, invert the cull mode
+				// to draw the inside of the sphere instead of the outside
+				if (dist < light.Attenuation) {
+					graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+					//graphicsDevice.RasterizerState = RasterizerState.CullNone;
+				}
+				// Draw the point-light-sphere
+				// Additiveにしてるから個々の光源の色が加算される？
+				lightMesh.Meshes[0].Draw();// ここでライトマップを作成する（重要）
+				//lightingEffect.CurrentTechnique.Passes[0].Apply();
+				//quadRenderer.RenderQuad(graphicsDevice, -Vector2.One, Vector2.One);
+				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			}*/
+
+			/*graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.None;
+			graphicsDevice.RasterizerState = RasterizerState.CullNone;
+			foreach (PointLight light in Lights) {
+				// Set the light's parameters to the effect
+				light.SetEffectParameters(lightingEffect);
+
+				// Calculate the world * view * projection matrix and set it to the effect
+				Matrix wvp = (Matrix.CreateScale(light.Attenuation)
+					* Matrix.CreateTranslation(light.Position)) * viewProjection;
+				lightingEffect.Parameters["WorldViewProjection"].SetValue(wvp);
+
+				// Determine the distance between the light and camera
+				//float dist = Vector3.Distance(((FreeCamera)Camera).Position,
+				float dist = Vector3.Distance(Camera.Position, light.Position);
+
+
+				// Draw the point-light-sphere
+				// Additiveにしてるから個々の光源の色が加算される？
+				//lightMesh.Meshes[0].Draw();// ここでライトマップを作成する（重要）
+				//lightingEffect.CurrentTechnique.Passes[0].Apply();
+				//quadRenderer.RenderQuad(graphicsDevice, -Vector2.One, Vector2.One);
+
+				Vector2 bottomLeftCorner, topRightCorner, size;
+				//compute a screen-space quad that fits the light's bounding sphere
+				level.camera.ProjectBoundingSphereOnScreen(lightMesh.Meshes[0].BoundingSphere, out bottomLeftCorner, out size);
+				bottomLeftCorner.Y = -bottomLeftCorner.Y - size.Y;
+				topRightCorner = bottomLeftCorner + size;
+				//clamp them
+				bottomLeftCorner.X = Math.Max(bottomLeftCorner.X, -1);
+				bottomLeftCorner.Y = Math.Max(bottomLeftCorner.Y, -1);
+				topRightCorner.X = Math.Min(topRightCorner.X, 1);
+				topRightCorner.Y = Math.Min(topRightCorner.Y, 1);
+				//apply our frustum corners to this effect. Use the computed view-space rect
+				ApplyFrustumCorners(lightingEffect, bottomLeftCorner, topRightCorner);
+				lightingEffect.CurrentTechnique.Passes[0].Apply();
+				//render the computed view-space quad
+				quadRenderer.RenderQuad(graphicsDevice, bottomLeftCorner, topRightCorner);
+
+
+				// Revert the cull mode
+				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			}*/
+
+			if (JoyStick.IsOnKeyDown(8)) {
+				using (Stream stream = File.OpenWrite("lightmap.png")) {
+					lightTarg.SaveAsPng(stream, lightTarg.Width, lightTarg.Height);
+					stream.Position = 0;
+				}
+			}/**/
 
 			// Revert the blending and depth render states
 			graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
-
-			// Un-set the render target
-			graphicsDevice.SetRenderTarget(null);
-
-			/*if (!hasSaved) {
-				using (Stream stream = File.OpenWrite("lightmap.png")) {
-					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
-					stream.Position = 0;
-					//MediaLibrary media = new MediaLibrary();
-					//media.SavePicture("shadowDepth.jpg", stream);
-					//hasSaved = true; // 下でfalseに
-				}
-			}*/
 		}
 		private void PrepareMainPass()
 		{
@@ -175,7 +331,7 @@ namespace HLSLTest
 							part.Effect.Parameters["DoShadowMapping"].SetValue(DoShadowMapping);
 						if (!DoShadowMapping) continue;
 						if (part.Effect.Parameters["ShadowMap"] != null)
-							part.Effect.Parameters["ShadowMap"].SetValue(shadowDepthTarg);
+							part.Effect.Parameters["ShadowMap"].SetValue(shadowDepthTarg);// シャドウマップをセット
 						if (part.Effect.Parameters["ShadowView"] != null)
 							part.Effect.Parameters["ShadowView"].SetValue(shadowView);
 						if (part.Effect.Parameters["ShadowProjection"] != null)
@@ -249,7 +405,7 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(null);
 #endif
 
-			/*if (!hasSaved) {
+			/*if (JoyStick.IsOnKeyDown(8)) {
 				using (Stream stream = File.OpenWrite("shadowDepth.png")) {
 					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
 					stream.Position = 0;
@@ -279,12 +435,10 @@ namespace HLSLTest
 			// Remove the render target
 			graphicsDevice.SetRenderTarget(null);
 
-			/*if (dir == 1 && !hasSaved) {// 2パス目時にだけ出力
+			/*if (dir == 1 && JoyStick.IsOnKeyDown(8)) {// 2パス目時にだけ出力
 				using (Stream stream = File.OpenWrite("bluredShadowDepth.png")) {
 					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
 					stream.Position = 0;
-					//MediaLibrary media = new MediaLibrary();
-					//media.SavePicture("shadowDepth.jpg", stream);
 					hasSaved = true;
 				}
 			}*/
@@ -354,7 +508,7 @@ namespace HLSLTest
 			graphicsDevice.BlendState = BlendState.Additive;
 			graphicsDevice.DepthStencilState = DepthStencilState.None;
 			
-			foreach (PPPointLight light in Lights) {
+			foreach (PointLight light in Lights) {
 				// Set the light's parameters to the effect
 				light.SetEffectParameters(lightingEffect);
 				// Calculate the world * view * projection matrix and set it to the effect
@@ -463,14 +617,14 @@ namespace HLSLTest
 
 		public void Update(GameTime gameTime)
 		{
-			foreach (PPPointLight light in Lights) {
+			foreach (PointLight light in Lights) {
 				light.Update(gameTime);
 			}
 
 			ShadowLightPosition = Lights[0].Position;
 			//ShadowLightTarget = (Lights[0] as PointLightCircle).Center;
 		}
-		public void Draw()
+		public void PreDraw()
 		{
 			DrawDepthNormalMap();
 			DrawLightMap();
@@ -478,8 +632,17 @@ namespace HLSLTest
 				DrawShadowDepthMap();
 				BlurShadow(shadowBlurTarg, shadowDepthTarg, 0);
 				BlurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
-			}
+			}/**/
 			PrepareMainPass();
+		}
+		/// <summary>
+		/// LightsのBoundingSphereを描画するだけ
+		/// </summary>
+		public void Draw(GameTime gameTime)
+		{
+			foreach (PointLight p in Lights) {
+				p.DrawBoundingSphere();
+			}
 		}
 
 		public PrelightingRenderer(GraphicsDevice GraphicsDevice, ContentManager Content)
@@ -495,7 +658,10 @@ namespace HLSLTest
 				viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
 			// Load effects
-			depthNormalEffect = Content.Load<Effect>("PPDepthNormal");
+			//depthNormalEffect = Content.Load<Effect>("PPDepthNormal");
+			depthNormalEffect = Content.Load<Effect>("PPDepthNormalV2");
+			//depthNormalEffect.Parameters["FarPlane"].SetValue(shadowFarPlane);
+
 			lightingEffect = Content.Load<Effect>("PPLight");
 
 			// Set effect parameters to light mapping effect
@@ -519,6 +685,8 @@ namespace HLSLTest
 			shadowBlurEffect = Content.Load<Effect>("GaussianBlur");
 			shadowBlurTarg = new RenderTarget2D(GraphicsDevice, shadowMapSize,
 			shadowMapSize, false, SurfaceFormat.Color, DepthFormat.Depth24);
+
+			quadRenderer = new QuadRenderer();
 		}
 	}
 }

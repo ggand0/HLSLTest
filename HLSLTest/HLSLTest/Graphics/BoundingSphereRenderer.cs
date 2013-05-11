@@ -180,7 +180,6 @@ namespace HLSLTest
 						basicEffect.DiffuseColor = color.ToVector3();
 						//basicEffect.CommitChanges();
 						pass.Apply();
-
 						device.DrawIndexedPrimitives(
 								PrimitiveType.LineStrip,
 								0,  // vertex buffer offset to add to each element of the index buffer
@@ -204,7 +203,7 @@ namespace HLSLTest
 
 						basicEffect.World = rotateXMatrix * scaleMatrix * translateMat;
 						basicEffect.DiffuseColor = color.ToVector3() * 0.5f;
-						//basicEffect.CommitChanges();
+						//basicEffect.DiffuseColor = color.ToVector3();
 						pass.Apply();
 
 						device.DrawIndexedPrimitives(
@@ -221,7 +220,8 @@ namespace HLSLTest
 
 
 			}
-
+			device.BlendState = BlendState.Opaque;
+			device.DepthStencilState = DepthStencilState.Default;
 		}
 
 	}

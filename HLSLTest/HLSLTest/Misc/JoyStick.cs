@@ -19,11 +19,12 @@ namespace HLSLTest
 		MENU,	//  6   |  4:L1		|  6:L1		|   5:L2		|	(nothing1)
 		LOCK,	//  7   |  5:R1		|  7:R1		|   6:R2		|	(nothing2)
 		START,	//  8   |  8:start	|  8:start	|				|	PAUSE
+		SELECT, 
 		NUM_KEY
 	}
 	public enum configPS2
 	{
-		X, A, key3, B, MENU, LOCK, Y, key6, START, NUM_KEY
+		X, A, key3, B, MENU, LOCK, Y, key6, START, SELECT, NUM_KEY
 	}
 	public enum Direction
 	{
@@ -57,15 +58,16 @@ namespace HLSLTest
                 KeyboardConfig[(int)config.MENU] = xnainput.Keys.LeftShift;
 				KeyboardConfig[(int)config.LOCK] = xnainput.Keys.Space;      //Space;//TODO:コンフィグが俺コントローラ仕様すぎるから変えないと。。
                 KeyboardConfig[(int)config.START] = xnainput.Keys.Enter; // 追加
+				KeyboardConfig[(int)config.SELECT] = xnainput.Keys.Tab; // 追加
             }
             #endregion
 		}
 		public static int[] keyMap = new int[(int)config.NUM_KEY];
-		public static int[] PS2KeyMap = { 3, 0, 2, 1, 6, 7, 5, 4, 8 };
+		public static int[] PS2KeyMap = { 3, 0, 2, 1, 6, 7, 5, 4, 8, 9 };
 		/// <summary>
 		/// JoyStickクラスのindexを変えないでそのまま使えるように。
 		/// </summary>
-		public static int[] AdjKeyMap = { 1, 3, 2, 0, 7, 6, 4, 5, 8 };
+		public static int[] AdjKeyMap = { 1, 3, 2, 0, 7, 6, 4, 5, 8, 9 };
 		/// <summary>
 		/// デフォルトではPS2コンのマッピング
 		/// </summary>

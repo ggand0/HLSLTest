@@ -24,27 +24,36 @@ float3 LightPosition;
 float LightAttenuation;
 // Include shared functions
 #include "PPShared.vsi"
-
+float3 FrustumCorners[4];
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
+	float2 TexCoord : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
 	float4 LightPosition : TEXCOORD0;
+	float3 FrustumRay : TEXCOORD1;
 };
-
+float3 GetFrustumRay(in float2 texCoord)
+{
+	float index = texCoord.x + (texCoord.y * 2);
+	return FrustumCorners[index];
+}
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
 
 	output.Position = mul(input.Position, WorldViewProjection);
 	output.LightPosition = output.Position;
+	output.FrustumRay = GetFrustumRay(input.TexCoord);
 
     return output;
 }
+
+
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
@@ -64,6 +73,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	position.y = (1 - texCoord.y) * 2 - 1;
 	position.z = depth.r;
 	position.w = 1.0f;
+
+	/*float3 pos = input.FrustumRay * depth.r;
+	position = float4(pos, 1);
+	position.w = 1.0f;*/
 
 	// Transform position from screen space to world space
 	position = mul(position, InvViewProjection);

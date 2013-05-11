@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
+    <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
     <Compile Include="Camera\ArcBallCamera.cs" />
     <Compile Include="BillboardSystem\BillboardCross.cs" />
@@ -142,7 +143,7 @@
     <Compile Include="BillboardSystem\LoadParticles.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleVertex.cs" />
-    <Compile Include="Graphics\PPPointLight.cs" />
+    <Compile Include="Graphics\PointLight.cs" />
     <Compile Include="Graphics\PrelightingRenderer.cs" />
     <Compile Include="Planet\GasGiant.cs" />
     <Compile Include="Planet\IcePlanet.cs" />

@@ -50,7 +50,7 @@ namespace HLSLTest
 			asteroids[0].SetModelEffect(lightingEffect, true);
 			asteroids[1].Scale = 0.02f;
 			asteroids[1].SetModelEffect(lightingEffect, true);*/
-			for (int i = 0; i < 100; i++) {
+			for (int i = 0; i < 50; i++) {
 				//random = new Random();
 				asteroids.Add(new Object(new Vector3(NextDouble(random, -1000, 1000), 0, NextDouble(random, -1000, 1000)), "Models\\Asteroid"));
 				asteroids[i].Scale = 0.02f;//0.1f;

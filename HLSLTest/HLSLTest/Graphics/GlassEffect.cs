@@ -281,10 +281,10 @@ namespace HLSLTest
             }
             renderer = new PrelightingRenderer(graphics, content);
             renderer.Models = level.Models;
-            renderer.Lights = new List<PPPointLight>() {
-				new PPPointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+            renderer.Lights = new List<PointLight>() {
+				new PointLight(new Vector3(0, 200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000),
-				new PPPointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
+				new PointLight(new Vector3(0, -200, 0), Color.White * .85f,//ew Vector3(0, 100, -100),
 				20000)
 			};
             // setup shadows

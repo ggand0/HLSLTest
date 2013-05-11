@@ -137,6 +137,9 @@ namespace HLSLTest
 											case "PAUSE":
 												JoyStick.keyMap[8] = Int32.Parse(xmlReader.ReadString());
 												break;
+											case "SELECT":
+												JoyStick.keyMap[9] = Int32.Parse(xmlReader.ReadString());
+												break;
 										}
 									}
 									

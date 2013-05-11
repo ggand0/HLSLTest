@@ -131,7 +131,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	if (DoShadowMapping) {
 		float2 shadowTexCoord = postProjToScreen(input.ShadowScreenPosition)
 			+ halfPixel();
-		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - 0.001f;//ShadowBias;
+		float ShadowBias = 0.001f;//0.001f
+		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
 
 		if (realDepth < 1) {// realDepth > momentsなら描画？
 			// Variance shadow mapping code below from the variance shadow
