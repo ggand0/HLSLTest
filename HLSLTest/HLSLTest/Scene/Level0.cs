@@ -109,8 +109,8 @@ namespace HLSLTest
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 
-			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
-			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Laser"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
+			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Mercury\\Beam2"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
+			//beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Laser2"), new Vector3(0, 50, 0), 100, new Vector2(10, 5), 3, 0.1f, true);
 
 
 			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
@@ -432,7 +432,7 @@ namespace HLSLTest
 			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//basicEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			//beamEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
+			beamEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
 
 			// test effect
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);

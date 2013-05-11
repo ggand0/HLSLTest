@@ -231,8 +231,8 @@ namespace HLSLTest
 		}
 		void drawOpaquePixels()
 		{
-			//graphicsDevice.DepthStencilState = DepthStencilState.Default;
-			graphicsDevice.DepthStencilState = DepthStencilState.None;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			//graphicsDevice.DepthStencilState = DepthStencilState.None;
 			graphicsDevice.RasterizerState = RasterizerState.CullNone;
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(true);

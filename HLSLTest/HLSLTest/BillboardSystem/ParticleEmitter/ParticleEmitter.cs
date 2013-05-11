@@ -134,7 +134,7 @@ namespace HLSLTest
 					//AddParticle(Position, velocity, MathHelper.ToRadians(90), speed); // ok
 
 					//AddParticle(Position, velocity, theta, speed);
-					AddParticle(Position, velocity, 0, speed);
+					AddParticle(Position, velocity, 0, speed, Position + dir * 10);
 				}
 			}
 		}
@@ -214,10 +214,10 @@ namespace HLSLTest
 
 				// Initialize particle settings and fill index and vertex arrays
 				for (int i = 0; i < ParticleNum * 4; i += 4) {
-					particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0), z, 0, -1);
-					particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1), z, 0, -1);
-					particles[i + 2] = new ParticleVertex(z, new Vector2(1, 1), z, 0, -1);
-					particles[i + 3] = new ParticleVertex(z, new Vector2(1, 0), z, 0, -1);
+					particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0), z, 0, -1, 0, z);
+					particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1), z, 0, -1, 0, z);
+					particles[i + 2] = new ParticleVertex(z, new Vector2(1, 1), z, 0, -1, 0, z);
+					particles[i + 3] = new ParticleVertex(z, new Vector2(1, 0), z, 0, -1, 0, z);
 					indices[x++] = i + 0;
 					indices[x++] = i + 3;
 					indices[x++] = i + 2;
@@ -265,6 +265,10 @@ namespace HLSLTest
 		}
 		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed)
 		{
+			this.AddParticle(Position, Direction, 0, Speed, Position);
+		}
+		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed, Vector3 directedPosition)
+		{
 			if (Mode == BillboardMode.Cross) {
 				int billboardCrossNum = 2;
 				// If there are no available particles, give up
@@ -286,6 +290,7 @@ namespace HLSLTest
 					particles[index + i].Rotation = rotation;
 					particles[index + i].Speed = Speed;
 					particles[index + i].StartTime = startTime;
+					particles[index + i].DirectedPosition = directedPosition;
 				}
 			} else {
 				// If there are no available particles, give up
@@ -307,6 +312,7 @@ namespace HLSLTest
 					particles[index + i].Rotation = rotation;
 					particles[index + i].Speed = Speed;
 					particles[index + i].StartTime = startTime;
+					particles[index + i].DirectedPosition = directedPosition;
 				}
 			}
 		}
@@ -347,13 +353,34 @@ namespace HLSLTest
 				effect.Parameters["FaceCamera"].SetValue(false);
 			} else if (Mode == BillboardMode.Line) {
 
-				effect.Parameters["Up"].SetValue(Up);
+				/*effect.Parameters["Up"].SetValue(Up);
 				effect.Parameters["Side"].SetValue(Right);
 				//if (!hasInitializedCameraPos) {
 					effect.Parameters["CameraPosition"].SetValue(CameraPosition);
 					hasInitializedCameraPos = true;
 				
+				effect.Parameters["LineBillboard"].SetValue(true);*/
+
 				effect.Parameters["LineBillboard"].SetValue(true);
+				effect.Parameters["Up"].SetValue(Up);
+				effect.Parameters["Side"].SetValue(Right);
+				Viewport view = graphicsDevice.Viewport;
+				Matrix w = Matrix.Identity; //w.Up = Vector3.Cross(Up, Right);
+				w.Up = Up; w.Right = -Right; w.Forward = Vector3.Normalize(Vector3.Cross(Up, Right));
+				/*Vector3 mid = (Start + End) / 2f;
+				w.Translation = mid;// 中点を出す
+				Vector3 projectedStart = View.Project(Start, Projection, View, w);
+				Vector3 projectedEnd = View.Project(End, Projection, View, w);
+				Vector3 v3 = Vector3.Normalize(projectedEnd - projectedStart);
+				Vector3 Start = Position;
+				Vector3 projectedStart = view.Project(Start, Projection, View, w);
+				Vector3 projectedEnd = view.Project(End, Projection, View, w);
+				Vector3 v3 = Vector3.Normalize(projectedEnd - projectedStart);
+
+				//effect.Parameters["ProjectedVector"].SetValue(new Vector4(AxisProjectedVectorAxisPlane(Up, (Start - End), debug), 1));
+				effect.Parameters["ProjectedVector"].SetValue(v3);// ktkr!!!!!!!!!!!!!!!!!!!!!!
+				effect.Parameters["CenterNormal"].SetValue(Vector3.Cross(Up, Right));
+				Vector3 deb = Vector3.Normalize(Vector3.Cross(v3, Vector3.Cross(Up, Right)));//pvUp*/
 			}
 			
 			effect.Parameters["FadeInTime"].SetValue(FadeInTime);
@@ -381,6 +408,11 @@ namespace HLSLTest
 			graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+			// Draw BoundingBox for debug
+			 int size = 10;
+			 BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-size / 2.0f, -size / 2.0f, -size / 2.0f) + Position, new Vector3(size / 2.0f, size / 2.0f, size / 2.0f) + Position)
+				 , graphicsDevice, camera.View, camera.Projection, Color.White);
 		}
 
 

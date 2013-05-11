@@ -19,6 +19,7 @@ float4 ParticleColor;
 bool FaceCamera = true;
 bool LineBillboard = false;
 float3 CameraPosition;
+float3 ProjectedVector;
 
 struct VertexShaderInput
 {
@@ -28,6 +29,8 @@ struct VertexShaderInput
 	float Rotation : COLOR0;
 	float Speed : TEXCOORD2;
 	float StartTime : TEXCOORD3;
+	float4 DirectedPosition : POSITION1;
+	//float4 DirectedPosition : TEXCOORD4;
 };
 struct VertexShaderOutput
 {
@@ -51,12 +54,29 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	float2 offset = Size * float2((input.UV.x - 0.5f) * 2.0f, -(input.UV.y - 0.5f) * 2.0f);
 
 	if (LineBillboard) {
-		float3 NextPos = position + normalize(input.Direction) * Size.y;
+		// nice tryÇ≈ÇÕÇ†Ç¡ÇΩÇ™Ç±ÇÃï˚ñ@Ç≈ÇÕñ≥óùÅBéÀâeÇ≥ÇπÇÈÇµÇ©Ç»Ç¢
+		/*float3 NextPos = position + normalize(input.Direction) * Size.y;
 		float3 ToCamera = normalize(CameraPosition - position);
 		float3 ToDir = normalize(NextPos - position);
 		float3 side = normalize(cross(ToCamera ,ToDir));
-		
-		position += offset.x * side + offset.y * ToDir;
+		position += offset.x * side + offset.y * ToDir;*/
+
+		// Move the vertex along the camera's 'plane' to its corner
+		//float3 NextPos = position + normalize(input.Direction) * Size.y;
+		//float3 ToDir = normalize(NextPos - position);
+
+		float4 inpos = input.Position;
+		float4 indir = input.DirectedPosition;
+
+		float3 startPos = input.Position.xyz / input.Position.w;
+		float3 endPos = input.DirectedPosition.xyz / input.DirectedPosition.w;
+		float3 lineDir = normalize( endPos - startPos );
+		//float3 pvUp = normalize(cross(ProjectedVector, cross(Up, Side)));
+		float3 pvUp = normalize(cross(lineDir , cross(Up, Side)));
+
+		//position += offset.x * Size.x * ProjectedVector + offset.y * Size.y * pvUp;
+		//position += offset.x * Size.x * float3(lineDir2D, 0) + offset.y * Size.y * pvUp;
+		position += offset.x * lineDir + offset.y * pvUp;
 	} else {
 		position += offset.x * Side + offset.y * Up;
 	}

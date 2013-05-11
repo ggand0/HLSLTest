@@ -15,6 +15,7 @@ namespace HLSLTest
 		float rotation;
 		float speed;
 		float startTime;
+		Vector3 directedPosition;
 
 		// Starting position of that particle (t = 0)
 		public Vector3 StartPosition
@@ -52,6 +53,12 @@ namespace HLSLTest
 			get { return startTime; }
 			set { startTime = value; }
 		}
+		// laser billboard用
+		public Vector3 DirectedPosition
+		{
+			get { return directedPosition; }
+			set { directedPosition = value; }
+		}
 		
 
 		// Vertex declaration
@@ -78,7 +85,9 @@ namespace HLSLTest
 				// Movement speed
 					new VertexElement(36, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 2),
 				// Start time
-					new VertexElement(40, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 3)
+					new VertexElement(40, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 3),
+				// direction
+				new VertexElement(44, VertexElementFormat.Vector3, VertexElementUsage.Position, 1)
 			);
 		VertexDeclaration IVertexType.VertexDeclaration
 		{
@@ -90,13 +99,14 @@ namespace HLSLTest
 		public ParticleVertex(Vector3 StartPosition, Vector2 UV, Vector3 Direction, float Speed, float StartTime)
 			:this(StartPosition, UV, Direction, 0, Speed, StartTime)
 		{
-			this.startPosition = StartPosition;
-			this.uv = UV;
-			this.direction = Direction;
-			this.speed = Speed;
-			this.startTime = StartTime;
+
 		}/**/
 		public ParticleVertex(Vector3 StartPosition, Vector2 UV, Vector3 Direction, float rotation, float Speed, float StartTime)
+			: this(StartPosition, UV, Direction, 0, Speed, StartTime, StartPosition)
+		{
+
+		}
+		public ParticleVertex(Vector3 StartPosition, Vector2 UV, Vector3 Direction, float rotation, float Speed, float StartTime, Vector3 directedPosition)
 		{
 			this.startPosition = StartPosition;
 			this.uv = UV;
@@ -104,6 +114,7 @@ namespace HLSLTest
 			this.rotation = rotation;
 			this.speed = Speed;
 			this.startTime = StartTime;
+			this.directedPosition = directedPosition;
 		}
 	}
 }
