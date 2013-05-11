@@ -108,14 +108,20 @@ namespace HLSLTest
 			eps = new ExplosionParticleEmitter(device, content, Vector3.Zero, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
-			beamEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f);
+
+			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Mercury\\Beam"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
+			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Laser"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
+
+
 			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
 
 			// Generate lasers
 			lbs = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
-			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3), start, end);/**/
+
+			//lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3), start, end);
+			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), start, end);
 			s = content.Load<Model>("Models\\Ship"); e = content.Load<Model>("Models\\Ship");
 
 
@@ -171,9 +177,9 @@ namespace HLSLTest
 				new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
 				new PointLight(new Vector3(0, 500, 0), Color.White * .85f, 2000),
 
-				new PointLight(new Vector3(-100, 100, 0), Color.Red * .85f,	2000),
+				/*new PointLight(new Vector3(-100, 100, 0), Color.Red * .85f,	2000),
 				new PointLight(new Vector3(100, 100, 0), Color.Blue * .85f,	2000),
-				new PointLight(new Vector3(0, 100, 100), Color.Green * .85f, 2000),/**/
+				new PointLight(new Vector3(0, 100, 100), Color.Green * .85f, 2000),*/
 				/*new PointLight(new Vector3(-1000, 100, 0), Color.Red * .85f,	2000),
 				new PointLight(new Vector3(1000, 1000, 0), Color.Blue * .85f,	2000),
 				new PointLight(new Vector3(0, 1000, 1000), Color.Green * .85f, 2000),*/
@@ -287,7 +293,7 @@ namespace HLSLTest
 			beamEmitter.Update();
 
 			// Other effects
-			lb.Update(camera.Up, camera.Right, camera.CameraPosition);
+			//lb.Update(camera.Up, camera.Right, camera.CameraPosition);
 			discoidEffect.Update(gameTime);
 		}
 
@@ -426,7 +432,7 @@ namespace HLSLTest
 			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//basicEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+			//beamEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
 
 			// test effect
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
@@ -434,7 +440,8 @@ namespace HLSLTest
 
 
 			// laser test
-			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
+			//BoundingBoxRenderer.Render(new BoundingBox(
+			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 			renderer.Draw(gameTime);
 
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection);

@@ -22,12 +22,13 @@ namespace HLSLTest
 
 		private static readonly int FREQUENCY = 300;
 		private ContentManager content;
-		private GraphicsDevice graphics;
+		private GraphicsDevice graphicsDevice;
 
 		private Matrix Scale;
 		private ExplosionParticleEmitter explosion, spark, flare;
 		//private List<ExplosionParticleEmitter> emitters;
 		public List<ExplosionParticleEmitter> emitters;
+		private EnergyRingEffect shockWaveEffect;
 
 		private float speed;
 		public bool Repeat { get; private set; }
@@ -41,6 +42,9 @@ namespace HLSLTest
 			//explosion.Update();
 			foreach (ExplosionParticleEmitter e in emitters) {
 				e.Update();
+			}
+			if (shockWaveEffect != null) {
+				shockWaveEffect.Update(gameTime);
 			}
 
 			if (count > FREQUENCY) {
@@ -66,8 +70,16 @@ namespace HLSLTest
  			 base.Draw(gameTime, camera);
 			 //explosion.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			 foreach (ExplosionParticleEmitter e in emitters) {
-				 e.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+				 e.Draw(camera.View, camera.Projection, camera.Position, camera.Up, camera.Right);
 			 }
+			if (shockWaveEffect != null) {
+				//shockWaveEffect.Draw(gameTime, camera.View, camera.Projection, camera.Direction, camera.Up, camera.Right);
+			}
+
+			// Draw BoundingBox for debug
+			 int size = 25;
+			 BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-size / 2.0f, -size / 2.0f, -size / 2.0f) + Position, new Vector3(size / 2.0f, size / 2.0f, size / 2.0f) + Position)
+				 , graphicsDevice, camera.View, camera.Projection, Color.White);
 		}
 
 		public void Run()
@@ -103,7 +115,7 @@ namespace HLSLTest
 			Vector3 position, Vector2 size, bool repeat)
 		{
 			this.content = content;
-			this.graphics = graphics;
+			this.graphicsDevice = graphics;
 			this.Position = position;
 			this.Repeat = repeat;
 
@@ -139,7 +151,7 @@ namespace HLSLTest
 			Vector3 position, Vector2 size, bool repeat, string filePath, bool run)
 		{
 			this.content = content;
-			this.graphics = graphics;
+			this.graphicsDevice = graphics;
 			this.Position = position;
 			this.Repeat = repeat;
 			emitters = new List<ExplosionParticleEmitter>();

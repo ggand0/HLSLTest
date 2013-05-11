@@ -14,6 +14,7 @@ namespace HLSLTest
 		public Vector3 Up { get; protected set; }
 		public Vector3 Right { get; protected set; }
 		public Vector3 Direction { get; protected set; }
+		public Vector3 Position { get; set; }
 
 		protected GraphicsDevice GraphicsDevice { get; set; }
 		/// <summary>

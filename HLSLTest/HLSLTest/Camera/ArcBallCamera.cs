@@ -26,7 +26,7 @@ namespace HLSLTest
 		//public Matrix View { get; set; }
 		//public Matrix Projection { get; set; }
 		// Current camera properties
-		public Vector3 Position { get; set; }
+		//public Vector3 Position { get; set; }
 		public Vector3 Velocity { get; set; }
 		// Chased object properties
 		public Vector3 ChasePosition { get; set; }

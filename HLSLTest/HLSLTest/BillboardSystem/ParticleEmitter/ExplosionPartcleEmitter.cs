@@ -113,7 +113,7 @@ namespace HLSLTest
 				UpdateParticles();
 			}
 		}
-		public override void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(vertexBuffers);

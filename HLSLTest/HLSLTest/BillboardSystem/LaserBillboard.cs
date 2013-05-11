@@ -12,8 +12,8 @@ namespace HLSLTest
 	{
 		// Vertex buffer and index buffer, particle
 		// and index arrays
-		VertexBuffer verts;
-		IndexBuffer ints;
+		VertexBuffer vertexBuffers;
+		IndexBuffer indexBuffers;
 		VertexPositionTexture[] particles;
 		int[] indices;
 		// Billboard settings
@@ -64,15 +64,15 @@ namespace HLSLTest
 			}
 
 			// Create and set the vertex buffer
-			verts = new VertexBuffer(graphicsDevice,
+			vertexBuffers = new VertexBuffer(graphicsDevice,
 				typeof(VertexPositionTexture),
 				nBillboards * 4, BufferUsage.WriteOnly);
-			verts.SetData<VertexPositionTexture>(particles);
+			vertexBuffers.SetData<VertexPositionTexture>(particles);
 			// Create and set the index buffer
-			ints = new IndexBuffer(graphicsDevice,
+			indexBuffers = new IndexBuffer(graphicsDevice,
 			IndexElementSize.ThirtyTwoBits,
 			nBillboards * 6, BufferUsage.WriteOnly);
-			ints.SetData<int>(indices);
+			indexBuffers.SetData<int>(indices);
 		}
 
 		static float Rad2Deg()
@@ -147,7 +147,7 @@ namespace HLSLTest
 			//effect.Parameters["ProjectedVector"].SetValue(new Vector4(AxisProjectedVectorAxisPlane(Up, (Start - End), debug), 1));
 			effect.Parameters["ProjectedVector"].SetValue(v3);// ktkr!!!!!!!!!!!!!!!!!!!!!!
 			effect.Parameters["CenterNormal"].SetValue(Vector3.Cross(Up, Right));
-
+			Vector3 deb = Vector3.Normalize(Vector3.Cross(v3, Vector3.Cross(Up, Right)));//pvUp
 
 			effect.Parameters["World"].SetValue(World);
 			effect.Parameters["theta"].SetValue(45f);
@@ -158,6 +158,21 @@ namespace HLSLTest
 
 		}
 
+		protected void UpdateParticles()
+		{
+			//float now = (float)(DateTime.Now - start).TotalSeconds;
+			//int startIndex = activeStart;
+			//int end = activeParticlesNum;
+
+			// For each particle marked as active...
+			for (int i = 0; i < nBillboards * 4; i++) {
+				particles[i].Position += Vector3.Normalize(End - Start) * 3;
+			}
+
+			// Update the vertex and index buffers
+			vertexBuffers.SetData<VertexPositionTexture>(particles);
+			indexBuffers.SetData<int>(indices);
+		}
 		Matrix World;
 		public void Update(Vector3 Up,
 			Vector3 Right, Vector3 CameraPosition)
@@ -182,12 +197,14 @@ namespace HLSLTest
 
 			//World = Matrix.CreateFromAxisAngle(toCamera, 10);
 			//World.Translation = Vector3.Zero;
+			UpdateParticles();
+
 		}
 		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
 		{
 			// Set the vertex and index buffer to the graphics card
-			graphicsDevice.SetVertexBuffer(verts);
-			graphicsDevice.Indices = ints;
+			graphicsDevice.SetVertexBuffer(vertexBuffers);
+			graphicsDevice.Indices = indexBuffers;
 
 			setEffectParameters(View, Projection, Up, Right, CameraPosition);
 
@@ -214,7 +231,9 @@ namespace HLSLTest
 		}
 		void drawOpaquePixels()
 		{
-			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			//graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.DepthStencilState = DepthStencilState.None;
+			graphicsDevice.RasterizerState = RasterizerState.CullNone;
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(true);
 			drawBillboards();

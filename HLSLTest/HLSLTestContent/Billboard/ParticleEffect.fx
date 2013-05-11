@@ -1,3 +1,4 @@
+float4x4 Wordld;
 float4x4 View;
 float4x4 Projection;
 texture ParticleTexture;
@@ -15,6 +16,9 @@ float FadeInTime;
 bool AttachColor;
 float4 ParticleColor;
 
+bool FaceCamera = true;
+bool LineBillboard = false;
+float3 CameraPosition;
 
 struct VertexShaderInput
 {
@@ -28,6 +32,7 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
 	float4 Position : POSITION0;
+	//float4 WorldPosition : TEXCOORD2;
 	float2 UV : TEXCOORD0;
 	float2 RelativeTime : TEXCOORD1;
 	float Rotation : COLOR0;
@@ -38,9 +43,23 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     VertexShaderOutput output;
 
 	float3 position = input.Position;
+
+
+	
+
 	// Move to billboard corner
 	float2 offset = Size * float2((input.UV.x - 0.5f) * 2.0f, -(input.UV.y - 0.5f) * 2.0f);
-	position += offset.x * Side + offset.y * Up;
+
+	if (LineBillboard) {
+		float3 NextPos = position + normalize(input.Direction) * Size.y;
+		float3 ToCamera = normalize(CameraPosition - position);
+		float3 ToDir = normalize(NextPos - position);
+		float3 side = normalize(cross(ToCamera ,ToDir));
+		
+		position += offset.x * side + offset.y * ToDir;
+	} else {
+		position += offset.x * Side + offset.y * Up;
+	}
 
 	// Determine how long this particle has been alive
 	float relativeTime = (Time - input.StartTime);
@@ -50,6 +69,11 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	position += (input.Direction * input.Speed + Wind) * relativeTime;
 
 	// Transform the final position by the view and projection matrices
+	/*if (FaceCamera) {
+		output.Position = mul(float4(position, 1), mul(View, Projection));
+	} else {
+		output.Position = mul(input.Position, mul(View, Projection));
+	}*/
 	output.Position = mul(float4(position, 1), mul(View, Projection));
 	output.UV = input.UV;
 	output.Rotation = (input.Rotation + 3.14159) / 6.283185;
@@ -62,7 +86,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     // Ignore particles that aren't active
 	clip(input.RelativeTime);
 	
-
+	/*if (!FaceCamera) {
+		float4 color = tex2D(texSampler, input.UV);
+		return color;
+	}*/
 	float r = (input.Rotation * 6.283185) - 3.141593;
 	float c = cos(r);
 	float s = sin(r);

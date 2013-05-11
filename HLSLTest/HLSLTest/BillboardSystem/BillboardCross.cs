@@ -12,8 +12,8 @@ namespace HLSLTest
 	{
 		// Vertex buffer and index buffer, particle
 		// and index arrays
-		VertexBuffer verts;
-		IndexBuffer ints;
+		VertexBuffer vertexBuffer;
+		IndexBuffer indexBuffer;
 		VertexPositionTexture[] particles;
 		int[] indices;
 		// Billboard settings
@@ -77,15 +77,15 @@ namespace HLSLTest
 			}
 
 			// Create and set the vertex buffer
-			verts = new VertexBuffer(graphicsDevice,
+			vertexBuffer = new VertexBuffer(graphicsDevice,
 				typeof(VertexPositionTexture),
 				nBillboards * 4 * crossBillboardNum, BufferUsage.WriteOnly);
-			verts.SetData<VertexPositionTexture>(particles);
+			vertexBuffer.SetData<VertexPositionTexture>(particles);
 			// Create and set the index buffer
-			ints = new IndexBuffer(graphicsDevice,
+			indexBuffer = new IndexBuffer(graphicsDevice,
 			IndexElementSize.ThirtyTwoBits,
 			nBillboards * 6 * crossBillboardNum, BufferUsage.WriteOnly);
-			ints.SetData<int>(indices);
+			indexBuffer.SetData<int>(indices);
 		}
 
 		void setEffectParameters(Matrix View, Matrix Projection)//, Vector3 Up, Vector3 Right)
@@ -97,8 +97,8 @@ namespace HLSLTest
 		public void Draw(Matrix View, Matrix Projection)//, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
-			graphicsDevice.SetVertexBuffer(verts);
-			graphicsDevice.Indices = ints;
+			graphicsDevice.SetVertexBuffer(vertexBuffer);
+			graphicsDevice.Indices = indexBuffer;
 
 			setEffectParameters(View, Projection);
 

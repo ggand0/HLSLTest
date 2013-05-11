@@ -30,13 +30,15 @@ namespace HLSLTest
 		public Texture2D Texture { get; private set; }
 		public Color ParticleColor { get; set; }
 		public BlendState blendState { get; set; }
+		public BillboardMode Mode { get; private set; }
 
 		/// <summary>
 		/// Position of this emitter.
 		/// </summary>
 		public Vector3 Position { get; set; }
 		public int EmitType { get; set; }
-		public float Rotation { get; set; }
+		Matrix world;
+		private bool hasInitializedCameraPos = false;
 
 
 		// Queue variables
@@ -96,7 +98,7 @@ namespace HLSLTest
 					dir.Normalize();
 					Vector3 velocity = dir * speed;
 
-					// calc theta
+					// calc theta (old)
 					Viewport view = graphicsDevice.Viewport;
 					Vector3 projectedDir = view.Project(Position + dir*10, camera.Projection, camera.View, Matrix.Identity);
 					Vector3 projectedPosition = view.Project(Position, camera.Projection, camera.View, Matrix.Identity);
@@ -112,15 +114,27 @@ namespace HLSLTest
 					var ang1 = (float)Math.Atan2(v1.X, v1.Y);
 					var ang2 = (float)Math.Atan2(v2.X, v2.Y);
 					var theta = ang1 - ang2;
-
 					var ang =  MathHelper.ToDegrees(theta);
+
+
+					// calc theta (new)
+					/*world = Matrix.Identity;
+					Vector3 toCam = Vector3.Normalize(camera.Position - Position);
+					world = Matrix.CreateTranslation(Position);
+					world.Forward = dir;
+					world.Right = Vector3.Cross(dir, toCam);
+					world.Up = Vector3.Cross(world.Right, world.Up);
+					world.Up.Normalize();*/
+
 					/*Matrix w = Matrix.Identity; //w.Up = Vector3.Cross(Up, Right);
 					w.Up = Up; w.Right = -Right; w.Forward = Vector3.Normalize(Vector3.Cross(Up, Right));*/
 
 
 					//AddParticle(Position, velocity, 90, speed);
 					//AddParticle(Position, velocity, MathHelper.ToRadians(90), speed); // ok
-					AddParticle(Position, velocity, theta, speed);
+
+					//AddParticle(Position, velocity, theta, speed);
+					AddParticle(Position, velocity, 0, speed);
 				}
 			}
 		}
@@ -144,23 +158,73 @@ namespace HLSLTest
 		protected void GenerateParticles()
 		{
 			// Create particle and index arrays
-			particles = new ParticleVertex[ParticleNum * 4];
-			indices = new int[ParticleNum * 6];
-			Vector3 z = Vector3.Zero;
-			int x = 0;
+			if (Mode == BillboardMode.Cross) {
+				int crossBillboardNum = 2;
+				Vector3 z = Vector3.Zero;
+				particles = new ParticleVertex[ParticleNum * crossBillboardNum * 4];
+				indices = new int[ParticleNum * crossBillboardNum * 6];
 
-			// Initialize particle settings and fill index and vertex arrays
-			for (int i = 0; i < ParticleNum * 4; i += 4) {
-				particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0),	z, 0, -1);
-				particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1),	z, 0, -1);
-				particles[i + 2] = new ParticleVertex(z, new Vector2(1, 1), z, 0, -1);
-				particles[i + 3] = new ParticleVertex(z, new Vector2(1, 0), z, 0, -1);
-				indices[x++] = i + 0;
-				indices[x++] = i + 3;
-				indices[x++] = i + 2;
-				indices[x++] = i + 2;
-				indices[x++] = i + 1;
-				indices[x++] = i + 0;
+				int x = 0;
+				// For each billboard...
+				for (int i = 0; i < ParticleNum * 4 * crossBillboardNum; i += 4 * crossBillboardNum) {
+					//Vector3 pos = particlePositions[i / (4 * crossBillboardNum)];
+					Vector3 pos = Vector3.Zero;
+					Vector3 offsetX = new Vector3(ParticleSize.X / 2.0f,
+						ParticleSize.Y / 2.0f, 0);
+					Vector3 offsetZ = new Vector3(0, offsetX.Y, offsetX.X);
+
+					// Add 4 vertices per rectangle
+					particles[i + 0] = new ParticleVertex(pos +
+						new Vector3(-1, 1, 0) * offsetX, new Vector2(0, 0), z, 0, -1);
+					particles[i + 1] = new ParticleVertex(pos +
+						new Vector3(-1, -1, 0) * offsetX, new Vector2(0, 1), z, 0, -1);
+					particles[i + 2] = new ParticleVertex(pos +
+						new Vector3(1, -1, 0) * offsetX, new Vector2(1, 1), z, 0, -1);
+					particles[i + 3] = new ParticleVertex(pos +
+						new Vector3(1, 1, 0) * offsetX, new Vector2(1, 0), z, 0, -1);
+					particles[i + 4] = new ParticleVertex(pos +
+						new Vector3(0, 1, -1) * offsetZ, new Vector2(0, 0), z, 0, -1);
+					particles[i + 5] = new ParticleVertex(pos +
+						new Vector3(0, -1, -1) * offsetZ, new Vector2(0, 1), z, 0, -1);
+					particles[i + 6] = new ParticleVertex(pos +
+						new Vector3(0, -1, 1) * offsetZ, new Vector2(1, 1), z, 0, -1);
+					particles[i + 7] = new ParticleVertex(pos +
+						new Vector3(0, 1, 1) * offsetZ, new Vector2(1, 0), z, 0, -1);
+
+
+					// Add 6 indices per rectangle to form four triangles
+					indices[x++] = i + 0;
+					indices[x++] = i + 3;
+					indices[x++] = i + 2;
+					indices[x++] = i + 2;
+					indices[x++] = i + 1;
+					indices[x++] = i + 0;
+					indices[x++] = i + 0 + 4;
+					indices[x++] = i + 3 + 4;
+					indices[x++] = i + 2 + 4;
+					indices[x++] = i + 2 + 4;
+					indices[x++] = i + 1 + 4;
+					indices[x++] = i + 0 + 4;
+				}
+			} else {
+				particles = new ParticleVertex[ParticleNum * 4];
+				indices = new int[ParticleNum * 6];
+				Vector3 z = Vector3.Zero;
+				int x = 0;
+
+				// Initialize particle settings and fill index and vertex arrays
+				for (int i = 0; i < ParticleNum * 4; i += 4) {
+					particles[i + 0] = new ParticleVertex(z, new Vector2(0, 0), z, 0, -1);
+					particles[i + 1] = new ParticleVertex(z, new Vector2(0, 1), z, 0, -1);
+					particles[i + 2] = new ParticleVertex(z, new Vector2(1, 1), z, 0, -1);
+					particles[i + 3] = new ParticleVertex(z, new Vector2(1, 0), z, 0, -1);
+					indices[x++] = i + 0;
+					indices[x++] = i + 3;
+					indices[x++] = i + 2;
+					indices[x++] = i + 2;
+					indices[x++] = i + 1;
+					indices[x++] = i + 0;
+				}
 			}
 		}
 		protected virtual void MoveParticle()
@@ -201,25 +265,49 @@ namespace HLSLTest
 		}
 		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed)
 		{
-			// If there are no available particles, give up
-			if (activeParticlesNum + 4 == ParticleNum * 4) {
-				return;
-			}
+			if (Mode == BillboardMode.Cross) {
+				int billboardCrossNum = 2;
+				// If there are no available particles, give up
+				if (activeParticlesNum + 2 * billboardCrossNum == ParticleNum * 2 * billboardCrossNum) {
+					return;
+				}
 
-			// Determine the index at which this particle should be created
-			int index = OffsetIndex(activeStart, activeParticlesNum);
-			activeParticlesNum += 4;
+				// Determine the index at which this particle should be created
+				int index = OffsetIndex(activeStart, activeParticlesNum);
+				activeParticlesNum += 2 * billboardCrossNum;
 
-			// Determine the start time
-			float startTime = (float)(DateTime.Now - start).TotalSeconds;
+				// Determine the start time
+				float startTime = (float)(DateTime.Now - start).TotalSeconds;
 
-			// Set the particle settings to each of the particle's vertices
-			for (int i = 0; i < 4; i++) {
-				particles[index + i].StartPosition = Position;
-				particles[index + i].Direction = Direction;
-				particles[index + i].Rotation = rotation;
-				particles[index + i].Speed = Speed;
-				particles[index + i].StartTime = startTime;
+				// Set the particle settings to each of the particle's vertices
+				for (int i = 0; i < 2 * billboardCrossNum; i++) {
+					particles[index + i].StartPosition = Position;
+					particles[index + i].Direction = Direction;
+					particles[index + i].Rotation = rotation;
+					particles[index + i].Speed = Speed;
+					particles[index + i].StartTime = startTime;
+				}
+			} else {
+				// If there are no available particles, give up
+				if (activeParticlesNum + 4 == ParticleNum * 4) {
+					return;
+				}
+
+				// Determine the index at which this particle should be created
+				int index = OffsetIndex(activeStart, activeParticlesNum);
+				activeParticlesNum += 4;
+
+				// Determine the start time
+				float startTime = (float)(DateTime.Now - start).TotalSeconds;
+
+				// Set the particle settings to each of the particle's vertices
+				for (int i = 0; i < 4; i++) {
+					particles[index + i].StartPosition = Position;
+					particles[index + i].Direction = Direction;
+					particles[index + i].Rotation = rotation;
+					particles[index + i].Speed = Speed;
+					particles[index + i].StartTime = startTime;
+				}
 			}
 		}
 
@@ -232,7 +320,7 @@ namespace HLSLTest
 			MoveParticle();
 			UpdateParticles();
 		}
-		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public virtual void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(vertexBuffers);
@@ -245,8 +333,29 @@ namespace HLSLTest
 			effect.Parameters["Time"].SetValue((float)(DateTime.Now - start).TotalSeconds);
 			effect.Parameters["Lifespan"].SetValue(Lifespan);
 			effect.Parameters["Size"].SetValue(ParticleSize / 2f);
-			effect.Parameters["Up"].SetValue(Up);
-			effect.Parameters["Side"].SetValue(Right);
+			if (this.Mode == BillboardMode.Spherical) {
+				effect.Parameters["Up"].SetValue(Up);
+				effect.Parameters["Side"].SetValue(Right);
+			} else if (Mode == BillboardMode.Cylindrical) {
+				effect.Parameters["Up"].SetValue(Vector3.Up);
+				effect.Parameters["Side"].SetValue(Right);
+				effect.Parameters["CameraPosition"].SetValue(CameraPosition);//new Vector4(CameraPosition, 1));
+
+				//effect.Parameters["FaceCamera"].SetValue(false);
+				//effect.Parameters["World"].SetValue(world);
+			} else if (Mode == BillboardMode.Cross) {
+				effect.Parameters["FaceCamera"].SetValue(false);
+			} else if (Mode == BillboardMode.Line) {
+
+				effect.Parameters["Up"].SetValue(Up);
+				effect.Parameters["Side"].SetValue(Right);
+				//if (!hasInitializedCameraPos) {
+					effect.Parameters["CameraPosition"].SetValue(CameraPosition);
+					hasInitializedCameraPos = true;
+				
+				effect.Parameters["LineBillboard"].SetValue(true);
+			}
+			
 			effect.Parameters["FadeInTime"].SetValue(FadeInTime);
 
 			effect.Parameters["ParticleColor"].SetValue(ParticleColor.ToVector4());
@@ -277,14 +386,28 @@ namespace HLSLTest
 
 		public void Initialize()
 		{
-			// Create vertex and index buffers to accomodate all particles
-			vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
-				ParticleNum * 4, BufferUsage.WriteOnly);
-			indexBuffers = new IndexBuffer(graphicsDevice,
-				IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
-				BufferUsage.WriteOnly);
+			if (Mode == BillboardMode.Cross) {
+				int crossBillboardNum = 2;
+				// Create and set the vertex buffer
+				vertexBuffers = new VertexBuffer(graphicsDevice,
+					typeof(ParticleVertex),
+					ParticleNum * 4 * crossBillboardNum, BufferUsage.WriteOnly);
+				//vertexBuffers.SetData<ParticleVertex>(particles);
+				// Create and set the index buffer
+				indexBuffers = new IndexBuffer(graphicsDevice,
+				IndexElementSize.ThirtyTwoBits,
+				ParticleNum * 6 * crossBillboardNum, BufferUsage.WriteOnly);
+				//indexBuffers.SetData<int>(indices);
+			} else {
+				// Create vertex and index buffers to accomodate all particles
+				vertexBuffers = new VertexBuffer(graphicsDevice, typeof(ParticleVertex),
+					ParticleNum * 4, BufferUsage.WriteOnly);
+				indexBuffers = new IndexBuffer(graphicsDevice,
+					IndexElementSize.ThirtyTwoBits, ParticleNum * 6,
+					BufferUsage.WriteOnly);
+				
+			}
 			GenerateParticles();
-			
 			start = DateTime.Now;
 
 			this.emitNumPerFrame = 10;
@@ -295,11 +418,20 @@ namespace HLSLTest
 
 		#region Constructors
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position , int particleNum,
-			Vector2 particleSize, float lifespan, float FadeInTime)
-			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime, true)
+			Vector2 particleSize, float lifespan, float fadeInTime)
+			:this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, true)
 		{
 		}
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float fadeInTime, bool initialize)
+			: this(graphicsDevice, content, BillboardMode.Spherical, texture, position, particleNum, particleSize, lifespan, fadeInTime, initialize)
+		{
+		}
+		/// <summary>
+		/// BillboardModeをパラメータに含めたコンストラクタ。
+		/// 試験用としてコンストラクタを分けたが後で上とまとめても良い。
+		/// </summary>
+		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, BillboardMode mode, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float fadeInTime, bool initialize)
 		{
 			this.ParticleNum = particleNum;
@@ -309,6 +441,7 @@ namespace HLSLTest
 			this.Texture = texture;
 			this.Position = position;
 			this.FadeInTime = fadeInTime;
+			this.Mode = mode;
 
 			effect = content.Load<Effect>("Billboard\\ParticleEffect");
 

@@ -23,7 +23,7 @@ namespace HLSLTest
 		ParticleEmitter basicEmitter, beamEmitter;
 		EnergyRingEffect discoidEffect;
 		EnergyShieldEffect shieldEffect;
-		ExplosionEffect explosionTest, smallExplosion;
+		ExplosionEffect explosionTest, smallExplosion, bigExplosion;
 		Planet planet;
 		Star star;
 		List<Object> asteroids;
@@ -113,6 +113,7 @@ namespace HLSLTest
 			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
 			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
 			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
+			bigExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion1.xml", true);
 
 			// pre-load
 			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
@@ -128,15 +129,17 @@ namespace HLSLTest
 					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false));
 					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false, true, "Xml\\Particle\\particleExplosion0.xml"));
 
+					//ExplosionEffect e = new ExplosionEffect(content, device, o.Position, false, setting);
+					//effectManager.Add(e);
+
+
+
 					ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();// positionは与えなおさないとｗ
 					e.Position = o.Position;
 					foreach (ExplosionParticleEmitter ep in e.emitters) {
 						ep.Position = e.Position;// もう既にparticlesは初期化されてしまってるので手遅れｗｗ
 					}
-					e.Run();
-					effectManager.Add(e);
-
-					//ExplosionEffect e = new ExplosionEffect(content, device, o.Position, false, setting);
+					//e.Run();
 					//effectManager.Add(e);
 				}
 			}
@@ -188,6 +191,7 @@ namespace HLSLTest
 			discoidEffect.Update(gameTime);
 			//shieldEffect.Update(gameTime);
 			explosionTest.Update(gameTime);
+			bigExplosion.Update(gameTime);
 
 			Collide();
 
@@ -222,6 +226,7 @@ namespace HLSLTest
 			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
+			bigExplosion.Draw(gameTime, camera);
 
 			// Grid
 			if (displayGrid) {

@@ -9,6 +9,13 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
+	public enum BillboardMode
+	{
+		Cylindrical,
+		Spherical,
+		Cross,
+		Line,
+	};
 	public class BillboardSystem
 	{
 		// Vertex buffer and index buffer, particle and index arrays
@@ -35,11 +42,7 @@ namespace HLSLTest
 
 		
 		public bool EnsureOcclusion { get; set; }
-		public enum BillboardMode
-		{
-			Cylindrical, 
-			Spherical
-		};
+		
 		public BillboardMode Mode { get; set; }
 
 
