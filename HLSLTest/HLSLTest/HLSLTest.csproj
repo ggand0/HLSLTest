@@ -82,6 +82,11 @@
   <ItemGroup>
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
+    <Compile Include="Entity\ArmedSatellite.cs" />
+    <Compile Include="Entity\BillboardBullet.cs" />
+    <Compile Include="Entity\EntityBullet.cs" />
+    <Compile Include="Entity\IBullet.cs" />
+    <Compile Include="Entity\Renderable.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
@@ -118,6 +123,7 @@
     <None Include="Scene\MenuScene.cs" />
     <None Include="Scene\PauseScene.cs" />
     <Compile Include="Scene\Level2.cs" />
+    <Compile Include="Scene\Level3.cs" />
     <Compile Include="Scene\Scene.cs" />
     <Compile Include="Terrain\HeightMap.cs" />
     <Compile Include="Terrain\PerlinGenerator.cs" />
@@ -138,7 +144,7 @@
     <Compile Include="Misc\KeyInput.cs" />
     <Compile Include="Graphics\Material.cs" />
     <Compile Include="Graphics\MeshTag.cs" />
-    <Compile Include="Object.cs" />
+    <Compile Include="Entity\Object.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\FlameParticleEmitter.cs" />
     <Compile Include="BillboardSystem\LaserBillboard.cs" />
     <Compile Include="BillboardSystem\LoadParticles.cs" />

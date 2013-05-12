@@ -16,13 +16,13 @@ namespace HLSLTest
 		Cross,
 		Line,
 	};
-	public class BillboardSystem
+	public class BillboardSystem : Drawable
 	{
 		// Vertex buffer and index buffer, particle and index arrays
 		protected VertexBuffer vertexBuffers;
 		protected IndexBuffer indexBuffers;
-		private VertexPositionTexture[] particles;
-		private int[] indices;
+		protected VertexPositionTexture[] particles;
+		protected int[] indices;
 
 		// GraphicsDevice and Effect
 		protected GraphicsDevice graphicsDevice;
@@ -156,7 +156,10 @@ namespace HLSLTest
 				}
 			}*/
 		}
-		public virtual void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public override void Update(GameTime gameTime)
+		{
+		}
+		public override void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(vertexBuffers);

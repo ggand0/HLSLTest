@@ -30,6 +30,9 @@ namespace HLSLTest
 			= new Vector3(-2000, 0, 2000);
 			//= new Vector3(-200, 500, 200);
 
+		//public List<EntityBullet> Bullets { get; protected set; }
+		public List<Drawable> Bullets { get; protected set; }
+
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
 		/// spriteBatchがDeviceにした変更を戻すのに使う
@@ -48,6 +51,7 @@ namespace HLSLTest
 		{
 			Models = new List<Object>();
 			effectManager = new EffectManager();
+			Bullets = new List<Drawable>();
 
 			EnergyShieldEffect.level = this;
 			BoundingSphereRenderer.level = this;

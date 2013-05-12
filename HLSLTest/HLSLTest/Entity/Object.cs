@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class Object : IRenderable
+	public class Object : Drawable, IRenderable
 	{
 		#region Fields and Properties
 		public static Game1 game;
@@ -90,7 +90,7 @@ namespace HLSLTest
 				}
 			}
 		}
-		public bool IsActive { get; set; }
+		//public bool IsActive { get; set; }
 		public float Scale;
 		public Vector3 ScaleVector { get; set; }
 
@@ -234,7 +234,7 @@ namespace HLSLTest
 
 			return targetSphere.Intersects(mySphere);
 		}
-		public virtual void Update(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
 			//UpdateWorldMatrix();
 			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
@@ -339,7 +339,7 @@ namespace HLSLTest
 		/// <summary>
 		/// カスタムエフェクトを使用したDraw
 		/// </summary>
-		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);

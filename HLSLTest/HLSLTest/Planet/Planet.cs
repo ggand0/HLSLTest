@@ -74,6 +74,7 @@ namespace HLSLTest
 		public Vector3 Position { get; protected set; }
 		public Vector3 StarPosition { get; protected set; }
 		public bool IsActive { get; set; }
+		public float revolutionAngle { get; set; }
 
 
 		public Planet(GraphicsDevice graphics, ContentManager content)
@@ -447,7 +448,12 @@ namespace HLSLTest
 				roll += rotationSpeed;
 			}
 			if (revolution) {
-				Position += new Vector3((float)Math.Cos(revolutionSpeed), 0, (float)Math.Sign(revolutionSpeed));
+				revolutionSpeed = 0.2f;
+				revolutionAngle += MathHelper.ToRadians(revolutionSpeed);
+				Vector3 velocity = new Vector3((float)Math.Cos(revolutionAngle), 0, (float)Math.Sin(revolutionAngle));
+				Vector3 tmp = StarPosition + velocity * 3000;
+
+				Position = tmp;
 			}
 		}
 	}

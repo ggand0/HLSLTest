@@ -340,6 +340,16 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </None>
+    <Compile Include="Models\ISS.fbx">
+      <Name>ISS</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\pea_proj.x">
+      <Name>pea_proj</Name>
+      <Importer>XImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <None Include="Planets\Clouds\Clouds.fx">
       <Name>Clouds</Name>
       <Importer>EffectImporter</Importer>

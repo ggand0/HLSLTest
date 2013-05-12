@@ -82,7 +82,8 @@ namespace HLSLTest
 			Levels.Add(new Level0(null));
 			Levels.Add(new Level1(null));
 			Levels.Add(new Level2(null));
-			LevelNum = 2;
+			Levels.Add(new Level3(null));
+			LevelNum = 3;
 
 			// 最初に表示するシーンを追加
 			//PushScene(new Level0(null));
