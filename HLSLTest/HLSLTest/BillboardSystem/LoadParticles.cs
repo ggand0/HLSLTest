@@ -88,6 +88,8 @@ namespace HLSLTest
 					return new Vector2(float.Parse(value), float.Parse(value));
 				case "Texture2D":
 					return content.Load<Texture2D>(value);
+				case "BillboardMode":
+					return (BillboardMode)Enum.Parse(typeof(BillboardMode), value);
 				default:
 					return value;
 			}
@@ -144,7 +146,12 @@ namespace HLSLTest
 
 							object[] test = new object[] { graphicsDevice, content, position, arguments[3] };
 							//ParticleEmitter emitter = (ParticleEmitter)Activator.CreateInstance(emitterType, arguments);// stringからインスタンス生成
-							arguments.Add(false);
+
+
+							//arguments.Add(false);
+							arguments.Add(true);
+
+
 							ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(emitterType, arguments.ToArray());// stringからインスタンス生成
 							//ExplosionParticleEmitter emitter = (ExplosionParticleEmitter)Activator.CreateInstance(typeof(ExplosionParticleEmitter), test);// stringからインスタンス生成
 							emitters.Add(emitter);

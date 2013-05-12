@@ -145,7 +145,7 @@ namespace HLSLTest
 		/// Increases the 'start' parameter by 'count' positions, wrapping
 		/// around the particle array if necessary
 		/// </summary>
-		private int OffsetIndex(int start, int count)
+		protected int OffsetIndex(int start, int count)
 		{
 			for (int i = 0; i < count; i++) {
 				start++;
@@ -234,7 +234,7 @@ namespace HLSLTest
 			emitNumPerFrame = 1; ParticleColor = Color.LightGreen; EmitOptionalDirection(new Vector3(1, 0, 0));
 			
 		}
-		protected void UpdateParticles()
+		protected virtual void UpdateParticles()
 		{
 			float now = (float)(DateTime.Now - start).TotalSeconds;
 			int startIndex = activeStart;
@@ -267,7 +267,7 @@ namespace HLSLTest
 		{
 			this.AddParticle(Position, Direction, 0, Speed, Position);
 		}
-		protected void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed, Vector3 directedPosition)
+		protected virtual void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed, Vector3 directedPosition)
 		{
 			if (Mode == BillboardMode.Cross) {
 				int billboardCrossNum = 2;
@@ -456,15 +456,15 @@ namespace HLSLTest
 		}
 		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
 			Vector2 particleSize, float lifespan, float fadeInTime, bool initialize)
-			: this(graphicsDevice, content, BillboardMode.Spherical, texture, position, particleNum, particleSize, lifespan, fadeInTime, initialize)
+			: this(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, BillboardMode.Spherical, initialize)
 		{
 		}
 		/// <summary>
 		/// BillboardModeをパラメータに含めたコンストラクタ。
 		/// 試験用としてコンストラクタを分けたが後で上とまとめても良い。
 		/// </summary>
-		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, BillboardMode mode, Texture2D texture, Vector3 position, int particleNum,
-			Vector2 particleSize, float lifespan, float fadeInTime, bool initialize)
+		public ParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector3 position, int particleNum,
+			Vector2 particleSize, float lifespan, float fadeInTime, BillboardMode mode, bool initialize)
 		{
 			this.ParticleNum = particleNum;
 			this.ParticleSize = particleSize;

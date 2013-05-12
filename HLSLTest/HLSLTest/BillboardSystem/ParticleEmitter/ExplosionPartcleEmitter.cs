@@ -46,7 +46,7 @@ namespace HLSLTest
 					new Vector3(x, y, z)) *
 					(((float)rand.NextDouble() * 3f) + 6f);
 
-				AddParticle(Position + new Vector3(0, -2, 0), direction, s);
+				AddParticle(Position + new Vector3(0, -2, 0), direction, 0, s, Position + direction * 10);
 			}
 		}
 		protected void DiscoidExplosion()
@@ -130,6 +130,12 @@ namespace HLSLTest
 			effect.Parameters["Side"].SetValue(Right);
 			effect.Parameters["FadeInTime"].SetValue(FadeInTime);
 
+			if (Mode == BillboardMode.Line) {
+				effect.Parameters["LineBillboard"].SetValue(true);
+			} else {
+				effect.Parameters["LineBillboard"].SetValue(false);
+			}
+
 			// Enable blending render states
 			//graphicsDevice.BlendState = BlendState.AlphaBlend;
 			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
@@ -178,7 +184,7 @@ namespace HLSLTest
 			return cloned;
 		}
 
-		#region Constructor
+		#region Constructors
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float FadeInTime)
 			//:base:(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, FadeInTime)
@@ -192,7 +198,7 @@ namespace HLSLTest
 		}*/
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed)
-			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, fadeInTime, movementType, speed, true)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, fadeInTime, movementType, speed, BillboardMode.Spherical,true)
 		{
 		}
 		/// <summary>
@@ -210,7 +216,25 @@ namespace HLSLTest
 		/// <param name="initialize">すぐに初期化するかどうか</param>
 		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
 			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed, bool initialize)
-			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, initialize)
+			: this(graphicsDevice, content, position, texture, particleNum, particleSize, lifespan, fadeInTime, movementType, speed, BillboardMode.Spherical, initialize)
+		{
+		}
+		/// <summary>
+		/// 個々のパラメータを細かに設定させるタイプのコンストラクタにしているが、
+		/// 構造体にまとめてもいいかもしれない。
+		/// </summary>
+		/// <param name="position">エミッタの中心位置。パーティクルの出現位置</param>
+		/// <param name="texture"></param>
+		/// <param name="particleNum"></param>
+		/// <param name="particleSize"></param>
+		/// <param name="lifespan">パーティクルの寿命[second]</param>
+		/// <param name="fadeInTime">フェードインする時間[second]。0ならば即座に描画される</param>
+		/// <param name="movementType">移動のタイプ</param>
+		/// <param name="speed">速さ</param>
+		/// <param name="initialize">すぐに初期化するかどうか</param>
+		public ExplosionParticleEmitter(GraphicsDevice graphicsDevice, ContentManager content, Vector3 position, Texture2D texture, int particleNum,
+			Vector2 particleSize, float lifespan, float fadeInTime, int movementType, float speed, BillboardMode mode, bool initialize)
+			: base(graphicsDevice, content, texture, position, particleNum, particleSize, lifespan, fadeInTime, mode, initialize)
 		{
 			//emitNumPerFrame = 100;//50;
 			this.Type = movementType;

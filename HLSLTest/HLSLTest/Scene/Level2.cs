@@ -124,8 +124,10 @@ namespace HLSLTest
 			base.Collide();
 
 			foreach (Object o in asteroids) {
-				if (discoidEffect.IsHitWith(o.transformedBoundingSphere)) {
+				if (o.IsActive && discoidEffect.IsHitWith(o.transformedBoundingSphere)) {
 					o.IsActive = false;
+
+
 					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false));
 					//effectManager.Add(new ExplosionEffect(content, device, o.Position, Vector2.One, false, true, "Xml\\Particle\\particleExplosion0.xml"));
 
@@ -152,11 +154,11 @@ namespace HLSLTest
 			
 			// Remove dead objects
 			if (asteroids.Count > 0) {
-				for (int j = 0; j < asteroids.Count; j++) {
+				/*for (int j = 0; j < asteroids.Count; j++) {
 					if (!asteroids[j].IsActive) {
 						asteroids.RemoveAt(j);
 					}
-				}
+				}*/
 			}
 		}
 		public override void Update(GameTime gameTime)
@@ -167,9 +169,12 @@ namespace HLSLTest
 				spawned = false;
 			}
 			if (!spawned) {
-				AddAsteroids();
+				//AddAsteroids();
+				for (int i = 0; i < asteroids.Count; i++) {
+					asteroids[i].IsActive = true;
+				}
 				spawned = true;
-			}
+			}/**/
 
 			base.Update(gameTime);
 

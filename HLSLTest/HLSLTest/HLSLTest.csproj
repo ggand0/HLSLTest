@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
+    <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />

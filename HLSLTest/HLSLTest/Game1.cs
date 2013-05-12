@@ -28,7 +28,7 @@ namespace HLSLTest
 		public SpriteFont menuFont { get; private set; }
 		public Stack<Scene> scenes = new Stack<Scene>();
 
-		public Level[] Levels { get; private set; }
+		public List<Level> Levels { get; private set; }
 		public int LevelNum { get; private set; }
 		public bool MoveNextLevel { get; set; }
 
@@ -77,13 +77,17 @@ namespace HLSLTest
 
 
 			// Create levels
-			Levels = new Level[] { new Level0(null), new Level1(null), new Level2(null) };
-			LevelNum = 0;
+			//Levels = new Level[] { new Level0(null), new Level1(null), new Level2(null) };
+			Levels = new List<Level>();
+			Levels.Add(new Level0(null));
+			Levels.Add(new Level1(null));
+			Levels.Add(new Level2(null));
+			LevelNum = 2;
 
 			// 最初に表示するシーンを追加
+			//PushScene(new Level0(null));
+			PushScene(Levels[LevelNum]);
 			//PushScene(new Level2(null));
-			//PushScene(Levels[LevelNum]);
-			PushScene(new Level0(null));
 
 		}
 
@@ -110,7 +114,7 @@ namespace HLSLTest
 					PushScene(new Level2(null));
 					break;
 			}
-			if (LevelNum >= Levels.Length) LevelNum = 0;
+			if (LevelNum >= Levels.Count) LevelNum = 0;
 		}
 		public void PushScene(Scene scene)
 		{

@@ -24,6 +24,7 @@ namespace HLSLTest
 		ExplosionParticleEmitter eps;
 		DiscoidParticleEmitter discoid;
 		ParticleEmitter basicEmitter, beamEmitter;
+		ShockWaveParticleEmitter shockWaveEmitter;
 
 		BillboardSystem lbs;
 		LaserBillboard lb;
@@ -109,8 +110,10 @@ namespace HLSLTest
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
 			basicEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 
-			beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Mercury\\Beam2"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, true);
+			beamEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Beam2"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, BillboardMode.Line, true);
 			//beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Laser2"), new Vector3(0, 50, 0), 100, new Vector2(10, 5), 3, 0.1f, true);
+			shockWaveEmitter = new ShockWaveParticleEmitter(device, content, new Vector3(0, 50, 0), content.Load<Texture2D>("Textures\\Particle\\GlowRing"), 1, new Vector2(50), 3, 0, 0, 10, true);
+			shockWaveEmitter.Run();
 
 
 			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
@@ -268,8 +271,15 @@ namespace HLSLTest
 
 			debug = new Debug();
 		}
+
+		int count = 0;
 		public override void Update(GameTime gameTime)
 		{
+			count++;
+			if (count % 300 == 0) {
+				shockWaveEmitter.Reset = true;
+			}
+
 			base.Update(gameTime);
 
 			Sky.Update(gameTime);
@@ -291,6 +301,7 @@ namespace HLSLTest
 			eps.Update();
 			basicEmitter.Update();
 			beamEmitter.Update();
+			shockWaveEmitter.Update();
 
 			// Other effects
 			//lb.Update(camera.Up, camera.Right, camera.CameraPosition);
@@ -432,7 +443,9 @@ namespace HLSLTest
 			//discoid.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//eps.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 			//basicEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
-			beamEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
+
+			//beamEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
+			shockWaveEmitter.Draw(camera.View, camera.Projection, camera.CameraPosition, camera.Up, camera.Right);
 
 			// test effect
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
