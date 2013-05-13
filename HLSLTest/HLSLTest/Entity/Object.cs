@@ -98,6 +98,8 @@ namespace HLSLTest
 		/// エフェクトのパラメータを設定・保持する
 		/// </summary>
 		public Material Material { get; set; }
+		public bool DrawingPrePass { get; set; }
+		public bool DrawingPreShadowPass { get; set; }
 		#endregion
 
 		#region Methods
@@ -221,7 +223,7 @@ namespace HLSLTest
 		/// <summary>
 		/// 当たり判定メソッド
 		/// </summary>
-		public virtual bool IsHitWith(Object o)
+		public override bool IsHitWith(Object o)
 		{
 			BoundingSphere targetSphere =
 					  new BoundingSphere(o.Position,
@@ -245,7 +247,7 @@ namespace HLSLTest
 				, Model.Meshes[0].BoundingSphere.Radius * _world.Forward.Length());
 		}
 
-		private void GenerateTags()
+		protected void GenerateTags()
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
 				foreach (ModelMeshPart part in mesh.MeshParts)
@@ -275,7 +277,7 @@ namespace HLSLTest
 					if (((MeshTag)part.Tag).CachedEffect != null)
 						part.Effect = ((MeshTag)part.Tag).CachedEffect;
 		}
-		public void SetModelEffect(Effect effect, bool CopyEffect)
+		public virtual void SetModelEffect(Effect effect, bool CopyEffect)
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
 				foreach (ModelMeshPart part in mesh.MeshParts) {
@@ -336,15 +338,13 @@ namespace HLSLTest
 				mesh.Draw();
 			}
 		}
-		/// <summary>
-		/// カスタムエフェクトを使用したDraw
-		/// </summary>
-		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+
+		protected void DrawMesh(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
 
-			
+
 			foreach (ModelMesh mesh in Model.Meshes) {
 				Matrix localWorld = modelTransforms[mesh.ParentBone.Index] * _world;
 				foreach (ModelMeshPart meshPart in mesh.MeshParts) {
@@ -371,6 +371,13 @@ namespace HLSLTest
 				}
 				mesh.Draw();
 			}
+		}
+		/// <summary>
+		/// カスタムエフェクトを使用したDraw
+		/// </summary>
+		public virtual void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			DrawMesh(View, Projection, CameraPosition);
 
 			if (RenderBoudingSphere) DrawBoundingSphere();
 		}

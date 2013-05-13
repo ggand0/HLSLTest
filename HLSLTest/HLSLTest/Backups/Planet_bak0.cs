@@ -23,14 +23,13 @@ namespace HLSLTest
 		MultiTextured,
 		OneTexMultiColored
 	}
-	public abstract class Planet : Object
+	public abstract class Planet
 	{
-		//public static Game1 game;
-		//public static Level level;
+		public static Game1 game;
+		public static Level level;
 
-		//protected Model model, sphere;
-		protected Model sphere;
-		//protected int Scale;
+		protected Model model, sphere;
+		protected int Scale;
 
 		public int Seed { get; private set; }
 		public PlanetType Type { get; protected set; }
@@ -54,7 +53,7 @@ namespace HLSLTest
 		public int SubType { get; protected set; }
 
 
-		protected GraphicsDevice graphicsDevice;
+		protected GraphicsDevice graphics;
 		public Effect atmosphere { get; protected set; }
 		float p_radius = 200;
 		float a_radius = 220;//205;
@@ -72,21 +71,34 @@ namespace HLSLTest
 		protected float revolutionSpeed = MathHelper.ToRadians(1);
 		protected static Vector3 DEF_POSITION = new Vector3(-300, 0, -200);
 		protected static Vector3 DEF_STAR_POSITION = Vector3.Zero;
-		//public Vector3 Position { get; protected set; }
+		public Vector3 Position { get; protected set; }
 		public Vector3 StarPosition { get; protected set; }
-		//public bool IsActive { get; set; }
+		public bool IsActive { get; set; }
 		public float revolutionAngle { get; set; }
-		private BasicEffect basicEffect;
-		private Effect simpleEffect;
 
 
+		public Planet(GraphicsDevice graphics, ContentManager content)
+			: this(DEF_STAR_POSITION, graphics, content)
+		{
+		}
+		public Planet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			:this(DEF_POSITION, starPosition, graphics, content)
+		{
+		}
+		public Planet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+		{
+			this.graphics = graphics;
+			this.StarPosition = starPosition;
+			Position = position;
+			LoadContent(content);
+
+			IsActive = true;
+		}
 		protected virtual void LoadContent(ContentManager content)
 		{
 			sphere = content.Load<Model>("Models\\sphere");
 			atmosphere = content.Load<Effect>("Planets//SkyFromSpace");
-			Model = content.Load<Model>("Models\\sphere2");
-			GenerateTags();
-			BuildPerm(graphicsDevice);
+			BuildPerm(graphics);
 		}
 
 		/// <summary>
@@ -165,7 +177,7 @@ namespace HLSLTest
 			graphics.RasterizerState = RasterizerState.CullNone;
 
 			terrain.Parameters["ColorMap"].SetValue(PermTex);
-			foreach (ModelMesh mesh in Model.Meshes) {
+			foreach (ModelMesh mesh in model.Meshes) {
 				for (int i = 0; i < mesh.MeshParts.Count; i++) {
 					// Set this MeshParts effect (currentEffect) to the
 					// desired effect (from .fx file)  
@@ -346,28 +358,7 @@ namespace HLSLTest
 			atmosphere.Parameters["fCameraHeight"].SetValue(CameraPosition.Length());
 			atmosphere.Parameters["fCameraHeight2"].SetValue(CameraPosition.LengthSquared());
 		}
-
-
-		public override void SetModelEffect(Effect effect, bool CopyEffect)
-		{
-			foreach (ModelMesh mesh in Model.Meshes)
-				foreach (ModelMeshPart part in mesh.MeshParts) {
-					Effect toSet = effect;
-					// Copy the effect if necessary
-					if (CopyEffect)
-						toSet = effect.Clone();
-					MeshTag tag = ((MeshTag)part.Tag);
-
-					SetEffectParameter(toSet, "BasicTexture", Mercator);// hennkou
-					SetEffectParameter(toSet, "TextureEnabled", true);
-
-					// Set our remaining parameters to the effect
-					SetEffectParameter(toSet, "DiffuseColor", tag.Color);
-					SetEffectParameter(toSet, "SpecularPower", tag.SpecularPower);
-					part.Effect = toSet;
-				}
-		}
-		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		public virtual void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 
 			/*//Matrix wvp = World * View * Projection;
@@ -386,7 +377,6 @@ namespace HLSLTest
 			draw.Parameters["subtype"].SetValue(SubType / 8.0f);*/
 			Matrix World = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch)
 				* Matrix.CreateTranslation(Position);
-			_world = World;
 			Matrix wvp = World * View * Projection;
 			//Vector3 light = -level.LightPosition;
 			Vector3 light = -level.LightPosition;
@@ -419,56 +409,40 @@ namespace HLSLTest
 				draw.Parameters["WeightMap"].SetValue(BlendMap);
 			}
 
-			if (DrawingPreShadowPass) {
-				base.Draw(View, Projection, CameraPosition);
-			} else {
-				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
-					for (int msh = 0; msh < Model.Meshes.Count; msh++) {
-						ModelMesh mesh = Model.Meshes[msh];
-						for (int prt = 0; prt < mesh.MeshParts.Count; prt++) {
-							/*if (DrawingPreShadowPass) {
-								Effect effect = mesh.Effect;
 
-								SetEffectParameter(effect, "World", World);
-								SetEffectParameter(effect, "View", View);
-								SetEffectParameter(effect, "Projection", Projection);
-								SetEffectParameter(effect, "CameraPosition", CameraPosition);
-								mesh.MeshParts[prt].Effect = effect;
-							} else {
-								mesh.MeshParts[prt].Effect = draw;
-							}*/
+				//graphics.RasterizerState = RasterizerState.CullNone;
+				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
+					for (int msh = 0; msh < model.Meshes.Count; msh++) {
+						ModelMesh mesh = model.Meshes[msh];
+						for (int prt = 0; prt < mesh.MeshParts.Count; prt++)
 							mesh.MeshParts[prt].Effect = draw;
-						}
 
 						mesh.Draw();
 					}
-				}/**/
-			}
+				}
 
 			// atmosphere scattering setteings
 			SetAtmosphereEffectParameters(View, Projection, CameraPosition);
 
 
 			// Draw
-			if (!DrawingPrePass) {
-				graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-				/*DepthStencilState ds = new DepthStencilState();
-				ds.DepthBufferEnable = false;
-				graphics.DepthStencilState = ds;*/
-				foreach (ModelMesh mesh in sphere.Meshes) {
-					for (int i = 0; i < mesh.MeshParts.Count; i++) {
-						// Set this MeshParts effect (currentEffect) to the desired effect (from .fx file)   
-						mesh.MeshParts[i].Effect = atmosphere;
-					}
-					mesh.Draw();
+			graphics.RasterizerState = RasterizerState.CullClockwise;
+			/*DepthStencilState ds = new DepthStencilState();
+			ds.DepthBufferEnable = false;
+			graphics.DepthStencilState = ds;*/
+			foreach (ModelMesh mesh in sphere.Meshes) {
+				for (int i = 0; i < mesh.MeshParts.Count; i++) {
+					// Set this MeshParts effect (currentEffect) to the desired effect (from .fx file)   
+					mesh.MeshParts[i].Effect = atmosphere;
 				}
+				mesh.Draw();
 			}
 			//graphics.RenderState.CullMode = CullMode.None;
-			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphics.DepthStencilState = DepthStencilState.Default;
 
 		}
-		public override  void Update(GameTime gameTime)
+		public virtual void Update(GameTime gameTime)
 		{
 			if (rotate) {
 				roll += rotationSpeed;
@@ -482,31 +456,5 @@ namespace HLSLTest
 				Position = tmp;
 			}
 		}
-		#region Constructors
-		public Planet(GraphicsDevice graphics, ContentManager content)
-			: this(DEF_STAR_POSITION, graphics, content)
-		{
-		}
-		public Planet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
-			: this(DEF_POSITION, starPosition, graphics, content)
-		{
-		}
-		public Planet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
-			: base(position) 
-		{
-			this.graphicsDevice = graphics;
-			this.StarPosition = starPosition;
-			Position = position;
-			
-			
-			LoadContent(content);
-			// shadwo pre-draw用
-			basicEffect = new BasicEffect(graphics);
-			simpleEffect = content.Load<Effect>("Lights\\SimpleEffect");
-			SetEffectParameter(simpleEffect, "BasicTexture", Mercator);
-
-			IsActive = true;
-		}
-		#endregion
 	}
 }

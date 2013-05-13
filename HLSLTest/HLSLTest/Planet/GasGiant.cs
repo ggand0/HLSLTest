@@ -20,7 +20,7 @@ namespace HLSLTest
 		{
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
-			model = content.Load<Model>("Models\\sphere2");
+			Model = content.Load<Model>("Models\\sphere2");
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
 			terrain = content.Load<Effect>("Planets\\GasGiant");
@@ -28,7 +28,7 @@ namespace HLSLTest
 			Palette = content.Load<Texture2D>("Textures\\Planet\\gas2");
 			Nz = 12800;
 
-			Generate(graphics);
+			Generate(graphicsDevice);
 		}
 	}
 }

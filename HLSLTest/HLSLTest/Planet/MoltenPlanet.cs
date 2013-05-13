@@ -23,7 +23,7 @@ namespace HLSLTest
 
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
-			model = content.Load<Model>("Models\\sphere2");
+			Model = content.Load<Model>("Models\\sphere2");
 			lava = content.Load<Texture2D>("Textures\\Planet\\lava");
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
@@ -32,7 +32,7 @@ namespace HLSLTest
 			Palette = content.Load<Texture2D>("Textures\\Planet\\rock");
 			Nz = 128;//50
 
-			Generate(graphics);
+			Generate(graphicsDevice);
 		}
 
 		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)

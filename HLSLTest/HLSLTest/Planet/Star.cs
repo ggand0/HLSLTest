@@ -51,6 +51,7 @@ namespace HLSLTest
 
 		private Model sphere;
 
+		public Vector3 Position { get; set; }
 		public Vector3 Colour;
 		public float Scale;
 		public StarType type;
@@ -83,7 +84,12 @@ namespace HLSLTest
         };
 
 		public Star(GraphicsDevice graphics, ContentManager content, StarType starType)
+			:this(Vector3.Zero, graphics, content, starType)
 		{
+		}
+		public Star(Vector3 position, GraphicsDevice graphics, ContentManager content, StarType starType)
+		{
+			this.Position = position;
 			SetType(starType);
 			LoadContent(graphics, content);
 		}
@@ -147,6 +153,7 @@ namespace HLSLTest
 
 			glowSize = 30 * Scale;
 		}
+
 		public void Draw(Matrix View, Matrix Projection)
 		{
 			// Give up if the current graphics card does not support occlusion queries.
@@ -180,7 +187,8 @@ namespace HLSLTest
 			graphics.BlendState = BlendState.AlphaBlend;
 			//graphics.BlendState = BlendState.Additive;
 			graphics.RasterizerState = RasterizerState.CullNone;
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(-level.LightPosition);
+			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);//-level.LightPosition
+
 			Matrix wvp = World * View * Projection;
 			starEffect.Parameters["wvp"].SetValue(wvp);
 			starEffect.Parameters["colour"].SetValue(Colour);
@@ -200,8 +208,8 @@ namespace HLSLTest
 			}
 			// If it is visible, draw the flare effect.
 			if (occlusionAlpha > 0) {
-				DrawGlow(TransformPosition(View, Projection, -level.LightPosition));
-				DrawFlares(TransformPosition(View, Projection, -level.LightPosition));
+				DrawGlow(TransformPosition(View, Projection, Position));//-level.LightPosition
+				DrawFlares(TransformPosition(View, Projection, Position));//-level.LightPosition
 			}
 			graphics.BlendState = BlendState.Opaque;
 			graphics.DepthStencilState = DepthStencilState.Default;

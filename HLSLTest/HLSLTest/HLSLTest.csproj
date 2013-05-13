@@ -80,6 +80,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Backups\Planet_bak0.cs" />
     <Compile Include="BillboardSystem\LaserBillboard.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Scene\Level2.cs" />
     <Compile Include="Scene\Level3.cs" />
     <Compile Include="Scene\Scene.cs" />
+    <Compile Include="Sound\SoundControl.cs" />
     <Compile Include="Terrain\HeightMap.cs" />
     <Compile Include="Terrain\PerlinGenerator.cs" />
     <Compile Include="Terrain\SphericalTerrain.cs" />

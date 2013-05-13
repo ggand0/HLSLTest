@@ -21,15 +21,15 @@ namespace HLSLTest
 			: base(position, starPosition, graphics, content)
 		{
 			Type = PlanetType.Water;
-			rotate = true;
-			revolution = true;
+			//rotate = true;
+			//revolution = true;
 		}
 
 		protected override void LoadContent(ContentManager content)
 		{
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
-			model = content.Load<Model>("Models\\sphere2");
+			
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
 			terrain = content.Load<Effect>("Planets\\WaterPlanet");
@@ -45,7 +45,7 @@ namespace HLSLTest
 			SubType = 0;
 			Nz = 1;//128;
 
-			Generate(graphics);
+			Generate(graphicsDevice);
 		}
 	}
 }

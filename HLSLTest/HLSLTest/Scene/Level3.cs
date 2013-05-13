@@ -28,6 +28,7 @@ namespace HLSLTest
 		Planet planet;
 		Star star;
 		public List<Object> Asteroids { get; private set; }
+		public List<Planet> Planets { get; private set; }
 		
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
@@ -64,18 +65,18 @@ namespace HLSLTest
 		{
 			base.Initialize();
 			Models = new List<Object>();
-			Ground = new Object(new Vector3(0, -50, 0), 0.02f, "Models\\ground");
+			Ground = new Object(new Vector3(0, -200, 0), 0.05f, "Models\\ground");
 			Models.Add(Ground);
 
 
 			Target = new Object(new Vector3(0, 20, 0), 20, "Models\\cube");
 			//Models.Add(Target);
-			Satellite = new ArmedSatellite(new Vector3(0, 50, 0), 1, "Models\\ISS");
+			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), 5, "Models\\ISS");
 			Models.Add(Satellite);
 
 			random = new Random();
 			Asteroids = new List<Object>();
-			AddAsteroids(50, 500);
+			//AddAsteroids(50, 500);
 			spawned = true;
 
 
@@ -101,29 +102,15 @@ namespace HLSLTest
 
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
-			// Set up light effects !!
-			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
-			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
-			foreach (Object o in Models) {
-				o.RenderBoudingSphere = false;
-				o.SetModelEffect(shadowEffect, true);
-			}
-			renderer = new PrelightingRenderer(device, content);
-			renderer.Models = Models;
-			renderer.Camera = camera;
-			renderer.Lights = new List<PointLight>() {
-				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
-				new PointLight(LightPosition, Color.White * .85f, 200000),
-				new PointLight(new Vector3(0, 200, 0), Color.White * .85f, 20000),
-			};
-			renderer.ShadowLightPosition = LightPosition;
-			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
-			renderer.DoShadowMapping = true;
-			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
 
+			// Load stars
+			star = new Star(new Vector3(-500, 100, 500), device, content, StarType.G);
+			LightPosition = star.Position;
 
 			// Load planets
-			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
+			Planets = new List<Planet>();
+			//WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), -LightPosition, device, content);
 			IcePlanet icePlanet = new IcePlanet(device, content);
 			GasGiant gasGiant = new GasGiant(device, content);
 			RockPlanet rockPlanet = new RockPlanet(device, content);
@@ -133,9 +120,41 @@ namespace HLSLTest
 			//planet = gasGiant;
 			//planet = icePlanet;
 			planet = waterPlanet;
-			star = new Star(device, content, StarType.G);
+			Planets.Add(waterPlanet);
+			
 
 
+			// Set up light effects !!
+			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
+			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
+			foreach (Object o in Models) {
+				o.RenderBoudingSphere = false;
+				o.SetModelEffect(shadowEffect, true);
+			}
+			foreach (Planet p in Planets) {
+				p.RenderBoudingSphere = false;
+				//p.SetModelEffect(shadowEffect, true);
+				Models.Add(p);
+			}
+
+
+			renderer = new PrelightingRenderer(device, content);
+			renderer.Models = Models;
+			renderer.Camera = camera;
+			renderer.Lights = new List<PointLight>() {
+				new PointLightCircle(new Vector3(0, 200, 0), 500, Color.White, 2000),
+				new PointLight(new Vector3(0, 500, 0), Color.White * .85f, 2000),
+				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
+				//new PointLight(LightPosition, Color.White * .85f, 2000000),
+				//new PointLight(new Vector3(0, 200, 0), Color.White * .85f, 100000),
+			};
+			renderer.ShadowLightPosition = new Vector3(300, 500, 300);//LightPosition;
+			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
+			renderer.DoShadowMapping = true;
+			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
+
+
+			// Special effects
 			EnergyRingEffect.game = game;
 			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;

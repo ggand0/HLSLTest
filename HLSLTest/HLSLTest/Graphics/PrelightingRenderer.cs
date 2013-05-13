@@ -49,7 +49,7 @@ namespace HLSLTest
 		// Depth texture parameters
 		int shadowMapSize = 2048;
 		//int shadowFarPlane = 10000;//10000;
-		int shadowFarPlane = 2000;//10000;
+		int shadowFarPlane = 10000;//10000;
 		// Shadow light view and projection
 		Matrix shadowView, shadowProjection;
 		// Shadow properties
@@ -143,6 +143,7 @@ namespace HLSLTest
 			// Draw each model with the PPDepthNormal effect
 			// 法線マップと深度マップをDrawするエフェクトをセットしてそれぞれ書き込む
 			foreach (Object o in Models) {
+				o.DrawingPrePass = true;
 				o.CacheEffects();// すでにあるエフェクトを上書きさせないために退避させておく
 				o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする
 				o.Draw(level.camera.View, level.camera.Projection,
@@ -314,7 +315,9 @@ namespace HLSLTest
 		}
 		private void PrepareMainPass()
 		{
-			foreach (Object o in Models)
+			foreach (Object o in Models) {
+				o.DrawingPrePass = false;
+
 				foreach (ModelMesh mesh in o.Model.Meshes)
 					foreach (ModelMeshPart part in mesh.MeshParts) {
 						// Set the light map and viewport parameters to each model's effect
@@ -346,6 +349,7 @@ namespace HLSLTest
 						if (part.Effect.Parameters["ShadowMult"] != null)
 							part.Effect.Parameters["ShadowMult"].SetValue(ShadowMult);
 					}
+			}
 		}
 		public void DrawShadowDepthMap()
 		{
@@ -394,24 +398,25 @@ namespace HLSLTest
 
 			// Draw each model with the ShadowDepthEffect effect
 			foreach (Object o in Models) {
+				o.DrawingPreShadowPass = true;
 				o.CacheEffects();
 				o.SetModelEffect(shadowDepthEffect, false);
 				o.Draw(shadowView, shadowProjection, ShadowLightPosition);// これじゃーーーん
 				//o.Draw();
 				o.RestoreEffects();
+				o.DrawingPreShadowPass = false;
 			}
 
 			// Un-set the render targets
 			graphicsDevice.SetRenderTarget(null);
 #endif
 
-			/*if (JoyStick.IsOnKeyDown(8)) {
+			if (JoyStick.IsOnKeyDown(8)) {
 				using (Stream stream = File.OpenWrite("shadowDepth.png")) {
 					shadowDepthTarg.SaveAsPng(stream, shadowDepthTarg.Width, shadowDepthTarg.Height);
 					stream.Position = 0;
-					hasSaved = true;
 				}
-			}*/
+			}/**/
 		}
 		private void BlurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
 		{

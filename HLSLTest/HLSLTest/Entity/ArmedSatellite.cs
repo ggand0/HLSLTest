@@ -5,11 +5,15 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Audio;
 
 namespace HLSLTest
 {
 	public class ArmedSatellite : Object
 	{
+		SoundEffect shootSound;
+		List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
+
 		private void Shoot(int bulletType)
 		{
 			switch (bulletType) {
@@ -41,10 +45,10 @@ namespace HLSLTest
                         Vector3 tmp = (level as Level3).Asteroids[0].Position;
 //                        tmp = new Vector3(100, 50, 100);
 						Vector3 dir = Vector3.Normalize(tmp - Position);
-						//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
-						//	content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(50, 10), 1));
 						level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
-							content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(50, 30), 1));
+						/*level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
+							content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));*/
 					}
 					break;
 			}
@@ -58,15 +62,27 @@ namespace HLSLTest
 			base.Update(gameTime);
 			if (JoyStick.IsOnKeyDown(2)) {
 				Shoot(4);
+				//shootSound.Play();
+				//shootSoundInstance.Play();
+				SoundEffectInstance ls = shootSound.CreateInstance();
+				ls.Volume = 0.2f;
+				ls.Play();
+				currentSounds.Add(ls);
 			}
 
-			
+			for (int i = currentSounds.Count - 1; i >= 0; i--) {
+				if (currentSounds[i].State != SoundState.Playing) {
+					currentSounds[i].Dispose();
+					currentSounds.RemoveAt(i);
+				}
+			}
 		}
-
 
 		public ArmedSatellite(Vector3 position, float scale, string fileName)
 			:base(position, scale, fileName)
 		{
+			shootSound = content.Load<SoundEffect>("SoundEffects\\laser0");
+			
 		}
 	}
 }
