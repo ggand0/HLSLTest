@@ -201,17 +201,17 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
-    <Compile Include="LaserBillboardEffect.fx">
+    <Compile Include="Backup\LaserBillboardEffect.fx">
       <Name>LaserBillboardEffect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
-    <Compile Include="LaserBillboardEffectV2.fx">
+    <Compile Include="Backup\LaserBillboardEffectV2.fx">
       <Name>LaserBillboardEffectV2</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
-    <Compile Include="LaserBillboardEffectV3.fx">
+    <Compile Include="Backup\LaserBillboardEffectV3.fx">
       <Name>LaserBillboardEffectV3</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
@@ -301,6 +301,11 @@
       <Name>sphereTransparentTex</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Billboard\LaserBillboardEffectV4.fx">
+      <Name>LaserBillboardEffectV4</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
     </Compile>
     <None Include="CellularNoise.vsi">
       <Name>CellularNoise</Name>
@@ -1025,6 +1030,7 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

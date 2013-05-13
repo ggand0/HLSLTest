@@ -37,7 +37,7 @@ namespace HLSLTest
 		/// <summary>
 		/// 位置ベクトル
 		/// </summary>
-		public Vector3 Position { get; set; }
+		//public Vector3 Position { get; set; }
 		/// <summary>
 		/// 速度ベクトル
 		/// </summary>
@@ -339,7 +339,7 @@ namespace HLSLTest
 		/// <summary>
 		/// カスタムエフェクトを使用したDraw
 		/// </summary>
-		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		public void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
 			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);

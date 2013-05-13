@@ -13,7 +13,7 @@ namespace HLSLTest
 		public float Speed { get; private set; }
 		protected Vector3 startPosition;
 		protected float distanceTravelled;
-		public bool IsActive { get; set; }
+		//public bool IsActive { get; set; }
 
 		public override void Update(GameTime gameTime)
 		{
@@ -45,6 +45,45 @@ namespace HLSLTest
 			/*_world.Forward *= Direction;
 			_world.Up *= Vector3.Normalize(Vector3.Cross(_world.Forward, workVector));
 			_world.Right *= Vector3.Normalize(Vector3.Cross(_world.Forward, _world.Up));*/
+		}
+
+
+
+
+		public override void Draw(Camera camera)
+		{
+			Matrix[] modelTransforms = new Matrix[Model.Bones.Count];
+			Model.CopyAbsoluteBoneTransformsTo(modelTransforms);
+
+
+			foreach (ModelMesh mesh in Model.Meshes) {
+				Matrix localWorld = modelTransforms[mesh.ParentBone.Index] * _world;
+				foreach (ModelMeshPart meshPart in mesh.MeshParts) {
+					Effect effect = meshPart.Effect;
+					if (effect is BasicEffect) {
+						((BasicEffect)effect).World = localWorld;
+						((BasicEffect)effect).View = camera.View;
+						((BasicEffect)effect).Projection = camera.Projection;
+						((BasicEffect)effect).EnableDefaultLighting();
+					} else {
+						SetEffectParameter(effect, "World", localWorld);
+						SetEffectParameter(effect, "View", camera.View);
+						SetEffectParameter(effect, "Projection", camera.Projection);
+						SetEffectParameter(effect, "CameraPosition", camera.Position);
+						//setEffectParameter(effect, "TextureEnabled", true);// どうやらデフォルトでtrueらしい
+						//setEffectParameter(effect, "ProjectorEnabled", true);
+					}
+					if (Material is CubeMapReflectMaterial) {//ProjectedTextureMaterial) {
+						int d = 0;
+					}
+					if (Material != null) {
+						//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
+					}
+				}
+				mesh.Draw();
+			}
+
+			if (RenderBoudingSphere) DrawBoundingSphere();
 		}
 
 		

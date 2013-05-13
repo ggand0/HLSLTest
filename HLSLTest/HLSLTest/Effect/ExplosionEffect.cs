@@ -86,6 +86,7 @@ namespace HLSLTest
 		{
 			foreach (ExplosionParticleEmitter e in emitters) {
 				e.Initialize();
+				e.Position = this.Position;
 				e.Run();
 			}
 			Available = false;

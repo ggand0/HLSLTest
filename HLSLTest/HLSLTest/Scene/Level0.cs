@@ -59,11 +59,10 @@ namespace HLSLTest
 			Target.Scale = 20;
 			//Target = new Object(new Vector3(0, 0, 0), "Models\\tank");
 			//Target.Scale = 0.1f;
-			Ground = new Object(new Vector3(0, -50, 0), "Models\\ground");
+			Ground = new Object(new Vector3(0, -50, 0), 0.05f, "Models\\ground");
 			Teapot = new Object(new Vector3(-100, 0, 0), "Models\\UtahTeapotDef");
 
 			Target.Direction = Vector3.UnitX;
-			Ground.Scale = 0.05f;
 			Teapot.Scale = 10;
 			//Teapot.RotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-180));
 			Teapot.RotationMatrix = Matrix.Identity * Matrix.CreateRotationZ(MathHelper.ToRadians(90))

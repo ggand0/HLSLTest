@@ -71,7 +71,8 @@ namespace HLSLTest
 					new Vector3(x, y, z)) *
 					(((float)rand.NextDouble() * 3f) + 6f);
 
-				AddParticle(Position + new Vector3(0, -2, 0), direction, s);
+				//AddParticle(Position + new Vector3(0, -2, 0), direction, s);
+                AddParticle(Position, direction, s);
 			}
 		}
 		protected void EmitRandomDirection()
@@ -267,7 +268,7 @@ namespace HLSLTest
 		{
 			this.AddParticle(Position, Direction, 0, Speed, Position);
 		}
-		protected virtual void AddParticle(Vector3 Position, Vector3 Direction, float rotation, float Speed, Vector3 directedPosition)
+		protected virtual void AddParticle(Vector3 position, Vector3 Direction, float rotation, float Speed, Vector3 directedPosition)
 		{
 			if (Mode == BillboardMode.Cross) {
 				int billboardCrossNum = 2;
@@ -285,7 +286,7 @@ namespace HLSLTest
 
 				// Set the particle settings to each of the particle's vertices
 				for (int i = 0; i < 2 * billboardCrossNum; i++) {
-					particles[index + i].StartPosition = Position;
+					particles[index + i].StartPosition = position;
 					particles[index + i].Direction = Direction;
 					particles[index + i].Rotation = rotation;
 					particles[index + i].Speed = Speed;
@@ -294,7 +295,10 @@ namespace HLSLTest
 				}
 			} else {
 				// If there are no available particles, give up
-				if (activeParticlesNum + 4 == ParticleNum * 4) {
+				/*if (activeParticlesNum + 4 == ParticleNum * 4) {
+					return;
+				}*/
+				if (activeParticlesNum + 4 == (ParticleNum+1) * 4) {
 					return;
 				}
 
@@ -307,13 +311,18 @@ namespace HLSLTest
 
 				// Set the particle settings to each of the particle's vertices
 				for (int i = 0; i < 4; i++) {
-					particles[index + i].StartPosition = Position;
+					particles[index + i].StartPosition = position;
 					particles[index + i].Direction = Direction;
 					particles[index + i].Rotation = rotation;
 					particles[index + i].Speed = Speed;
 					particles[index + i].StartTime = startTime;
 					particles[index + i].DirectedPosition = directedPosition;
 				}
+
+                // debug
+                if (position == Vector3.Zero) {
+                    string s = "";
+                }
 			}
 		}
 

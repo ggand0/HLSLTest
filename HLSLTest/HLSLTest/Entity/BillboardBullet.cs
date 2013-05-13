@@ -14,7 +14,7 @@ namespace HLSLTest
 		/// <summary>
 		/// インターフェース実装で関数として機能があるからプロパティは消してもいいかも
 		/// </summary>
-		public bool IsActive { get; set; }
+		//public bool IsActive { get; set; }
 		public float Speed { get; private set; }
 		public Vector3 Direction { get; private set; }
 		private float distanceTravelled;
@@ -40,6 +40,16 @@ namespace HLSLTest
 				return true;
 			}
 		}
+
+
+
+		public override void Draw(Camera camera)
+		{
+			base.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
+		}
+
+
+
 
 		// Constructor
 		public BillboardBullet(GraphicsDevice graphicsDevice,

@@ -80,13 +80,15 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BillboardSystem\LaserBillboard.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
     <Compile Include="Entity\ArmedSatellite.cs" />
     <Compile Include="Entity\BillboardBullet.cs" />
     <Compile Include="Entity\EntityBullet.cs" />
     <Compile Include="Entity\IBullet.cs" />
-    <Compile Include="Entity\Renderable.cs" />
+    <Compile Include="Entity\Drawable.cs" />
+    <Compile Include="Entity\LaserBillboardBullet.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
@@ -146,7 +148,7 @@
     <Compile Include="Graphics\MeshTag.cs" />
     <Compile Include="Entity\Object.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\FlameParticleEmitter.cs" />
-    <Compile Include="BillboardSystem\LaserBillboard.cs" />
+    <None Include="BillboardSystem\LaserBillboard_bak.cs" />
     <Compile Include="BillboardSystem\LoadParticles.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleVertex.cs" />

@@ -64,11 +64,11 @@ namespace HLSLTest
 
 	public class TargetCamera : Camera
 	{
-		public Vector3 Position { get; set; }
+		//public Vector3 Position { get; set; }
 		public Vector3 Target { get; set; }
 
-		public Vector3 Up { get; private set; }
-		public Vector3 Right { get; private set; }
+		//public Vector3 Up { get; private set; }
+		//public Vector3 Right { get; private set; }
 
 		public TargetCamera(Vector3 Position, Vector3 Target,
 			GraphicsDevice graphicsDevice)
@@ -96,7 +96,7 @@ namespace HLSLTest
 	{
 		public float Yaw { get; set; }
 		public float Pitch { get; set; }
-		public Vector3 Position { get; set; }
+		//public Vector3 Position { get; set; }
 		public Vector3 Target { get; private set; }
 		private Vector3 translation;
 

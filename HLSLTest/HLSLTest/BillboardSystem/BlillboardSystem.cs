@@ -46,7 +46,7 @@ namespace HLSLTest
 		public BillboardMode Mode { get; set; }
 
 
-		private void drawOpaquePixels()
+		protected void DrawOpaquePixels()
 		{
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			//
@@ -56,20 +56,20 @@ namespace HLSLTest
 			}
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(true);
-			drawBillboards();
+			DrawBillboards();
 		}
-		private void drawBillboards()
+		protected void DrawBillboards()
 		{
 			effect.CurrentTechnique.Passes[0].Apply();
 			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
 			4 * BillboardNum, 0, BillboardNum * 2);
 		}
-		private void drawTransparentPixels()
+		protected void DrawTransparentPixels()
 		{
 			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 			effect.Parameters["AlphaTest"].SetValue(true);
 			effect.Parameters["AlphaTestGreater"].SetValue(false);
-			drawBillboards();
+			DrawBillboards();
 		}
 		protected virtual void generateParticles(Vector3[] particlePositions)
 		{
@@ -159,7 +159,7 @@ namespace HLSLTest
 		public override void Update(GameTime gameTime)
 		{
 		}
-		public override void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
+		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(vertexBuffers);
@@ -172,12 +172,12 @@ namespace HLSLTest
 			// Draw the billboards
 			//graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4 * nBillboards, 0, nBillboards * 2);
 			if (EnsureOcclusion) {
-				drawOpaquePixels();
-				drawTransparentPixels();
+				DrawOpaquePixels();
+				DrawTransparentPixels();
 			} else {
 				graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 				effect.Parameters["AlphaTest"].SetValue(false);
-				drawBillboards();
+				DrawBillboards();
 			}
 
 			// Reset render states
@@ -188,7 +188,6 @@ namespace HLSLTest
 			graphicsDevice.SetVertexBuffer(null);
 			graphicsDevice.Indices = null;
 		}
-
 
 
 		public BillboardSystem(GraphicsDevice graphicsDevice,

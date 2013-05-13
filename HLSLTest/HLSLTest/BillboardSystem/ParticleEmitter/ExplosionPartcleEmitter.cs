@@ -46,7 +46,11 @@ namespace HLSLTest
 					new Vector3(x, y, z)) *
 					(((float)rand.NextDouble() * 3f) + 6f);
 
-				AddParticle(Position + new Vector3(0, -2, 0), direction, 0, s, Position + direction * 10);
+				if (Position == Vector3.Zero) {
+					string d = "";
+				}
+				//AddParticle(Position + new Vector3(0, -2, 0), direction, 0, s, Position + direction * 10);
+				AddParticle(Position, direction, 0, s, Position + direction * 10);
 			}
 		}
 		protected void DiscoidExplosion()
@@ -100,6 +104,39 @@ namespace HLSLTest
 		}
 
 
+        protected override void UpdateParticles()
+        {
+            float now = (float)(DateTime.Now - start).TotalSeconds;
+            int startIndex = activeStart;
+            int end = activeParticlesNum;
+
+            // For each particle marked as active...
+            /*for (int i = 0; i < end; i++) {
+                // If this particle has gotten older than 'lifespan'...
+                if (particles[activeStart].StartTime < now - Lifespan) {
+                    // Advance the active particle start position past
+                    // the particle's index and reduce the number of
+                    // active particles by 1
+                    activeStart++;
+                    activeParticlesNum--;
+                    if (activeStart == particles.Length) {
+                        activeStart = 0;
+                    }
+                }
+            }*/
+
+            // Update the vertex and index buffers
+            vertexBuffers.SetData<ParticleVertex>(particles);
+            indexBuffers.SetData<int>(indices);
+        }
+		private void CheckArray()
+		{
+			for (int i = 0; i < particles.Length; i++) {
+				if (particles[i].StartPosition == Vector3.Zero) {
+					string d = "need debug!";// i== 36 !
+				}
+			}
+		}
 		public override void Update()
 		{
 			//MakeExplosion(Vector3.Zero, nParticles);
@@ -109,9 +146,11 @@ namespace HLSLTest
 				Run();
 				Reset = false;
 			}
-			if (activeParticlesNum > 0) {
-				UpdateParticles();
-			}
+
+            // EPはactiveなパーティクルかどうかを認識する必要がないのでは？
+			//if (activeParticlesNum > 0) {
+				//UpdateParticles();
+			CheckArray();
 		}
 		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition, Vector3 Up, Vector3 Right)
 		{
@@ -146,8 +185,8 @@ namespace HLSLTest
 			effect.CurrentTechnique.Passes[0].Apply();
 
 			// Draw the billboards
-			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
-				0, 0, ParticleNum * 4, 0, ParticleNum * 2);
+			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, ParticleNum * 4, 0, ParticleNum * 2);
+            //graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, ParticleNum * 4, particles.Length - 4, ParticleNum * 2);
 
 			// Un-set the buffers
 			graphicsDevice.SetVertexBuffer(null);
@@ -161,6 +200,8 @@ namespace HLSLTest
 		public void Run()
 		{
 			MoveParticle();
+            vertexBuffers.SetData<ParticleVertex>(particles);
+            indexBuffers.SetData<int>(indices);
 		}
 		public object Clone()
 		{

@@ -27,20 +27,21 @@ namespace HLSLTest
 		ExplosionEffect explosionTest, smallExplosion, bigExplosion;
 		Planet planet;
 		Star star;
-		List<Object> asteroids;
+		public List<Object> Asteroids { get; private set; }
 		
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
 		private bool spawned;
 		private int count;
 		//ParticleSettings setting;
-
+		LaserBillboard lb;
 		public static float NextDouble(Random r, double min, double max)
 		{
 			return (float)(min + r.NextDouble() * (max - min));
 		}
-		private void AddAsteroids()
+		private void AddAsteroids(int asteroidNum, float radius)
 		{
+			Asteroids = new List<Object>();
 			Effect lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
 			Object.SetEffectParameter(lightingEffect, "LightDirection", -LightPosition);
 			Object.SetEffectParameter(lightingEffect, "SpecularPower", 200);
@@ -52,25 +53,29 @@ namespace HLSLTest
 			asteroids[0].SetModelEffect(lightingEffect, true);
 			asteroids[1].Scale = 0.02f;
 			asteroids[1].SetModelEffect(lightingEffect, true);*/
-			for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < asteroidNum; i++) {
 				//random = new Random();
-				asteroids.Add(new Object(new Vector3(NextDouble(random, -1000, 1000), 0, NextDouble(random, -1000, 1000)), "Models\\Asteroid"));
-				asteroids[i].Scale = 0.02f;//0.1f;
-				asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
+                Asteroids.Add(new Object(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), "Models\\Asteroid"));
+				Asteroids[i].Scale = 0.02f;//0.1f;
+				Asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
 			}/**/
 		}
 		protected override void Initialize()
 		{
 			base.Initialize();
 			Models = new List<Object>();
+			Ground = new Object(new Vector3(0, -50, 0), 0.02f, "Models\\ground");
+			Models.Add(Ground);
+
+
 			Target = new Object(new Vector3(0, 20, 0), 20, "Models\\cube");
 			//Models.Add(Target);
 			Satellite = new ArmedSatellite(new Vector3(0, 50, 0), 1, "Models\\ISS");
 			Models.Add(Satellite);
 
 			random = new Random();
-			asteroids = new List<Object>();
-			AddAsteroids();
+			Asteroids = new List<Object>();
+			AddAsteroids(50, 500);
 			spawned = true;
 
 
@@ -96,6 +101,27 @@ namespace HLSLTest
 
 			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
+			// Set up light effects !!
+			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
+			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
+			foreach (Object o in Models) {
+				o.RenderBoudingSphere = false;
+				o.SetModelEffect(shadowEffect, true);
+			}
+			renderer = new PrelightingRenderer(device, content);
+			renderer.Models = Models;
+			renderer.Camera = camera;
+			renderer.Lights = new List<PointLight>() {
+				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
+				new PointLight(LightPosition, Color.White * .85f, 200000),
+				new PointLight(new Vector3(0, 200, 0), Color.White * .85f, 20000),
+			};
+			renderer.ShadowLightPosition = LightPosition;
+			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
+			renderer.DoShadowMapping = true;
+			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
+
+
 			// Load planets
 			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
 			IcePlanet icePlanet = new IcePlanet(device, content);
@@ -116,17 +142,22 @@ namespace HLSLTest
 			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
 			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
 			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
-			bigExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion1.xml", true);
+			//smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", true);
+			bigExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion1.xml", false);
 
 			// pre-load
 			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
+
+
+			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
+
 
 		protected override void Collide()
 		{
 			base.Collide();
 
-			foreach (Object o in asteroids) {
+			/*foreach (Object o in asteroids) {
 				if (o.IsActive && discoidEffect.IsHitWith(o.transformedBoundingSphere)) {
 					o.IsActive = false;
 
@@ -138,7 +169,27 @@ namespace HLSLTest
 					//e.Run();
 					//effectManager.Add(e);
 				}
+			}*/
+			foreach (Drawable b in Bullets) {
+				foreach (Object a in Asteroids) {
+					if (b.IsActive && a.IsActive && b.IsHitWith(a)) {
+						a.IsActive = false;
+						//b.IsActive = false;
+
+						ExplosionEffect e = (random.Next(0, 2) == 0) ? (ExplosionEffect)smallExplosion.Clone() : (ExplosionEffect)bigExplosion.Clone();
+						//ExplosionEffect e = (ExplosionEffect)bigExplosion.Clone();
+
+						e.Position = a.Position;
+						/*foreach (ExplosionParticleEmitter ep in e.emitters) {
+							ep.Position = e.Position;// もう既にparticlesは初期化されてしまってるので手遅れ！
+						}*/
+						e.Run();
+						effectManager.Add(e);
+					}/**/
+				}
 			}
+
+
 			BoundingSphere bs = new BoundingSphere(planet.Position, 200);
 			if (discoidEffect.IsHitWith(bs)) {
 				//planet.IsActive = false;
@@ -147,10 +198,10 @@ namespace HLSLTest
 
 
 			// Remove dead objects
-			if (asteroids.Count > 0) {
-				for (int j = 0; j < asteroids.Count; j++) {
-					if (!asteroids[j].IsActive) {
-						asteroids.RemoveAt(j);
+			if (Asteroids.Count > 0) {
+				for (int j = 0; j < Asteroids.Count; j++) {
+					if (!Asteroids[j].IsActive) {
+						Asteroids.RemoveAt(j);
 					}
 				}/**/
 			}
@@ -182,13 +233,13 @@ namespace HLSLTest
 
 			camera.UpdateChaseTarget(Vector3.Zero);
 			camera.Update(gameTime);
-
+			renderer.Update(gameTime);
 			Sky.Update(gameTime);
 
 			foreach (Object o in Models) {
 				o.Update(gameTime);
 			}
-			foreach (Object a in asteroids) {
+			foreach (Object a in Asteroids) {
 				if (a.IsActive) a.Update(gameTime);
 			}
 			foreach (Drawable b in Bullets) {
@@ -200,8 +251,9 @@ namespace HLSLTest
 
 			//discoidEffect.Update(gameTime);
 			//shieldEffect.Update(gameTime);
-			explosionTest.Update(gameTime);
-			bigExplosion.Update(gameTime);
+			//explosionTest.Update(gameTime);
+			//bigExplosion.Update(gameTime);
+			lb.Update(gameTime);
 
 			Collide();
 
@@ -212,6 +264,7 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
+			renderer.PreDraw();
 			device.Clear(Color.White);
 
 			// Environment
@@ -226,25 +279,29 @@ namespace HLSLTest
 			foreach (Object o in Models) {
 				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
-			foreach (Object a in asteroids) {
+			foreach (Object a in Asteroids) {
 				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
-			foreach (Drawable b in Bullets) {
+			/*foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			}*/
+			foreach (Drawable b in Bullets) {
+				if (b.IsActive) b.Draw(camera);
 			}
-
+			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			//bigExplosion.Draw(gameTime, camera);
 
+			renderer.Draw(gameTime);
 			// Grid
 			if (displayGrid) {
 				grid.ProjectionMatrix = camera.Projection;
 				grid.ViewMatrix = camera.View;
 				// draw the reference grid so it's easier to get our bearings
-				grid.Draw();
+				//grid.Draw();
 			}
 
 
