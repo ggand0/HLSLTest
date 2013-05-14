@@ -182,12 +182,14 @@ namespace HLSLTest
 				}
 			
 			//graphics.RenderState.DepthBufferEnable = true;
-			//graphics.DepthStencilState = DepthStencilState.Default;
-			graphics.DepthStencilState = DepthStencilState.DepthRead;
+			graphics.DepthStencilState = DepthStencilState.Default;
+			//graphics.DepthStencilState = DepthStencilState.DepthRead;
 			graphics.BlendState = BlendState.AlphaBlend;
 			//graphics.BlendState = BlendState.Additive;
-			graphics.RasterizerState = RasterizerState.CullNone;
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);//-level.LightPosition
+
+			//graphics.RasterizerState = RasterizerState.CullNone;
+			graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);//Position
 
 			Matrix wvp = World * View * Projection;
 			starEffect.Parameters["wvp"].SetValue(wvp);
@@ -208,8 +210,10 @@ namespace HLSLTest
 			}
 			// If it is visible, draw the flare effect.
 			if (occlusionAlpha > 0) {
-				DrawGlow(TransformPosition(View, Projection, Position));//-level.LightPosition
-				DrawFlares(TransformPosition(View, Projection, Position));//-level.LightPosition
+				graphics.DepthStencilState = DepthStencilState.DepthRead;
+				graphics.RasterizerState = RasterizerState.CullNone;
+				DrawGlow(TransformPosition(View, Projection, Position));//Position
+				DrawFlares(TransformPosition(View, Projection, Position));//Position
 			}
 			graphics.BlendState = BlendState.Opaque;
 			graphics.DepthStencilState = DepthStencilState.Default;

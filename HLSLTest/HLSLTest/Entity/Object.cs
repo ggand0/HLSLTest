@@ -100,6 +100,7 @@ namespace HLSLTest
 		public Material Material { get; set; }
 		public bool DrawingPrePass { get; set; }
 		public bool DrawingPreShadowPass { get; set; }
+		public bool DrawingDepthNormalPass { get; set; }
 		#endregion
 
 		#region Methods

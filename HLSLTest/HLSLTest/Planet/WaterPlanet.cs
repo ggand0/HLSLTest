@@ -21,20 +21,22 @@ namespace HLSLTest
 			: base(position, starPosition, graphics, content)
 		{
 			Type = PlanetType.Water;
-			//rotate = true;
+			rotate = true;
 			//revolution = true;
 		}
 
 		protected override void LoadContent(ContentManager content)
 		{
+			terrain = content.Load<Effect>("Planets\\WaterPlanet");
+			draw = content.Load<Effect>("Planets\\ColorMap");
+			Palette = content.Load<Texture2D>("Textures\\Planet\\water2");
+
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
 			
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
-			terrain = content.Load<Effect>("Planets\\WaterPlanet");
-			draw = content.Load<Effect>("Planets\\ColorMap");
-			Palette = content.Load<Texture2D>("Textures\\Planet\\water2");
+			
 
 			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10");
 			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10_normal");

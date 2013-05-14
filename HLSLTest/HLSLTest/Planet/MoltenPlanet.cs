@@ -20,6 +20,7 @@ namespace HLSLTest
 
 		protected override void LoadContent(ContentManager content)
 		{
+			draw = content.Load<Effect>("Planets\\MoltenPlanet");
 
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
@@ -28,7 +29,7 @@ namespace HLSLTest
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
 			terrain = content.Load<Effect>("Planets\\WaterPlanet");
-			draw = content.Load<Effect>("Planets\\MoltenPlanet");
+			
 			Palette = content.Load<Texture2D>("Textures\\Planet\\rock");
 			Nz = 128;//50
 

@@ -35,7 +35,7 @@ namespace HLSLTest
 			get { return farPlaneDistance; }
 			set { farPlaneDistance = value; }
 		}
-		private float farPlaneDistance = 100000.0f;
+		private float farPlaneDistance = 1000000.0f;
 
 		public Camera()
 		{

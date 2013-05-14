@@ -18,13 +18,14 @@ namespace HLSLTest
 
 		protected override void LoadContent(ContentManager content)
 		{
+			draw = content.Load<Effect>("Planets\\ColorMap");
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
 			Model = content.Load<Model>("Models\\sphere2");
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
 			terrain = content.Load<Effect>("Planets\\RockPlanet");
-			draw = content.Load<Effect>("Planets\\ColorMap");
+			
 			Palette = content.Load<Texture2D>("Textures\\Planet\\rock");
 			Nz = 128;//50
 

@@ -179,7 +179,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 		float4 height = tex2D(ColorMapSampler, input.TexCoord);
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
 		texCol *= Diffuse;
-		output =  AmbientColor + texCol;
+		//output =  AmbientColor + texCol;
+		output = texCol;
 	} else if (renderType == 1)  {
 		// trying multi-texturing
 		// ê‘ÇbaseTexÇ…ÇµÇƒÇ¢ÇÈÇ±Ç∆Ç…íçà”
@@ -193,8 +194,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 		float4 height = tex2D(ColorMapSampler, input.TexCoord);
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
-		texCol *= Diffuse;
-		output += AmbientColor;
+		//texCol *= Diffuse;
+		//output += AmbientColor;
 	} else if (renderType == 2) {
 		// Setup sea texture + multi coloring
 		float4 BaseColor = tex2D(BaseMapSampler, input.TexCoord);
@@ -202,14 +203,13 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 		float3 NormalTex = (2 * (tex2D(BaseNormalSampler, input.TexCoord))) - 1.0;
 		float DiffuseTex = saturate(dot(LightDir, Normal));// âˆÇµÇ¢
-		BaseColor *= DiffuseTex;
+		//BaseColor *= DiffuseTex;
 
 		float4 height = tex2D(ColorMapSampler, input.TexCoord);
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
-		texCol *= Diffuse;
+		//texCol *= Diffuse;
+
 		output += weightMap.r * BaseColor * texCol + weightMap.g * texCol;
-
-
 		output += AmbientColor;
 	}
 
@@ -258,8 +258,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 
 	//float4 finalColor = float4(basicTexture * DiffuseColor * light * shadow, 1);
-	//float4 finalColor = float4(output * light * shadow, 1);
-	float4 finalColor = float4(output * shadow);// Ç∆ÇËÇ†Ç¶Ç∏
+	float4 finalColor = float4(output * light * shadow, 1);
+	//float4 finalColor = float4(output * shadow);// Ç∆ÇËÇ†Ç¶Ç∏
 	return finalColor;
 
 

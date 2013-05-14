@@ -23,7 +23,7 @@ namespace HLSLTest
 		RenderTarget2D lightTarg;
 
 		// Depth/normal effect and light mapping effect
-		Effect depthNormalEffect;
+		Effect depthNormalEffect, planetDepthNormalEffect;
 		Effect lightingEffect;
 
 		/// <summary>
@@ -144,11 +144,18 @@ namespace HLSLTest
 			// 法線マップと深度マップをDrawするエフェクトをセットしてそれぞれ書き込む
 			foreach (Object o in Models) {
 				o.DrawingPrePass = true;
+				o.DrawingDepthNormalPass = true;
 				o.CacheEffects();// すでにあるエフェクトを上書きさせないために退避させておく
-				o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする
+				if (o is Planet) {
+					
+					o.SetModelEffect(planetDepthNormalEffect, false);
+				} else {
+					o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする
+				}
 				o.Draw(level.camera.View, level.camera.Projection,
 					level.camera.CameraPosition);
 				o.RestoreEffects();// 退避させておいたエフェクトを戻す
+				o.DrawingDepthNormalPass = false;
 			}
 
 			// Un-set the render targets
@@ -182,7 +189,8 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(lightTarg);
 
 			// Clear the render target to black (no light)
-			graphicsDevice.Clear(Color.Transparent);// transparent black!
+			//graphicsDevice.Clear(Color.Transparent);// transparent black!
+			graphicsDevice.Clear(Color.Black);// transparent black!
 
 			// Set the render target to the graphics device
 			/*graphicsDevice.SetRenderTarget(lightTarg);
@@ -233,7 +241,7 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(null);
 
 			// debug
-			/*foreach (PointLight light in Lights) {
+			foreach (PointLight light in Lights) {
 				// Set the light's parameters to the effect
 				light.SetEffectParameters(lightingEffect);
 				// Calculate the world * view * projection matrix and set it to the effect
@@ -256,7 +264,7 @@ namespace HLSLTest
 				//lightingEffect.CurrentTechnique.Passes[0].Apply();
 				//quadRenderer.RenderQuad(graphicsDevice, -Vector2.One, Vector2.One);
 				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-			}*/
+			}
 
 			/*graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.None;
@@ -326,8 +334,7 @@ namespace HLSLTest
 						if (part.Effect.Parameters["viewportWidth"] != null)
 							part.Effect.Parameters["viewportWidth"].SetValue(viewWidth);
 						if (part.Effect.Parameters["viewportHeight"] != null)
-							part.Effect.Parameters["viewportHeight"].
-							SetValue(viewHeight);
+							part.Effect.Parameters["viewportHeight"].SetValue(viewHeight);
 
 						// shadow関係
 						if (part.Effect.Parameters["DoShadowMapping"] != null)
@@ -637,8 +644,8 @@ namespace HLSLTest
 				DrawShadowDepthMap();
 				BlurShadow(shadowBlurTarg, shadowDepthTarg, 0);
 				BlurShadow(shadowDepthTarg, shadowBlurTarg, 1);// shadowDepthTagに戻す
-			}/**/
-			PrepareMainPass();
+			}
+			PrepareMainPass();/**/
 		}
 		/// <summary>
 		/// LightsのBoundingSphereを描画するだけ
@@ -666,6 +673,8 @@ namespace HLSLTest
 			//depthNormalEffect = Content.Load<Effect>("PPDepthNormal");
 			depthNormalEffect = Content.Load<Effect>("PPDepthNormalV2");
 			//depthNormalEffect.Parameters["FarPlane"].SetValue(shadowFarPlane);
+
+			planetDepthNormalEffect = Content.Load<Effect>("Planets\\PlanetDepthNormal");
 
 			lightingEffect = Content.Load<Effect>("PPLight");
 

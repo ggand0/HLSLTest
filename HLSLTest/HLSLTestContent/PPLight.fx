@@ -90,11 +90,15 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	// ここまで来たら後は通常の輝度計算をするのみ
 	// Perform the lighting calculations for a point light
 	float3 lightDirection = normalize(LightPosition - position);
-	float lighting = clamp(dot(normal, lightDirection), 0, 1);
+	float lighting = clamp(dot(normal, lightDirection), 0, 1);// 角度で大体決まってるので、範囲を広くしたい場合は光源を遠くに置く必要有
+
 
 	// Attenuate the light to simulate a point light
 	float d = distance(LightPosition, position);
 	float att = 1 - pow(d / LightAttenuation, 6);
+	//float att = saturate(1.0f - d / 10000);// もっと範囲が広いライトが欲しいので変更。後々パラメータ化
+	//float att = saturate(1.0f - log(d) / 100000.0f / 10000);// 線形よりもっと緩く
+	//float att = 1.0f;
 
 	return float4(LightColor * lighting * att, 1);
 }

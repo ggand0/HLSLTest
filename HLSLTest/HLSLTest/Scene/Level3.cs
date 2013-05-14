@@ -65,7 +65,7 @@ namespace HLSLTest
 		{
 			base.Initialize();
 			Models = new List<Object>();
-			Ground = new Object(new Vector3(0, -200, 0), 0.05f, "Models\\ground");
+			Ground = new Object(new Vector3(0, -200, 0), 1f, "Models\\ground");
 			Models.Add(Ground);
 
 
@@ -76,7 +76,10 @@ namespace HLSLTest
 
 			random = new Random();
 			Asteroids = new List<Object>();
-			//AddAsteroids(50, 500);
+			AddAsteroids(10, 2000);
+			foreach (Object o in Asteroids) {
+				Models.Add(o);
+			}
 			spawned = true;
 
 
@@ -105,14 +108,15 @@ namespace HLSLTest
 
 			// Load stars
 			star = new Star(new Vector3(-500, 100, 500), device, content, StarType.G);
+			//star = new Star(-LightPosition, device, content, StarType.G);
 			LightPosition = star.Position;
 
 			// Load planets
 			Planets = new List<Planet>();
 			//WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
-			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), -LightPosition, device, content);
-			IcePlanet icePlanet = new IcePlanet(device, content);
-			GasGiant gasGiant = new GasGiant(device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), LightPosition, device, content);
+			IcePlanet icePlanet = new IcePlanet(new Vector3(-100, 100, -800), LightPosition, device, content);
+			GasGiant gasGiant = new GasGiant(new Vector3(-100, 100, -2500), LightPosition, device, content);
 			RockPlanet rockPlanet = new RockPlanet(device, content);
 			MoltenPlanet moltenPlanet = new MoltenPlanet(device, content);
 
@@ -121,6 +125,8 @@ namespace HLSLTest
 			//planet = icePlanet;
 			planet = waterPlanet;
 			Planets.Add(waterPlanet);
+			Planets.Add(icePlanet);
+			Planets.Add(gasGiant);
 			
 
 
@@ -142,8 +148,8 @@ namespace HLSLTest
 			renderer.Models = Models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PointLight>() {
-				new PointLightCircle(new Vector3(0, 200, 0), 500, Color.White, 2000),
-				new PointLight(new Vector3(0, 500, 0), Color.White * .85f, 2000),
+				new PointLightCircle(new Vector3(0, 1000, 0), 2000, Color.White, 2000),
+				new PointLight(new Vector3(0, 10000, 0), Color.White * .85f, 100000),// シーン全体を照らす巨大なライトにする
 				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
 				//new PointLight(LightPosition, Color.White * .85f, 2000000),
 				//new PointLight(new Vector3(0, 200, 0), Color.White * .85f, 100000),
@@ -152,13 +158,13 @@ namespace HLSLTest
 			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
-
+			LightPosition = renderer.Lights[0].Position;
 
 			// Special effects
 			EnergyRingEffect.game = game;
 			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
-			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
+			shieldEffect = new EnergyShieldEffect(content, device, Satellite.Position, new Vector2(300), 250);
 			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
 			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
 			//smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", true);
@@ -171,7 +177,33 @@ namespace HLSLTest
 			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
 
+		Vector3 tmpDirention;
+		Vector3 tmpCameraPos;
+		Matrix RotationMatrix = Matrix.Identity;
+		protected override void HandleInput()
+		{
+			base.HandleInput();
 
+			float stickSensitivity = 0.2f;
+			//  スティックが倒されていればDirectionを再計算する
+			if (JoyStick.Vector.Length() > stickSensitivity) {
+				double analogAngle = Math.Atan2(JoyStick.Vector.Y, JoyStick.Vector.X);
+				float speed = JoyStick.Vector.Length() * 30;
+				analogAngle += MathHelper.ToRadians(-90);
+
+				Vector3 tmpVelocity = Vector3.Zero;
+				tmpDirention = tmpCameraPos - camera.Position;
+				tmpDirention = new Vector3(tmpDirention.X, 0, tmpDirention.Z);
+				RotationMatrix = Matrix.CreateRotationY((float)analogAngle);
+				// 面白い動き : //RotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(JoyStick.Vector.Y)) * Matrix.CreateRotationX(MathHelper.ToRadians(-JoyStick.Vector.X));
+				tmpDirention = Vector3.TransformNormal(tmpDirention, RotationMatrix);
+				tmpDirention = Vector3.Normalize(tmpDirention);// プロパティなので代入しないと反映されないことに注意
+				tmpVelocity = new Vector3(tmpDirention.X * speed, tmpVelocity.Y, tmpDirention.Z * speed);
+
+				tmpCameraPos += tmpVelocity;
+			}
+
+		}
 		protected override void Collide()
 		{
 			base.Collide();
@@ -250,9 +282,12 @@ namespace HLSLTest
 			base.Update(gameTime);
 
 
-			camera.UpdateChaseTarget(Vector3.Zero);
+			//camera.UpdateChaseTarget(Vector3.Zero);
+			camera.UpdateChaseTarget(tmpCameraPos);
 			camera.Update(gameTime);
 			renderer.Update(gameTime);
+			LightPosition = renderer.Lights[0].Position;
+
 			Sky.Update(gameTime);
 
 			foreach (Object o in Models) {
@@ -269,7 +304,10 @@ namespace HLSLTest
 
 
 			//discoidEffect.Update(gameTime);
-			//shieldEffect.Update(gameTime);
+
+			shieldEffect.Position = Satellite.Position;
+			shieldEffect.Update(gameTime);
+
 			//explosionTest.Update(gameTime);
 			//bigExplosion.Update(gameTime);
 			lb.Update(gameTime);
@@ -283,34 +321,36 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
+			camera.FarPlaneDistance = 10000000;
 			renderer.PreDraw();
 			device.Clear(Color.White);
 
 			// Environment
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
 			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
+			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
-			if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			star.Draw(camera.View, camera.Projection);
 
 			// Entities
 			foreach (Object o in Models) {
-				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				if (o.IsActive) o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}
-			foreach (Object a in Asteroids) {
+			/*foreach (Object a in Asteroids) {
 				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			}
-			/*foreach (Drawable b in Bullets) {
-				if (b.IsActive) b.Draw(camera.View, camera.Projection, camera.CameraPosition);
 			}*/
+
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
-			}
+			}/**/
+
+
 			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			//bigExplosion.Draw(gameTime, camera);
 

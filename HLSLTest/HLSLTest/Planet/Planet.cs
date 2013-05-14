@@ -86,6 +86,7 @@ namespace HLSLTest
 			atmosphere = content.Load<Effect>("Planets//SkyFromSpace");
 			Model = content.Load<Model>("Models\\sphere2");
 			GenerateTags();
+			SetModelEffect(draw, false);
 			BuildPerm(graphicsDevice);
 		}
 
@@ -358,6 +359,9 @@ namespace HLSLTest
 						toSet = effect.Clone();
 					MeshTag tag = ((MeshTag)part.Tag);
 
+					if (DrawingDepthNormalPass) {
+						SetEffectParameter(toSet, "BumpMap", normalmap);// hennkou
+					}
 					SetEffectParameter(toSet, "BasicTexture", Mercator);// hennkou
 					SetEffectParameter(toSet, "TextureEnabled", true);
 
@@ -389,7 +393,7 @@ namespace HLSLTest
 			_world = World;
 			Matrix wvp = World * View * Projection;
 			//Vector3 light = -level.LightPosition;
-			Vector3 light = -level.LightPosition;
+			Vector3 light = level.LightPosition;
 			light.Normalize();
 			draw.Parameters["LightDirection"].SetValue(light);
 			draw.Parameters["wvp"].SetValue(wvp);
@@ -419,7 +423,8 @@ namespace HLSLTest
 				draw.Parameters["WeightMap"].SetValue(BlendMap);
 			}
 
-			if (DrawingPreShadowPass) {
+			if (DrawingPrePass) {
+				
 				base.Draw(View, Projection, CameraPosition);
 			} else {
 				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {
@@ -477,7 +482,10 @@ namespace HLSLTest
 				revolutionSpeed = 0.2f;
 				revolutionAngle += MathHelper.ToRadians(revolutionSpeed);
 				Vector3 velocity = new Vector3((float)Math.Cos(revolutionAngle), 0, (float)Math.Sin(revolutionAngle));
-				Vector3 tmp = StarPosition + velocity * 3000;
+				//Vector3 tmp = StarPosition + velocity * 3000;
+
+				float radius = (Position - StarPosition).Length();
+				Vector3 tmp = StarPosition + velocity * radius;
 
 				Position = tmp;
 			}

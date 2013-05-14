@@ -75,12 +75,13 @@ namespace HLSLTest
 				new Vector4(Vector3.Normalize(CameraPosition - mesh.Position), 1));
 		}
 
-
+		public Vector3 Position { get; set; }
 		public EnergyShieldEffect(ContentManager content, GraphicsDevice graphics,
 			Vector3 position, Vector2 size, float scale)
 		{
 			this.content = content;
 			this.graphics = graphics;
+			this.Position = position;
 			this.Scale = Matrix.CreateScale(scale);
 			mesh = new Object(position, "Models\\SkySphereMesh");
 
@@ -91,7 +92,12 @@ namespace HLSLTest
 			Texture2D tex = content.Load<Texture2D>("Textures\\Plasma_0");
 			//discoidEffect = content.Load<Effect>("Lights\\RimLightingEffectV2");
 			effect = content.Load<Effect>("Lights\\EnergyShieldEffect");
+
 			effect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
+			//effect.Parameters["RimColor"].SetValue(new Vector4(Color.Blue.ToVector3(), 0.05f));
+			//effect.Parameters["WaveSpeed"].SetValue(1.0f);
+
+
 			effect.Parameters["BaseTexture"].SetValue(tex);
 			effect.Parameters["RefractionMap"].SetValue(level.Sky.TextureCube);
 			effect.Parameters["NormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
@@ -102,7 +108,7 @@ namespace HLSLTest
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
 			eps = new ExplosionParticleEmitter(graphics, content, position, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
 			currentRadius = DEF_RADIUS;
-			currentRadius = 100;
+			currentRadius = 300;
 			speed = eps.Velocity.Length();
 		}
 	}

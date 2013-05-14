@@ -1,3 +1,5 @@
+// 今のところShadowDepthEffectと同じ
+
 float4x4 World;
 float4x4 View;
 float4x4 Projection;

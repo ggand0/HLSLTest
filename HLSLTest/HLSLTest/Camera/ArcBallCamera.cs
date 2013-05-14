@@ -20,7 +20,7 @@ namespace HLSLTest
 		//private static readonly float ZOOM_RATE = 10; // スムーズにズームさせたい時に使用する予定
 
 		private short zoomMode = 0;
-		private float[] zoomState = new float[] { 100, 300, 500, 1000, 4000 };
+		private float[] zoomState = new float[] { 100, 300, 500, 1000, 4000, 10000 };
 
 		// Matrix
 		//public Matrix View { get; set; }
