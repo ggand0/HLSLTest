@@ -9,11 +9,25 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace HLSLTest
 {
-	public class ArmedSatellite : Object
+	public class ArmedSatellite : Satellite
 	{
 		SoundEffect shootSound;
 		List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
+		EnergyShieldEffect shieldEffect;
 
+		private Vector3 SearchTarget()
+		{
+			float minDis = 9999;
+			Vector3 min = new Vector3(9999);
+
+			foreach (Asteroid a in (level as Level3).Asteroids) {
+				if ((Position - a.Position).Length() < minDis) {
+					minDis = (Position - a.Position).Length();
+					min = a.Position;
+				}
+			}
+			return min;
+		}
 		private void Shoot(int bulletType)
 		{
 			switch (bulletType) {
@@ -42,8 +56,10 @@ namespace HLSLTest
 						//Vector3 tmp = new Vector3(100, 60, -100);
 
 						//Vector3 tmp = (level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
-                        Vector3 tmp = (level as Level3).Asteroids[0].Position;
-//                        tmp = new Vector3(100, 50, 100);
+                        //Vector3 tmp = (level as Level3).Asteroids[0].Position;
+						Vector3 tmp = SearchTarget();
+						
+
 						Vector3 dir = Vector3.Normalize(tmp - Position);
 						level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(50, 30), 1));
@@ -56,11 +72,20 @@ namespace HLSLTest
 
 		Random r = new Random();
 		private int count;
+		private int shootRate = 60;
+		private int chargeTime;
+		private bool canShoot;
 		public override void Update(GameTime gameTime)
 		{
 			count++;
 			base.Update(gameTime);
-			if (JoyStick.IsOnKeyDown(2)) {
+
+			if (!canShoot && count > chargeTime) {
+				canShoot = true;
+				count = 0;
+			}
+
+			if (canShoot && JoyStick.IsOnKeyDown(2) || count % shootRate == 0) {
 				Shoot(4);
 				//shootSound.Play();
 				//shootSoundInstance.Play();
@@ -76,13 +101,37 @@ namespace HLSLTest
 					currentSounds.RemoveAt(i);
 				}
 			}
+
+			shieldEffect.Position = Position;
+			shieldEffect.Update(gameTime);
 		}
 
+		public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			base.Draw(View, Projection, CameraPosition);
+
+			shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);
+		}
+
+		#region Constructors
 		public ArmedSatellite(Vector3 position, float scale, string fileName)
 			:base(position, scale, fileName)
 		{
 			shootSound = content.Load<SoundEffect>("SoundEffects\\laser0");
-			
 		}
+
+		public ArmedSatellite(Vector3 position, Vector3 center, float scale, string fileName)
+			: this(position, center, scale, fileName, "SoundEffects\\laser0")
+		{
+		}
+		public ArmedSatellite(Vector3 position, Vector3 center, float scale, string fileName, string SEPath)
+			: base(position, center, scale, fileName)
+		{
+			//random = new Random();
+			chargeTime = random.Next(10, 70);
+			shootSound = content.Load<SoundEffect>(SEPath);
+			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(300), 250);
+		}
+		#endregion
 	}
 }

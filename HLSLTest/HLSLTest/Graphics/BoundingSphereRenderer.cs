@@ -180,6 +180,7 @@ namespace HLSLTest
 						basicEffect.DiffuseColor = color.ToVector3();
 						//basicEffect.CommitChanges();
 						pass.Apply();
+						device.SamplerStates[0] = SamplerState.PointWrap;
 						device.DrawIndexedPrimitives(
 								PrimitiveType.LineStrip,
 								0,  // vertex buffer offset to add to each element of the index buffer

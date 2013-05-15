@@ -63,7 +63,8 @@ namespace HLSLTest
 			//return (o.Model.Meshes[0].BoundingSphere.Center - End).Length() < bs.Radius;
 			//return (o.Position - End).Length() < o.Model.Meshes[0].BoundingSphere.Radius;//bs.Radius;
 
-			return End == o.Position;
+			//return End == o.Position;
+			return (End - o.Position).Length() < 50;
 		}
 
 		// Constructors

@@ -30,6 +30,11 @@
     <Reference Include="Microsoft.Xna.Framework.Content.Pipeline.VideoImporters, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Rosetta.fbx">
+      <Name>Rosetta</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <Compile Include="Textures\Planet\frozen.png">
       <Name>frozen</Name>
       <Importer>TextureImporter</Importer>
@@ -360,6 +365,31 @@
       <Importer>XImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
+    <Compile Include="Models\DeepSpace.fbx">
+      <Name>DeepSpace</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <None Include="Models\Rosetta2.fbx">
+      <Name>Rosetta2</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </None>
+    <Compile Include="Models\Rosetta3.fbx">
+      <Name>Rosetta3</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <None Include="Models\Stardust.fbx">
+      <Name>Stardust</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </None>
+    <Compile Include="Models\TDRS.fbx">
+      <Name>TDRS</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <None Include="Planets\Clouds\Clouds.fx">
       <Name>Clouds</Name>
       <Importer>EffectImporter</Importer>
@@ -402,6 +432,21 @@
     </Compile>
     <Compile Include="Planets\PlanetDepthNormal.fx">
       <Name>PlanetDepthNormal</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Planets\SunEffect.fx">
+      <Name>SunEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Planets\SunLayerEffect.fx">
+      <Name>SunLayerEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Planets\ExtractHDREffect.fx">
+      <Name>ExtractHDREffect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
@@ -557,6 +602,21 @@
     </Compile>
     <Compile Include="Textures\SkyBox\space5.dds">
       <Name>space5</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\SkyBox\SunTexture.dds">
+      <Name>SunTexture</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\SkyBox\SunLayer0.dds">
+      <Name>SunLayer0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\SkyBox\SunLayer1.dds">
+      <Name>SunLayer1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -1050,6 +1110,32 @@
       <Name>laser0</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SoundEffects\License\LAAT0.wav">
+      <Name>LAAT0</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="SoundEffects\License\LAAT1.wav">
+      <Name>LAAT1</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SoundEffects\laser1.wav">
+      <Name>laser1</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Planet\FireGradient.png">
+      <Name>FireGradient</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

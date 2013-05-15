@@ -37,10 +37,10 @@ namespace HLSLTest
 			}
 		}
 		/// <summary>
-		/// 
+		/// 反射マップを作成する
 		/// </summary>
 		/// <param name="camera">main camera instance</param>
-		public void renderReflection(ArcBallCamera camera)
+		public void RenderReflection(ArcBallCamera camera)
 		{
 			// Reflect the camera's properties across the water plane
 			Vector3 reflectedCameraPosition = camera.Position;
@@ -152,7 +152,7 @@ namespace HLSLTest
 		}
 		public void PreDraw(ArcBallCamera camera, GameTime gameTime)
 		{
-			renderReflection(camera);
+			RenderReflection(camera);
 			waterEffect.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
 		}
 		/// <summary>

@@ -8,15 +8,27 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
+		Debug|Xbox 360 = Debug|Xbox 360
+		Debug|Zune = Debug|Zune
 		Release|x86 = Release|x86
+		Release|Xbox 360 = Release|Xbox 360
+		Release|Zune = Release|Zune
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|x86.ActiveCfg = Debug|x86
 		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|x86.Build.0 = Debug|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Debug|Zune.ActiveCfg = Debug|x86
 		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|x86.ActiveCfg = Release|x86
 		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|x86.Build.0 = Release|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|Xbox 360.ActiveCfg = Release|x86
+		{716ED720-08DF-4D30-82C9-556F40ECC4D4}.Release|Zune.ActiveCfg = Release|x86
 		{95346E69-0FCC-406C-A088-4284AF64C583}.Debug|x86.ActiveCfg = Debug|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Debug|Zune.ActiveCfg = Debug|x86
 		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|x86.ActiveCfg = Release|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|Xbox 360.ActiveCfg = Release|x86
+		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|Zune.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

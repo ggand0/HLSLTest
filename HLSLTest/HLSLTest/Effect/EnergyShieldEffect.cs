@@ -45,6 +45,8 @@ namespace HLSLTest
 			graphics.BlendState = BlendState.AlphaBlend;
 			// スケールにベクトルを使用していることに注意
 			//discoidMesh.World = Matrix.CreateScale(discoidMesh.ScaleVector) * discoidMesh.RotationMatrix * Matrix.CreateTranslation(discoidMesh.Position);
+
+			mesh.Position = Position;
 			mesh.World = Scale * mesh.RotationMatrix * Matrix.CreateTranslation(mesh.Position);
 			SetEffectParameters(CameraPosition, CameraDirection);
 
@@ -95,7 +97,7 @@ namespace HLSLTest
 
 			effect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
 			//effect.Parameters["RimColor"].SetValue(new Vector4(Color.Blue.ToVector3(), 0.05f));
-			//effect.Parameters["WaveSpeed"].SetValue(1.0f);
+			effect.Parameters["WaveSpeed"].SetValue(3.0f);
 
 
 			effect.Parameters["BaseTexture"].SetValue(tex);

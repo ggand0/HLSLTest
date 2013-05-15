@@ -12,6 +12,7 @@ namespace HLSLTest
 	{
 		public static GraphicsDeviceManager graphics;
 		public static GraphicsDevice device;
+		//public static SpriteBatch spriteBatch;
 		//public static ContentManager content;
 		public static readonly Vector3 PlayfieldSize = new Vector3(100000);
 		private static readonly Vector3 initialCameraPosition = new Vector3(0.0f, 50.0f, 5000.0f);
@@ -41,6 +42,7 @@ namespace HLSLTest
 		{
 			device.BlendState = BlendState.Opaque;
 			device.DepthStencilState = DepthStencilState.Default;
+			device.RasterizerState = RasterizerState.CullCounterClockwise;
 			device.SamplerStates[0] = SamplerState.LinearWrap;
 		}
 

@@ -90,6 +90,7 @@
     <Compile Include="Entity\IBullet.cs" />
     <Compile Include="Entity\Drawable.cs" />
     <Compile Include="Entity\LaserBillboardBullet.cs" />
+    <Compile Include="Entity\Satellite.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
@@ -118,8 +119,10 @@
     <None Include="Planet\Cloud Generation\HeatMap.cs" />
     <None Include="Planet\Cloud Generation\InitialVelocity.cs" />
     <None Include="Planet\Cloud Generation\PressureMap.cs" />
+    <Compile Include="Planet\ChainedRenderTarget.cs" />
     <Compile Include="Planet\MoltenPlanet.cs" />
     <Compile Include="Planet\Star.cs" />
+    <Compile Include="Planet\Sun.cs" />
     <Compile Include="Scene\Level.cs" />
     <Compile Include="Scene\Level0.cs" />
     <Compile Include="Scene\Level1.cs" />

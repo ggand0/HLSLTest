@@ -27,8 +27,10 @@ namespace HLSLTest
 		ExplosionEffect explosionTest, smallExplosion, bigExplosion;
 		Planet planet;
 		Star star;
-		public List<Object> Asteroids { get; private set; }
+		Sun sun;
+		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
+		public List<Satellite> Satellites { get; private set; }
 		
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
@@ -36,16 +38,21 @@ namespace HLSLTest
 		private int count;
 		//ParticleSettings setting;
 		LaserBillboard lb;
+		/// <summary>
+		/// 小惑星の最大spawn数
+		/// </summary>
+		private static readonly int MAX_SPAWN_NUM = 30;
+
 		public static float NextDouble(Random r, double min, double max)
 		{
 			return (float)(min + r.NextDouble() * (max - min));
 		}
 		private void AddAsteroids(int asteroidNum, float radius)
 		{
-			Asteroids = new List<Object>();
+			Asteroids = new List<Asteroid>();
 			Effect lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
-			Object.SetEffectParameter(lightingEffect, "LightDirection", -LightPosition);
-			Object.SetEffectParameter(lightingEffect, "SpecularPower", 200);
+			//Object.SetEffectParameter(lightingEffect, "LightDirection", -LightPosition);
+			//Object.SetEffectParameter(lightingEffect, "SpecularPower", 200);
 			//Object.SetEffectParameter(lightingEffect, "AmbientColor", new Vector3(0.5f));
 
 			/*asteroids.Add(new Object(new Vector3(-100,0,100), "Models\\Asteroid"));
@@ -56,31 +63,20 @@ namespace HLSLTest
 			asteroids[1].SetModelEffect(lightingEffect, true);*/
             for (int i = 0; i < asteroidNum; i++) {
 				//random = new Random();
-                Asteroids.Add(new Object(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), "Models\\Asteroid"));
-				Asteroids[i].Scale = 0.02f;//0.1f;
+				Asteroids.Add(new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid"));
+				//Asteroids[i].Scale = 0.02f;//0.1f;
 				Asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
 			}/**/
 		}
 		protected override void Initialize()
 		{
 			base.Initialize();
+			// Entities
 			Models = new List<Object>();
 			Ground = new Object(new Vector3(0, -200, 0), 1f, "Models\\ground");
 			Models.Add(Ground);
-
-
 			Target = new Object(new Vector3(0, 20, 0), 20, "Models\\cube");
 			//Models.Add(Target);
-			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), 5, "Models\\ISS");
-			Models.Add(Satellite);
-
-			random = new Random();
-			Asteroids = new List<Object>();
-			AddAsteroids(10, 2000);
-			foreach (Object o in Asteroids) {
-				Models.Add(o);
-			}
-			spawned = true;
 
 
 			// Initializes camera
@@ -96,6 +92,7 @@ namespace HLSLTest
 			// Set the grid to draw on the x/z plane around the origin
 			grid.WorldMatrix = Matrix.Identity;
 		}
+		Effect shadowEffect;
 		public override void Load()
 		{
 			base.Load();
@@ -110,6 +107,8 @@ namespace HLSLTest
 			star = new Star(new Vector3(-500, 100, 500), device, content, StarType.G);
 			//star = new Star(-LightPosition, device, content, StarType.G);
 			LightPosition = star.Position;
+			sun = new Sun(new Vector3(-500, 100, 500), device, content, spriteBatch);
+			
 
 			// Load planets
 			Planets = new List<Planet>();
@@ -127,13 +126,29 @@ namespace HLSLTest
 			Planets.Add(waterPlanet);
 			Planets.Add(icePlanet);
 			Planets.Add(gasGiant);
+
+			// Asteroids
+			random = new Random();
+			Asteroids = new List<Asteroid>();
+			AddAsteroids(5, 2000);
+			foreach (Object o in Asteroids) {
+				Models.Add(o);
+			}
+			spawned = true;
 			
+			// Load satellites
+			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
+			Models.Add(Satellite);
+			Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
 
 
 			// Set up light effects !!
-			Effect shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
+			shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
 			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
 			foreach (Object o in Models) {
+				if (o is Satellite) {
+					string d = "";
+				}
 				o.RenderBoudingSphere = false;
 				o.SetModelEffect(shadowEffect, true);
 			}
@@ -149,6 +164,7 @@ namespace HLSLTest
 			renderer.Camera = camera;
 			renderer.Lights = new List<PointLight>() {
 				new PointLightCircle(new Vector3(0, 1000, 0), 2000, Color.White, 2000),
+				new PointLight(new Vector3(0, 500, 0), Color.LightBlue, 2000),
 				new PointLight(new Vector3(0, 10000, 0), Color.White * .85f, 100000),// シーン全体を照らす巨大なライトにする
 				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
 				//new PointLight(LightPosition, Color.White * .85f, 2000000),
@@ -184,7 +200,7 @@ namespace HLSLTest
 		{
 			base.HandleInput();
 
-			float stickSensitivity = 0.2f;
+			/*float stickSensitivity = 0.2f;
 			//  スティックが倒されていればDirectionを再計算する
 			if (JoyStick.Vector.Length() > stickSensitivity) {
 				double analogAngle = Math.Atan2(JoyStick.Vector.Y, JoyStick.Vector.X);
@@ -201,7 +217,7 @@ namespace HLSLTest
 				tmpVelocity = new Vector3(tmpDirention.X * speed, tmpVelocity.Y, tmpDirention.Z * speed);
 
 				tmpCameraPos += tmpVelocity;
-			}
+			}*/
 
 		}
 		protected override void Collide()
@@ -263,21 +279,41 @@ namespace HLSLTest
 					}
 				}
 			}
+
+			for (int j = 0; j < Models.Count; j++) {
+				if (!Models[j].IsActive) {
+					Models.RemoveAt(j);
+				}
+			}
 		}
 		public override void Update(GameTime gameTime)
 		{
 			float elapsed = (float)gameTime.TotalGameTime.TotalSeconds;
-			/*count++;
-			if (count % 1001 == 0) {
+			count++;
+			/*if (count % 1001 >= 0 && Asteroids.Count == 0) {
 				spawned = false;
+				count = 0;
 			}
 			if (!spawned) {
-				//AddAsteroids();
-				for (int i = 0; i < asteroids.Count; i++) {
-					asteroids[i].IsActive = true;
+				AddAsteroids(15, 2000);
+				for (int i = 0; i < Asteroids.Count; i++) {
+					Asteroids[i].IsActive = true;
+					Asteroids[i].RenderBoudingSphere = false;
+					Asteroids[i].SetModelEffect(shadowEffect, true);
+					Models.Add(Asteroids[i]);
 				}
 				spawned = true;
 			}*/
+			if (Asteroids.Count < 15) {// = 15 -5
+				float radius = 3000;
+				Asteroid a = new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid");
+				//Asteroids[i].Scale = 0.02f;//0.1f;
+				a.SetModelEffect(shadowEffect, true);					// set effect to each modelmeshpart
+				a.IsActive = true;
+				a.RenderBoudingSphere = false;
+				Asteroids.Add(a);
+				Models.Add(a);
+			}
 
 			base.Update(gameTime);
 
@@ -291,11 +327,11 @@ namespace HLSLTest
 			Sky.Update(gameTime);
 
 			foreach (Object o in Models) {
-				o.Update(gameTime);
+				if (o.IsActive) o.Update(gameTime);
 			}
-			foreach (Object a in Asteroids) {
+			/*foreach (Object a in Asteroids) {
 				if (a.IsActive) a.Update(gameTime);
-			}
+			}*/
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Update(gameTime);
 			}
@@ -305,8 +341,8 @@ namespace HLSLTest
 
 			//discoidEffect.Update(gameTime);
 
-			shieldEffect.Position = Satellite.Position;
-			shieldEffect.Update(gameTime);
+			//shieldEffect.Position = Satellite.Position;
+			//shieldEffect.Update(gameTime);
 
 			//explosionTest.Update(gameTime);
 			//bigExplosion.Update(gameTime);
@@ -321,22 +357,31 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
+			//ResetGraphicDevice();
 			camera.FarPlaneDistance = 10000000;
 			renderer.PreDraw();
 			device.Clear(Color.White);
 
 			// Environment
-			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-
+			
+			Sky.Draw(camera.View, camera.Projection, camera.Position);
+			sun.Draw(camera.View, camera.Projection);
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
 			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
 			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
-			star.Draw(camera.View, camera.Projection);
+			//star.Draw(camera.View, camera.Projection);
+			
 
 			// Entities
 			foreach (Object o in Models) {
-				if (o.IsActive) o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				if (o.IsActive) {
+					if (o is ArmedSatellite) {
+						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition);
+					} else {
+						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+					}
+				}
 			}
 			/*foreach (Object a in Asteroids) {
 				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -350,7 +395,7 @@ namespace HLSLTest
 			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			//bigExplosion.Draw(gameTime, camera);
 
@@ -363,7 +408,7 @@ namespace HLSLTest
 				//grid.Draw();
 			}
 
-
+			
 			effectManager.Draw(gameTime, camera);
 		}
 

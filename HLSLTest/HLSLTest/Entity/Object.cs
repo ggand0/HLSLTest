@@ -370,6 +370,7 @@ namespace HLSLTest
 						//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
 					}
 				}
+				GraphicsDevice de = Level.device;
 				mesh.Draw();
 			}
 		}
@@ -417,6 +418,7 @@ namespace HLSLTest
 			this.Scale = scale;
 
 			Material = new HLSLTest.Material();
+			random = new Random();
 			IsActive = true;
 			RenderBoudingSphere = true;
 			RotationMatrix = Matrix.Identity;
@@ -425,7 +427,7 @@ namespace HLSLTest
 			_boundingSphereRenderer.OnCreateDevice();
 		}
 
-
+		protected Random random;
 		public Object(string fileName)
 			: this (Vector3.Zero, fileName)
 		{
@@ -439,6 +441,7 @@ namespace HLSLTest
 			this.Position = position;
 			this.Scale = scale;
 
+			random = new Random();
 			IsActive = true;
 			RenderBoudingSphere = true;
 			Load(fileName);

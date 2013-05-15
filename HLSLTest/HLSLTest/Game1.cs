@@ -74,7 +74,8 @@ namespace HLSLTest
 
 			Level.device = GraphicsDevice;
 			Level.content = Content;
-
+			//Scene.spriteBatch = this.spriteBatch;
+			Scene.Initialize(this, spriteBatch, Content);
 
 			// Create levels
 			//Levels = new Level[] { new Level0(null), new Level1(null), new Level2(null) };
