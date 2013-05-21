@@ -392,8 +392,8 @@ namespace HLSLTest
 
 			//star.Draw(camera.View, camera.Projection);
 
-			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-			// Entities
+			//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+			// Entities Vector3 transformed = Vector3.Transform(o.Position, camera.View);
 			foreach (Object o in Models) {
 				if (o.IsActive) {
 					if (o is ArmedSatellite) {
@@ -401,20 +401,21 @@ namespace HLSLTest
 					} else {
 						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 					}
-					// mask作成
-					//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
-					/*Vector3 transformed = Vector3.Transform(o.Position, camera.View);
-					if (transformed.Z > sunDepth) {// 基準より前にいたら、マスク作成
-						graphicsDevice.SetRenderTarget(maskLayer);
-						o.CacheEffects();
-						o.SetModelEffect(o.maskEffect, true);
-						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
-						o.RestoreEffects();
-						graphicsDevice.SetRenderTarget(null);
-					}*/
 				}
 			}
+			/*graphicsDevice.DepthStencilState = DepthStencilState.None;
+			sun.Draw(true, camera.View, camera.Projection);
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			foreach (Object o in Models) {
+				if (o.IsActive && Vector3.Transform(o.Position, camera.View).Z > sunDepth) {
+					if (o is ArmedSatellite) {
+						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition);
+					} else {
+						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+					}
+				}
+			}*/
+			
 			//sun.Draw(true, camera.View, camera.Projection);
 
 			foreach (Drawable b in Bullets) {

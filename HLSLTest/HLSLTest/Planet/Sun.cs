@@ -34,6 +34,8 @@ namespace HLSLTest
 		//public float Scale;
 		private GraphicsDevice graphicsDevice;
 		private SpriteBatch spriteBatch;
+		BasicEffect basicEffect;
+		BillboardSystem b1, b2;
 
 		OcclusionQuery occlusionQuery;
 		bool occlusionQueryActive = false;
@@ -84,6 +86,13 @@ namespace HLSLTest
 			foreach (Flare flare in flares) {
 				flare.Texture = content.Load<Texture2D>("Textures\\" + flare.TextureName);
 			}*/
+			b1 = new BillboardSystem(graphicsDevice, content, null, new Vector2(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), new Vector3[] { Position });
+			b2 = new BillboardSystem(graphicsDevice, content, null, new Vector2(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), new Vector3[] { Position });
+
+			basicEffect = new BasicEffect(graphicsDevice) {
+				TextureEnabled = true,
+				VertexColorEnabled = true,
+			};
 
 			SetupRenderTargets();
 		}
@@ -307,17 +316,28 @@ namespace HLSLTest
 			}
 			
 			if (postEffect) {
-				float sunDepth = Vector3.Transform(Position, View).Z;
+				b1.Texture = albedoLayer;
+				b2.Texture = hdrExtractedLayer;
+				b1.Draw(View, Projection, level.camera.Up, level.camera.Right);
+				b2.Draw(View, Projection, level.camera.Up, level.camera.Right);
+				/*float sunDepth = Vector3.Transform(Position, View).Z;
 
 				GraphicsDevice d = graphicsDevice;
-				//graphicsDevice.DepthStencilState = DepthStencilState.Default;
-				graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+				graphicsDevice.DepthStencilState = DepthStencilState.None;
+				//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 				graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
-				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+				//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+
+				basicEffect.World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+				basicEffect.View = View;
+				basicEffect.Projection = Projection;
+				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
+				//spriteBatch.Begin(0, null, null, null, RasterizerState.CullNone, basicEffect);
+				
 				graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				spriteBatch.Draw(albedoLayer, Vector2.Zero, Color.White);// Drawの中でSamplerStateがLinearに戻されるらしい
 				//spriteBatch.Draw(albedoLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, sunDepth);
@@ -327,8 +347,8 @@ namespace HLSLTest
 				spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, Color.White);
 				//spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, sunDepth);
 				spriteBatch.End();
-				graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-			}/**/
+				//graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;*/
+			}
 
 			/*if (occlusionQueryActive) {
 				if (!holdoff)

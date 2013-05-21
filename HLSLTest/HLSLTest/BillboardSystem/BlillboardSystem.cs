@@ -31,7 +31,8 @@ namespace HLSLTest
 		// Billboard settings
 		public int BillboardNum { get; private set; }
 		public Vector2 BillboardSize { get; private set; }
-		public Texture2D Texture { get; private set; }
+		//public Texture2D Texture { get; private set; }
+		public Texture2D Texture { get; set; }
 		/// <summary>
 		/// ソフトパーティクルを使うかどうか
 		/// </summary>
@@ -61,6 +62,7 @@ namespace HLSLTest
 		protected void DrawBillboards()
 		{
 			effect.CurrentTechnique.Passes[0].Apply();
+			graphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
 			4 * BillboardNum, 0, BillboardNum * 2);
 		}

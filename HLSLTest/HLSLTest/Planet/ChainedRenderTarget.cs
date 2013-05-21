@@ -499,7 +499,8 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			Size.Y = m_Height / 64;
 
 			m_Device.SetRenderTarget(m_DownSampleTargets[5]);
-			m_Device.Clear(Color.Black);
+			//m_Device.Clear(Color.Black);
+			m_Device.Clear(Color.Transparent);
 			m_Device.Textures[0] = m_TempTargets[5];
 			effect.CurrentTechnique = effect.Techniques[BLUR_QUALITY];
 			effect.Parameters["ViewportSize"].SetValue(Size);
