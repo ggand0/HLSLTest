@@ -10,8 +10,9 @@ namespace HLSLTest
 {
 	public class Level : Scene
 	{
-		public static GraphicsDeviceManager graphics;
-		public static GraphicsDevice device;
+		//public static GraphicsDeviceManager graphics;
+		public static GraphicsDevice graphicsDevice;
+		public static bool mute = true;
 		//public static SpriteBatch spriteBatch;
 		//public static ContentManager content;
 		public static readonly Vector3 PlayfieldSize = new Vector3(100000);
@@ -22,6 +23,7 @@ namespace HLSLTest
 		protected Debug debug;
 		protected EffectManager effectManager;
 		protected bool displayGrid;
+		protected RenderTarget2D maskLayer;
 
 		public List<Object> Models { get; protected set; }
 		//public List<IRenderable>  { get; protected set; }
@@ -40,10 +42,13 @@ namespace HLSLTest
 		/// </summary>
 		public void ResetGraphicDevice()
 		{
-			device.BlendState = BlendState.Opaque;
-			device.DepthStencilState = DepthStencilState.Default;
-			device.RasterizerState = RasterizerState.CullCounterClockwise;
-			device.SamplerStates[0] = SamplerState.LinearWrap;
+			graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			//device.SamplerStates[0] = SamplerState.LinearWrap;
+			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+			graphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
+			graphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
 		}
 
 		protected virtual void Collide()
@@ -82,7 +87,7 @@ namespace HLSLTest
 		}
 		public override void Load()
 		{
-
+			maskLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
 		}
 		public override void Update(GameTime gameTime)
 		{

@@ -35,10 +35,10 @@ namespace HLSLTest
 					level.Bullets.Add(new EntityBullet(this, 1, new Vector3(1, 0, 0), this.Position, 20, "Models\\cube"));
 					break;
 				case 1:
-					level.Bullets.Add(new BillboardBullet(Level.device, content, Position, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10) ));
+					level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10) ));
 					break;
 				case 2:
-					level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
+					level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
 					break;
 				case 3:
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 1));
@@ -46,7 +46,7 @@ namespace HLSLTest
 
 					if ((level as Level3).Asteroids.Count > 0) {
 						Vector3 dir = Vector3.Normalize(new Vector3(3, 2, 1));//(level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
-						level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, dir, 1,
+						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
 					}
 					
@@ -61,7 +61,7 @@ namespace HLSLTest
 						
 
 						Vector3 dir = Vector3.Normalize(tmp - Position);
-						level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
+						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, tmp, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(50, 30), 1));
 						/*level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
 							content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));*/
@@ -89,10 +89,13 @@ namespace HLSLTest
 				Shoot(4);
 				//shootSound.Play();
 				//shootSoundInstance.Play();
+
+				if (!Level.mute) {
 				SoundEffectInstance ls = shootSound.CreateInstance();
-				ls.Volume = 0.2f;
+				ls.Volume = 0.1f;
 				ls.Play();
 				currentSounds.Add(ls);
+					}
 			}
 
 			for (int i = currentSounds.Count - 1; i >= 0; i--) {

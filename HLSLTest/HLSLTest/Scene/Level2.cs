@@ -89,31 +89,31 @@ namespace HLSLTest
 			base.Load();
 
 			// Set up the reference grid and sample camera
-			grid.LoadGraphicsContent(device);
+			grid.LoadGraphicsContent(graphicsDevice);
 
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
+			Sky = new SkySphere(content, graphicsDevice, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
 			// Load planets
-			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
-			IcePlanet icePlanet = new IcePlanet(device, content);
-			GasGiant gasGiant = new GasGiant(device, content);
-			RockPlanet rockPlanet = new RockPlanet(device, content);
-			MoltenPlanet moltenPlanet = new MoltenPlanet(device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, graphicsDevice, content);
+			IcePlanet icePlanet = new IcePlanet(graphicsDevice, content);
+			GasGiant gasGiant = new GasGiant(graphicsDevice, content);
+			RockPlanet rockPlanet = new RockPlanet(graphicsDevice, content);
+			MoltenPlanet moltenPlanet = new MoltenPlanet(graphicsDevice, content);
 
 			//planet = moltenPlanet;
 			//planet = gasGiant;
 			//planet = icePlanet;
 			planet = waterPlanet;
-			star = new Star(device, content, StarType.G);
+			star = new Star(graphicsDevice, content, StarType.G);
 
 
 			EnergyRingEffect.game = game;
-			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
+			discoidEffect = new EnergyRingEffect(content, graphicsDevice, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
-			shieldEffect = new EnergyShieldEffect(content, device, new Vector3(0, 0, 0), new Vector2(300), 250);
-			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
-			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
-			bigExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion1.xml", true);
+			shieldEffect = new EnergyShieldEffect(content, graphicsDevice, new Vector3(0, 0, 0), new Vector2(300), 250);
+			explosionTest = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
+			smallExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
+			bigExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion1.xml", true);
 
 			// pre-load
 			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
@@ -207,7 +207,7 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
-			device.Clear(Color.White);
+			graphicsDevice.Clear(Color.White);
 
 			
 

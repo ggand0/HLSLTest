@@ -207,3 +207,6 @@ Content\Textures\SkyBox\SunLayer1.xnb
 Content\Planets\SunLayerEffect.xnb
 Content\Planets\ExtractHDREffect.xnb
 Content\Textures\Planet\FireGradient.xnb
+Content\Planets\LinearFilter.xnb
+Content\Planets\GaussianFilter.xnb
+Content\Lights\CreateMaskEffect.xnb

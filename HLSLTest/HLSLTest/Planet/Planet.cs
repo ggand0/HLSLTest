@@ -82,10 +82,12 @@ namespace HLSLTest
 
 		protected virtual void LoadContent(ContentManager content)
 		{
+			base.Load("Models\\sphere2");
+
 			sphere = content.Load<Model>("Models\\sphere");
 			atmosphere = content.Load<Effect>("Planets//SkyFromSpace");
-			Model = content.Load<Model>("Models\\sphere2");
-			GenerateTags();
+			//Model = content.Load<Model>("Models\\sphere2");
+			//GenerateTags();
 			SetModelEffect(draw, false);
 			BuildPerm(graphicsDevice);
 		}

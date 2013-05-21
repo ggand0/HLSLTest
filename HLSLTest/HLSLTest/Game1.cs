@@ -72,7 +72,7 @@ namespace HLSLTest
 			Debug.game = this;
 			Debug.spriteBatch = this.spriteBatch;
 
-			Level.device = GraphicsDevice;
+			Level.graphicsDevice = GraphicsDevice;
 			Level.content = Content;
 			//Scene.spriteBatch = this.spriteBatch;
 			Scene.Initialize(this, spriteBatch, Content);

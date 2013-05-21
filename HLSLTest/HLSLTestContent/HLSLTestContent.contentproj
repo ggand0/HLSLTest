@@ -450,6 +450,26 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Planets\LinearFilter.fx">
+      <Name>LinearFilter</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Planets\GaussianFilter.fx">
+      <Name>GaussianFilter</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Lights\CreateMaskEffect.fx">
+      <Name>CreateMaskEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
+    <None Include="Planets\SpriteBatchVertexShader.fxh">
+      <Name>SpriteBatchVertexShader</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
     <None Include="PPshared.vsi">
       <Name>PPshared</Name>
       <Importer>EffectImporter</Importer>

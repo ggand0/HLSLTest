@@ -15,7 +15,7 @@ namespace HLSLTest
 		public static Level level;
 		public static ContentManager content;
 
-
+		public Effect maskEffect;
 		protected Vector3 _direction, _up, _down, _right;
 		protected BoundingSphereRenderer _boundingSphereRenderer;
 		public BoundingSphere transformedBoundingSphere { get; protected set; }
@@ -106,16 +106,19 @@ namespace HLSLTest
 		#region Methods
 		protected virtual void Load()
 		{
+			//GenerateTags();
+			//maskEffect = content.Load<Effect>("Lights\\CreateMaskEffect");
 		}
 		protected void Load(string fileName)
 		{
 			Model = content.Load<Model>(fileName);
 
 			GenerateTags();
-			Effect lightingEffect = content.Load<Effect>("Lights\\LightingEffect");
+			/*Effect lightingEffect = content.Load<Effect>("Lights\\LightingEffect");
 			Effect pointLightEffect = content.Load<Effect>("Lights\\PointLightEffect");
 			Effect spotLightEffect = content.Load<Effect>("Lights\\SpotLightEffect");
-			Effect multiLightingEffect = content.Load<Effect>("Lights\\MultiLightingeffect");
+			Effect multiLightingEffect = content.Load<Effect>("Lights\\MultiLightingeffect");*/
+			maskEffect = content.Load<Effect>("Lights\\CreateMaskEffect");
 			//SetModelEffect(lightingEffect, true);
 			//SetModelEffect(multiLightingEffect, true);
 
@@ -370,7 +373,7 @@ namespace HLSLTest
 						//Material.SetEffectParameters(effect);// light mapだけの時は消すべきかも
 					}
 				}
-				GraphicsDevice de = Level.device;
+				GraphicsDevice de = Level.graphicsDevice;
 				mesh.Draw();
 			}
 		}
@@ -383,6 +386,26 @@ namespace HLSLTest
 
 			if (RenderBoudingSphere) DrawBoundingSphere();
 		}
+		/// <summary>
+		/// 深度値によってマスクを作成する。他のエフェクト（volumetric lightingとか）を描画する時に使用
+		/// </summary>
+		public void DrawMask(Matrix View, Matrix Projection, Vector3 CameraPosition, ref RenderTarget2D rt, float criteria)
+		{
+			maskEffect.Parameters["colour"].SetValue(Color.Black.ToVector3());
+			maskEffect.Parameters["wvp"].SetValue(World * View * Projection);
+
+			// calc Z value
+			Vector3 transformed = Vector3.Transform(Position, View);
+			if (transformed.Z > criteria) {// 基準より前にいたら、マスク作成
+				//Level.graphicsDevice.SetRenderTarget(rt);
+				CacheEffects();
+				SetModelEffect(maskEffect ,true);
+				DrawMesh(View, Projection, CameraPosition);
+				RestoreEffects();
+				//Level.graphicsDevice.SetRenderTarget(null);
+			}
+		}
+
 		/// <summary>
 		/// ReflectionMap作成のためにClipPlaneを決定する
 		/// </summary>

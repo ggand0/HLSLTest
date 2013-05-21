@@ -31,11 +31,11 @@ namespace HLSLTest
 			PrelightingRenderer.game = game;
 			debug = new Debug();
 
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
+			Sky = new SkySphere(content, graphicsDevice, content.Load<TextureCube>("Textures\\SkyBox\\SkyBoxTex"), 10000);
 
 
 			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 8000, -6000,
-				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
+				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), graphicsDevice, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
 			terrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
@@ -44,7 +44,7 @@ namespace HLSLTest
 
 
 			Water.game = game;
-			water = new Water(content, device, new Vector3(0, -1800, -4000), new Vector2(5000, 5000));
+			water = new Water(content, graphicsDevice, new Vector3(0, -1800, -4000), new Vector2(5000, 5000));
 			//water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(Sky);
 			water.Objects.Add(terrain);
@@ -80,7 +80,7 @@ namespace HLSLTest
 			//softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 			//renderer.Draw();
-			device.Clear(Color.Black);
+			graphicsDevice.Clear(Color.Black);
 
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);

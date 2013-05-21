@@ -88,7 +88,7 @@ namespace HLSLTest
 				positions[i] = new Vector3((float)r.NextDouble() * 200 - 100, 10, (float)r.NextDouble() * 200 - 100);
 			}
 			//trees = new BillboardSystem(device, content, content.Load<Texture2D>("tree"), new Vector2(800), positions);
-			trees = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
+			trees = new BillboardSystem(graphicsDevice, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
 
 			// Generate clouds
 			Vector3[] cloudPositions = new Vector3[350];
@@ -97,37 +97,37 @@ namespace HLSLTest
 					//r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
 					r.Next(-6000, 6000), r.Next(2000, 3000), r.Next(-6000, 6000));
 			}
-			clouds = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Billboard\\cloud"), new Vector2(500), cloudPositions);
+			clouds = new BillboardSystem(graphicsDevice, content, content.Load<Texture2D>("Textures\\Billboard\\cloud"), new Vector2(500), cloudPositions);
 			clouds.EnsureOcclusion = false;
 
 
 			// Generate particles
-			ps = new FlameParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
+			ps = new FlameParticleEmitter(graphicsDevice, content, content.Load<Texture2D>("Textures\\Particle\\fire"), Vector3.Zero, 1000, new Vector2(10), 10, Vector3.Zero, 0.01f);// 0.1f
 			/*eps = new ExplosionParticleEmitter(device, content, content.Load<Texture2D>("Textures\\explosion"), Vector3.Zero, 2000, new Vector2(50), 20, 5f);
 			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\sun_1"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);*/
-			eps = new ExplosionParticleEmitter(device, content, Vector3.Zero, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
-			discoid = new DiscoidParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
-			basicEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
+			eps = new ExplosionParticleEmitter(graphicsDevice, content, Vector3.Zero, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
+			discoid = new DiscoidParticleEmitter(graphicsDevice, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), Vector3.Zero, 10000, new Vector2(5), 20, 5f);
+			basicEmitter = new ParticleEmitter(graphicsDevice, content, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector3(0, 50, 0), 100, new Vector2(3), 3, 0.1f);
 
-			beamEmitter = new ParticleEmitter(device, content, content.Load<Texture2D>("Textures\\Mercury\\Beam2"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, BillboardMode.Line, true);
+			beamEmitter = new ParticleEmitter(graphicsDevice, content, content.Load<Texture2D>("Textures\\Mercury\\Beam2"), new Vector3(0, 50, 0), 100, new Vector2(10), 3, 0.1f, BillboardMode.Line, true);
 			//beamEmitter = new ParticleEmitter(device, content, BillboardMode.Line, content.Load<Texture2D>("Textures\\Laser2"), new Vector3(0, 50, 0), 100, new Vector2(10, 5), 3, 0.1f, true);
-			shockWaveEmitter = new ShockWaveParticleEmitter(device, content, new Vector3(0, 50, 0), content.Load<Texture2D>("Textures\\Particle\\GlowRing"), 1, new Vector2(50), 3, 0, 0, 10, true);
+			shockWaveEmitter = new ShockWaveParticleEmitter(graphicsDevice, content, new Vector3(0, 50, 0), content.Load<Texture2D>("Textures\\Particle\\GlowRing"), 1, new Vector2(50), 3, 0, 0, 10, true);
 			shockWaveEmitter.Run();
 
 
-			softParticle = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
+			softParticle = new BillboardSystem(graphicsDevice, content, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 1, Models, new Vector2(100), new Vector3[] { new Vector3(0, 30, 0), new Vector3(-100, 0, 0) });
 
 			// Generate lasers
-			lbs = new BillboardSystem(device, content, content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
+			lbs = new BillboardSystem(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser"), new Vector2(10, 1000), new Vector3[] { Vector3.Zero });
 			/*lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3),
 				new Vector3(50, 50, 0), new Vector3(-50, -50, 0), new Vector3[] { Vector3.Zero });*/
 
 			//lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 3), start, end);
-			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), start, end);
+			lb = new LaserBillboard(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), start, end);
 			s = content.Load<Model>("Models\\Ship"); e = content.Load<Model>("Models\\Ship");
 
 
-			treesCross = new BillboardCross(device, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
+			treesCross = new BillboardCross(graphicsDevice, content, content.Load<Texture2D>("Textures\\Billboard\\tree"), new Vector2(10), positions);
 		}
 		public override void Load()
 		{
@@ -135,7 +135,7 @@ namespace HLSLTest
 
 			//sky = new SkySphere(content, device, content.Load<TextureCube>("OutputCube0"));//("OutputCube0"));
 			//sky = new SkySphere(content, device, content.Load<TextureCube>("Cross"));//("OutputCube0"));
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 10000);
+			Sky = new SkySphere(content, graphicsDevice, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 10000);
 			//Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\Terrain\\CubeWrap"));
 
 			// setup skymap reflection effect
@@ -172,7 +172,7 @@ namespace HLSLTest
 			}
 
 
-			renderer = new PrelightingRenderer(device, content);
+			renderer = new PrelightingRenderer(graphicsDevice, content);
 			renderer.Models = Models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PointLight>() {
@@ -208,7 +208,7 @@ namespace HLSLTest
 			
 
 			Water.game = game;
-			water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000));
+			water = new Water(content, graphicsDevice, new Vector3(0, 0, 0), new Vector2(1000, 1000));
 			//water = new Water(content, device, new Vector3(0, 0, 0), new Vector2(1000, 1000), renderer);
 			water.Objects.Add(Sky);
 			//water.Objects.Add(models[0]); water.Objects.Add(models[1]);
@@ -233,14 +233,14 @@ namespace HLSLTest
 
 			// discoid effect : Skyの後に初期化
 			EnergyRingEffect.game = game;
-			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 50, 0), new Vector2(300));
+			discoidEffect = new EnergyRingEffect(content, graphicsDevice, new Vector3(0, 50, 0), new Vector2(300));
 
 			// Terrain
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\heightmap_01"), 30, 4800,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 30, 380, -200,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			//terrain = new Terrain(content.Load<Texture2D>("Textures\\terrain"), 100, 2500, -1500,				content.Load<Texture2D>("Textures\\Grass"), 6, new Vector3(1, -1, 0), device, content);
 			terrain = new Terrain(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 100, 2500, -1500,
-				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
+				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), graphicsDevice, content);
 			terrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			terrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
 			terrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
@@ -251,16 +251,16 @@ namespace HLSLTest
 
 			// Planet test
 			debugModel = content.Load<Model>("Models\\sphere2");
-			WaterPlanet waterPlanet = new WaterPlanet(Vector3.Zero, device, content);
-			IcePlanet icePlanet = new IcePlanet(device, content);
-			GasGiant gasGiant = new GasGiant(device, content);
-			RockPlanet rockPlanet = new RockPlanet(device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(Vector3.Zero, graphicsDevice, content);
+			IcePlanet icePlanet = new IcePlanet(graphicsDevice, content);
+			GasGiant gasGiant = new GasGiant(graphicsDevice, content);
+			RockPlanet rockPlanet = new RockPlanet(graphicsDevice, content);
 			planet = rockPlanet;
 
 
 			// Spherical terrain test
 			sphericalTerrain = new SphericalTerrain2(content.Load<Texture2D>("Textures\\Terrain\\terrain"), 1, 50, 0,
-				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), device, content);
+				content.Load<Texture2D>("Textures\\Terrain\\grass"), 6, new Vector3(1, -1, 0), graphicsDevice, content);
 			sphericalTerrain.WeightMap = content.Load<Texture2D>("Textures\\color1");
 			sphericalTerrain.RTexture = content.Load<Texture2D>("Textures\\Terrain\\sand");
 			sphericalTerrain.GTexture = content.Load<Texture2D>("Textures\\Terrain\\grass");
@@ -313,7 +313,7 @@ namespace HLSLTest
 		{
 			TextureCube debug;
 			//RenderTargetCube RefCubeMap = new RenderTargetCube(device, 256, 1, SurfaceFormat.Color);
-			RenderTargetCube RefCubeMap = new RenderTargetCube(device, device.Viewport.Width, true, SurfaceFormat.Color, DepthFormat.Depth24);
+			RenderTargetCube RefCubeMap = new RenderTargetCube(graphicsDevice, graphicsDevice.Viewport.Width, true, SurfaceFormat.Color, DepthFormat.Depth24);
 			Matrix viewMatrix = Matrix.Identity;
 			TargetCamera camera;
 
@@ -351,19 +351,19 @@ namespace HLSLTest
 				}
 
 				//effect.Parameters["matWorldViewProj"].SetValue(worldMatrix * viewMatrix * projMatrix);
-				camera = new TargetCamera(position, Vector3.Zero, device);
+				camera = new TargetCamera(position, Vector3.Zero, graphicsDevice);
 				camera.View = viewMatrix; camera.Projection = this.camera.Projection;
 
 
 				// Set the cubemap render target, using the selected face
 				//device.SetRenderTarget(RefCubeMap, cubeMapFace);
-				device.SetRenderTarget(RefCubeMap, cubeMapFace);
-				device.Clear(Color.White);
+				graphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
+				graphicsDevice.Clear(Color.White);
 				this.DrawScene(camera);
-				device.SetRenderTarget(null);
+				graphicsDevice.SetRenderTarget(null);
 			}
 
-			device.SetRenderTarget(null);
+			graphicsDevice.SetRenderTarget(null);
 			/*if (!hasSaved) {
 				debug = RefCubeMap;// null!?
 				DDSLib.DDSToFile("cubeMapFace_debug.dds", true, debug, false);
@@ -403,9 +403,9 @@ namespace HLSLTest
 			renderer.Draw();
 			
 #else
-			string belndState = device.BlendState.ToString();
-			string depthState = device.DepthStencilState.ToString();
-			string rasterizerState = device.RasterizerState.ToString();
+			string belndState = graphicsDevice.BlendState.ToString();
+			string depthState = graphicsDevice.DepthStencilState.ToString();
+			string rasterizerState = graphicsDevice.RasterizerState.ToString();
 
 			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
@@ -414,7 +414,7 @@ namespace HLSLTest
 			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
 			renderer.PreDraw();
 
-			device.Clear(Color.Black);
+			graphicsDevice.Clear(Color.Black);
 			
 			// Draw terrain
 			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
@@ -422,9 +422,9 @@ namespace HLSLTest
 			//terrain.Draw(false, camera.View, camera.Projection);
 			//sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
-			belndState = device.BlendState.ToString();
-			depthState = device.DepthStencilState.ToString();
-			rasterizerState = device.RasterizerState.ToString();
+			belndState = graphicsDevice.BlendState.ToString();
+			depthState = graphicsDevice.DepthStencilState.ToString();
+			rasterizerState = graphicsDevice.RasterizerState.ToString();
 
 
 			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);

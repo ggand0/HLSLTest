@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace HLSLTest
 		ExplosionEffect explosionTest, smallExplosion, bigExplosion;
 		Planet planet;
 		Star star;
-		Sun sun;
+		Sun sun, sunCircle;
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
@@ -98,26 +99,26 @@ namespace HLSLTest
 			base.Load();
 
 			// Set up the reference grid and sample camera
-			grid.LoadGraphicsContent(device);
+			grid.LoadGraphicsContent(graphicsDevice);
 
-			Sky = new SkySphere(content, device, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
+			Sky = new SkySphere(content, graphicsDevice, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
 
 			// Load stars
-			star = new Star(new Vector3(-500, 100, 500), device, content, StarType.G);
+			star = new Star(new Vector3(-500, 100, 500), graphicsDevice, content, StarType.G);
 			//star = new Star(-LightPosition, device, content, StarType.G);
 			LightPosition = star.Position;
-			sun = new Sun(new Vector3(-500, 100, 500), device, content, spriteBatch);
-			
+			sun = new Sun(new Vector3(-500, 100, 500), graphicsDevice, content, spriteBatch);
+			sunCircle = new Sun(LightPosition, graphicsDevice, content, spriteBatch);
 
 			// Load planets
 			Planets = new List<Planet>();
 			//WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
-			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), LightPosition, device, content);
-			IcePlanet icePlanet = new IcePlanet(new Vector3(-100, 100, -800), LightPosition, device, content);
-			GasGiant gasGiant = new GasGiant(new Vector3(-100, 100, -2500), LightPosition, device, content);
-			RockPlanet rockPlanet = new RockPlanet(device, content);
-			MoltenPlanet moltenPlanet = new MoltenPlanet(device, content);
+			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), LightPosition, graphicsDevice, content);
+			IcePlanet icePlanet = new IcePlanet(new Vector3(-100, 100, -800), LightPosition, graphicsDevice, content);
+			GasGiant gasGiant = new GasGiant(new Vector3(-100, 100, -2500), LightPosition, graphicsDevice, content);
+			RockPlanet rockPlanet = new RockPlanet(graphicsDevice, content);
+			MoltenPlanet moltenPlanet = new MoltenPlanet(graphicsDevice, content);
 
 			//planet = moltenPlanet;
 			//planet = gasGiant;
@@ -137,9 +138,11 @@ namespace HLSLTest
 			spawned = true;
 			
 			// Load satellites
-			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
+			//Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
+			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser0");
 			Models.Add(Satellite);
 			Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
+			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\laser0"));
 
 
 			// Set up light effects !!
@@ -159,7 +162,7 @@ namespace HLSLTest
 			}
 
 
-			renderer = new PrelightingRenderer(device, content);
+			renderer = new PrelightingRenderer(graphicsDevice, content);
 			renderer.Models = Models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PointLight>() {
@@ -178,19 +181,19 @@ namespace HLSLTest
 
 			// Special effects
 			EnergyRingEffect.game = game;
-			discoidEffect = new EnergyRingEffect(content, device, new Vector3(0, 0, 0), new Vector2(300));
+			discoidEffect = new EnergyRingEffect(content, graphicsDevice, new Vector3(0, 0, 0), new Vector2(300));
 			EnergyShieldEffect.game = game;
-			shieldEffect = new EnergyShieldEffect(content, device, Satellite.Position, new Vector2(300), 250);
-			explosionTest = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
-			smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
+			shieldEffect = new EnergyShieldEffect(content, graphicsDevice, Satellite.Position, new Vector2(300), 250);
+			explosionTest = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, true, "Xml\\Particle\\particleExplosion0.xml", true);
+			smallExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
 			//smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", true);
-			bigExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion1.xml", false);
+			bigExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion1.xml", false);
 
 			// pre-load
 			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
 
 
-			lb = new LaserBillboard(device, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
+			lb = new LaserBillboard(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
 
 		Vector3 tmpDirention;
@@ -325,6 +328,9 @@ namespace HLSLTest
 			LightPosition = renderer.Lights[0].Position;
 
 			Sky.Update(gameTime);
+			sun.Update(gameTime);
+			sunCircle.Position = renderer.Lights[0].Position;
+			sunCircle.Update(gameTime);
 
 			foreach (Object o in Models) {
 				if (o.IsActive) o.Update(gameTime);
@@ -357,22 +363,36 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
-			//ResetGraphicDevice();
+			ResetGraphicDevice();
+			/*graphicsDevice.SetRenderTarget(maskLayer);
+			graphicsDevice.Clear(Color.White);
+			graphicsDevice.SetRenderTarget(null);*/
+
+			float sunDepth = Vector3.Transform(sun.Position, camera.View).Z;
 			camera.FarPlaneDistance = 10000000;
+
+			// Draw pre-passes
+			graphicsDevice.SetRenderTarget(maskLayer);
+			graphicsDevice.Clear(Color.White);
+			foreach (Object o in Models) {
+				o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+			}
+			graphicsDevice.SetRenderTarget(null);
 			renderer.PreDraw();
-			device.Clear(Color.White);
+			graphicsDevice.Clear(Color.White);
 
 			// Environment
-			
 			Sky.Draw(camera.View, camera.Projection, camera.Position);
-			sun.Draw(camera.View, camera.Projection);
+			//sun.Draw(false, camera.View, camera.Projection);
+			sun.Draw(true, camera.View, camera.Projection);
+			sunCircle.Draw(false, camera.View, camera.Projection);
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
 			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
 			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 			//star.Draw(camera.View, camera.Projection);
-			
 
+			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 			// Entities
 			foreach (Object o in Models) {
 				if (o.IsActive) {
@@ -381,11 +401,21 @@ namespace HLSLTest
 					} else {
 						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
 					}
+					// mask作成
+					//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+					/*Vector3 transformed = Vector3.Transform(o.Position, camera.View);
+					if (transformed.Z > sunDepth) {// 基準より前にいたら、マスク作成
+						graphicsDevice.SetRenderTarget(maskLayer);
+						o.CacheEffects();
+						o.SetModelEffect(o.maskEffect, true);
+						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+						o.RestoreEffects();
+						graphicsDevice.SetRenderTarget(null);
+					}*/
 				}
 			}
-			/*foreach (Object a in Asteroids) {
-				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			}*/
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			//sun.Draw(true, camera.View, camera.Projection);
 
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
@@ -408,8 +438,15 @@ namespace HLSLTest
 				//grid.Draw();
 			}
 
-			
-			effectManager.Draw(gameTime, camera);
+			//sun.Draw(true, camera.View, camera.Projection); // 4 debug
+			//effectManager.Draw(gameTime, camera);
+
+			if (JoyStick.IsOnKeyDown(8)) {
+				using (Stream stream = File.OpenWrite("sundebug\\sunmask.png")) {
+					maskLayer.SaveAsPng(stream, maskLayer.Width, maskLayer.Height);
+					stream.Position = 0;
+				}
+			}
 		}
 
 
