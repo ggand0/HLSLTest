@@ -26,7 +26,7 @@ namespace HLSLTest
 	class ChainedRenderTarget
 	{
 		private static int MAX_DOWNSAMPLE = 6;             // do *not* change
-		private static float SCALE_FACTOR = 1.0f;            // blur-radius
+		private static float SCALE_FACTOR = 2.0f;//1.0f;            // blur-radius
 		private static String BLUR_QUALITY = "Quality3x3";    // default: 3x3
 
 		private RenderTarget2D m_RenderTarget;
@@ -259,7 +259,7 @@ namespace HLSLTest
 					SpriteSortMode.Immediate,
 					SaveStateMode.SaveState);*/
 
-				m_SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				m_SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
 				//m_SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
 //m_Device.SamplerStates[0] = SamplerState.LinearClamp;
 m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -277,21 +277,21 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 				m_Device.SetRenderTarget(null);
 
 				// debug
-				if (JoyStick.IsOnKeyDown(8)) {
+				/*if (JoyStick.IsOnKeyDown(8)) {
 					using (Stream stream = File.OpenWrite("sundebug\\sun_currenttex" + i + ".png")) {
 						//CurrentTex.SaveAsPng(stream, CurrentTex.Width, CurrentTex.Height);
 						m_DownSampleTargets[i].SaveAsJpeg(stream, m_DownSampleTargets[i].Width, m_DownSampleTargets[i].Height);
 
 						stream.Position = 0;
 					}
-				}
+				}*/
 
 				CurrentTex = m_DownSampleTargets[i];
 				m_Device.SamplerStates[0] = SamplerState.LinearWrap;
 			} // for 
 			m_Device.SetRenderTarget(null);//m_DownSampleTargets
 
-			if (JoyStick.IsOnKeyDown(8)) {
+			/*if (JoyStick.IsOnKeyDown(8)) {
 
 				using (Stream stream = File.OpenWrite("sundebug\\sun_downsample5_before.png")) {
 					m_DownSampleTargets[5].SaveAsPng(stream, m_DownSampleTargets[5].Width, m_DownSampleTargets[5].Height);
@@ -301,7 +301,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 					m_DownSampleTargets[0].SaveAsPng(stream, m_DownSampleTargets[0].Width, m_DownSampleTargets[0].Height);
 					stream.Position = 0;
 				}
-			}/**/
+			}*/
 		}
 		// -----------------------------------------------------------------
 		public void AdditiveBlend()
@@ -492,6 +492,8 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 				Color.White);
 			m_SpriteBatch.End();
 
+
+
 			/*
 			 * render temporary buffers to downscaled targets
 			 */
@@ -505,15 +507,15 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			effect.CurrentTechnique = effect.Techniques[BLUR_QUALITY];
 			effect.Parameters["ViewportSize"].SetValue(Size);
 			effect.Parameters["TextureSize"].SetValue(Size);
-			//effect.Parameters["MatrixTransform"].SetValue(Matrix.Identity);
-			effect.Parameters["MatrixTransform"].SetValue(world);
+			effect.Parameters["MatrixTransform"].SetValue(Matrix.Identity);
+			//effect.Parameters["MatrixTransform"].SetValue(world);
 			effect.Parameters["gScreenWidth"].SetValue(Size.X);
 			effect.Parameters["gScreenHeight"].SetValue(Size.Y);
 			effect.Parameters["gScaleFactor"].SetValue(SCALE_FACTOR);
 			//effect.Begin();
 			EffectPass pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			//pass.Begin();
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -539,7 +541,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			//effect.Begin();
 			pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			//pass.Begin();
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -565,7 +567,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			//effect.Begin();
 			pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			//pass.Begin();
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -591,7 +593,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			//effect.Begin();
 			pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			//pass.Begin();
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -617,7 +619,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			//effect.Begin();
 			pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			//pass.Begin();
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
@@ -648,7 +650,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			effect.Parameters["down0"].SetValue(m_TempTargets[0]);
 			pass = effect.CurrentTechnique.Passes[0];
 			m_SpriteBatch.Begin(
-				SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+				SpriteSortMode.Immediate, BlendState.Additive);
 			pass.Apply();
 			m_Device.SamplerStates[0] = SamplerState.PointClamp;
 			m_SpriteBatch.Draw(m_TempTargets[0],
@@ -690,7 +692,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 			//effect.End();
 			m_Device.SetRenderTarget(null);*/
 
-			if (JoyStick.IsOnKeyDown(8)) {
+			/*if (JoyStick.IsOnKeyDown(8)) {
 				using (Stream stream = File.OpenWrite("sundebug\\sun_downsample0_tmp.png")) {
 					m_TempTargets[0].SaveAsPng(stream, m_TempTargets[0].Width, m_TempTargets[0].Height);
 					stream.Position = 0;
@@ -699,7 +701,7 @@ m_Device.SamplerStates[2] = SamplerState.PointClamp;
 					m_DownSampleTargets[0].SaveAsPng(stream, m_DownSampleTargets[0].Width, m_DownSampleTargets[0].Height);
 					stream.Position = 0;
 				}
-			}/**/
+			}*/
 		}
 		// -----------------------------------------------------------------
 		public void SaveTextures(String Directory, String Prefix)

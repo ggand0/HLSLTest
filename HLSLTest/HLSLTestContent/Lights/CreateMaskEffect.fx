@@ -1,6 +1,8 @@
 float4x4 wvp;
 float3 colour;
 
+float DepthValue;
+
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
@@ -9,7 +11,8 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
-
+	float4 PositionCopy : TEXCOORD0;
+	float Depth : TEXCOORD1;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -17,13 +20,21 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     VertexShaderOutput output;
 
 	output.Position = mul(input.Position,wvp);
+	output.PositionCopy = output.Position;
+	output.Depth = output.Position.z;
 
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	return float4(colour, 1);
+	if (input.Depth > DepthValue) {
+		return float4(colour, 1);
+	} else {
+		return float4(1,1,1,1);
+	}
+
+	//return float4(colour, 1);
     //return float4(0,0,0, 1);
 }
 

@@ -38,7 +38,7 @@ float4 PS_ExtractHDR(
 		color = tex2D( GradientTextureSampler, pos ) * Brightness;
 		return float4( color.rgb, 1.0 );
 	} else {
-		return float4( 0.0, 0.0, 0.0, 1.0 );
+		return float4( 0.0, 0.0, 0.0, 0.0 );// アルファが含まれないのはここのせいでしたサーセン
 	}
 } 
 

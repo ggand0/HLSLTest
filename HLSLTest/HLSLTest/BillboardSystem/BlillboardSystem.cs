@@ -26,7 +26,8 @@ namespace HLSLTest
 
 		// GraphicsDevice and Effect
 		protected GraphicsDevice graphicsDevice;
-		protected Effect effect;
+		//protected Effect effect;
+		public Effect effect { get; set; }
 
 		// Billboard settings
 		public int BillboardNum { get; private set; }

@@ -369,31 +369,36 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(null);*/
 
 			float sunDepth = Vector3.Transform(sun.Position, camera.View).Z;
+			//sunDepth =   Vector3.Transform(Vector3.Transform(Vector3.Transform(sun.Position, sun.World), camera.View), camera.Projection).Z;
+			//float sunFrontDepth = Vector3.Transform(Vector3.Transform(sun.Position + (Vector3.Normalize(sun.Position - camera.CameraPosition) * 200), sun.world), camera.View).Z;
 			camera.FarPlaneDistance = 10000000;
 
 			// Draw pre-passes
-			graphicsDevice.SetRenderTarget(maskLayer);
+			/**/graphicsDevice.SetRenderTarget(maskLayer);
 			graphicsDevice.Clear(Color.White);
 			foreach (Object o in Models) {
-				o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+				//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+				o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sun.sunFrontDepth);
 			}
 			graphicsDevice.SetRenderTarget(null);
 			renderer.PreDraw();
+			sun.PreDraw(camera.View, camera.Projection);
 			graphicsDevice.Clear(Color.White);
 
 			// Environment
+			ResetGraphicDevice();
 			Sky.Draw(camera.View, camera.Projection, camera.Position);
+			ResetGraphicDevice();
+			//sun.Draw(true, camera.View, camera.Projection, maskLayer);
+			ResetGraphicDevice();
 			//sun.Draw(false, camera.View, camera.Projection);
-			sun.Draw(true, camera.View, camera.Projection);
+			
 			sunCircle.Draw(false, camera.View, camera.Projection);
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
 			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
 			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
 
 			//star.Draw(camera.View, camera.Projection);
-
-			//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-			// Entities Vector3 transformed = Vector3.Transform(o.Position, camera.View);
 			foreach (Object o in Models) {
 				if (o.IsActive) {
 					if (o is ArmedSatellite) {
@@ -403,6 +408,11 @@ namespace HLSLTest
 					}
 				}
 			}
+			
+			ResetGraphicDevice();
+			sun.Draw(true, camera.View, camera.Projection, maskLayer);
+			ResetGraphicDevice();
+
 			/*graphicsDevice.DepthStencilState = DepthStencilState.None;
 			sun.Draw(true, camera.View, camera.Projection);
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -415,12 +425,9 @@ namespace HLSLTest
 					}
 				}
 			}*/
-			
-			//sun.Draw(true, camera.View, camera.Projection);
-
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
-			}/**/
+			}
 
 
 			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);

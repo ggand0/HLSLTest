@@ -21,10 +21,11 @@ namespace HLSLTest
 		private Model sphere;
 		private TextureCube sunTexture, sunLayerTexture0, sunLayerTexture1;
 		private Texture2D gradientTexture;
-		private RenderTarget2D albedoLayer, additiveLayer0, additiveLayer1, hdrExtractedLayer;
+		private RenderTarget2D albedoLayer, additiveLayer0, additiveLayer1, hdrExtractedLayer, finalLayer;
 		private ChainedRenderTarget bluredLayer;
 		private Effect sunEffect, sunLayerEffect, extractHDREffect;
-		private Effect linearFilter, gaussianFilter;
+		private Effect linearFilter, gaussianFilter, quadEffect;
+		private FullScreenQuadRenderer quadRenderer;
 
 		private Vector3 rotationAxis, rotationAxisLayer0, rotationAxisLayer1;
 		private float rotationAngle, rotationAngleLayer0, rotationAngleLayer1;
@@ -40,7 +41,7 @@ namespace HLSLTest
 		OcclusionQuery occlusionQuery;
 		bool occlusionQueryActive = false;
 		float occlusionAlpha;
-
+		public float sunFrontDepth;
 
 		public override void Update(GameTime gameTime)
 		{
@@ -63,6 +64,10 @@ namespace HLSLTest
                 rotationAngleLayer1 = 0f;
 #endif
 			string s = Position.ToString();
+
+			World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			//sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), level.camera.View).Z;
+			sunFrontDepth = Vector3.Transform(Position + (Vector3.Normalize(level.camera.CameraPosition - Position) * 200), level.camera.View).Z;
 		}
 		
 
@@ -97,6 +102,7 @@ namespace HLSLTest
 			SetupRenderTargets();
 		}
 
+		bool hasSaved;
 		private void DrawSurface(bool postEffect, Matrix View, Matrix Projection)
 		{
 			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateFromAxisAngle(rotationAxis, rotationAngle)
@@ -153,6 +159,7 @@ namespace HLSLTest
 				bs.AlphaDestinationBlend = Blend.One;
 				graphicsDevice.BlendState = bs;*/
 				graphicsDevice.BlendState = BlendState.Additive;
+				//graphicsDevice.BlendState = BlendState.AlphaBlend;
 			} else {
 				// 直に描画する場合はここを適用する
 				graphicsDevice.DepthStencilState = DepthStencilState.None;
@@ -202,66 +209,98 @@ namespace HLSLTest
 		}
 		private void ExtractHDR(Matrix View, Matrix Projection, float blurIntensity)
 		{
-			//graphicsDevice.BlendState = BlendState.Opaque;
-
+			/*if (!hasSaved) {// debug
+				hasSaved = true;
+				using (Stream stream = File.OpenWrite("sun_transparent_layer.png")) {
+					additiveLayer0.SaveAsPng(stream, hdrExtractedLayer.Width, hdrExtractedLayer.Height);
+					stream.Position = 0;
+				}
+			}*/ // ここまでアルファ維持
 			graphicsDevice.SetRenderTarget(hdrExtractedLayer);
 			graphicsDevice.Clear(Color.Transparent);
 			graphicsDevice.Textures[0] = additiveLayer0;
 			extractHDREffect.CurrentTechnique = extractHDREffect.Techniques[0];
-			extractHDREffect.Parameters["Threshold"].SetValue(0.02f);
+			extractHDREffect.Parameters["Threshold"].SetValue(0.08f);// 0.02f
 			extractHDREffect.Parameters["Brightness"].SetValue(blurIntensity);
 			extractHDREffect.Parameters["GradientTexture"].SetValue(gradientTexture);
-			//extractHDREffect.Begin();
 			foreach (EffectPass pass in extractHDREffect.CurrentTechnique.Passes) {
 				//spriteBatch.Begin(SpriteSortMode.Immediate,	BlendState.NonPremultiplied);
-				//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
 				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+				//spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
+				//spriteBatch.Begin(); // アルファ確認、しかしエフェクトが適用されてない？←Immediateじゃないとダメらしい
 				pass.Apply();
 				graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				spriteBatch.Draw(additiveLayer0,
 					new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height),
 					Color.White);
-				//pass.End();
 				spriteBatch.End();
 			}
-			//extractHDREffect.End();
 			graphicsDevice.SetRenderTarget(null);
-
 			graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-		}
-		private void BlurScreen(Matrix world)
-		{
+
+
 			if (JoyStick.IsOnKeyDown(8)) {
-				using (Stream stream = File.OpenWrite("sun_extract.png")) {
+				using (Stream stream = File.OpenWrite("sun_extracted.png")) {
 					hdrExtractedLayer.SaveAsPng(stream, hdrExtractedLayer.Width, hdrExtractedLayer.Height);
 					stream.Position = 0;
 				}
 			}
+		}
+		private void BlurScreen(Matrix world)
+		{
+			
 			// this stuff is done with my rendertarget class
 			bluredLayer.GenerateMipMapLevels(ref hdrExtractedLayer);
 			bluredLayer.ApplyBlur(ref gaussianFilter, world);
 			bluredLayer.AdditiveBlend();
+
+			if (JoyStick.IsOnKeyDown(8)) {
+				using (Stream stream = File.OpenWrite("sun_blurred.png")) {
+					hdrExtractedLayer.SaveAsPng(stream, hdrExtractedLayer.Width, hdrExtractedLayer.Height);
+					stream.Position = 0;
+				}
+			}
 		}
-		private void RenderMesh(Matrix View, Matrix Projection)
+
+		public void PreDraw(Matrix View, Matrix Projection)
 		{
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);//Position
-			Matrix wvp = World * View * Projection;
+			DrawSurface(true, View, Projection);
+			DrawLayers(true, View, Projection);
+			ExtractHDR(View, Projection, 0.5f);
+			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			//* Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0) * Matrix.CreateTranslation(Position);
+			BlurScreen(World);
 
 
-			foreach (ModelMesh mesh in sphere.Meshes) {
-				foreach (ModelMeshPart part in mesh.MeshParts) {
-					part.Effect = sunEffect;
-				}
-			}
-			foreach (ModelMesh mesh in sphere.Meshes) {
-				foreach (Effect effect in mesh.Effects) {
-					effect.CurrentTechnique = effect.Techniques[0];
-					sunEffect.Parameters["wvp"].SetValue(wvp);
-					effect.Parameters["BaseTexture"].SetValue(sunTexture);
-					effect.Parameters["WorldIT"].SetValue(Matrix.Invert(World));
-				}
-				mesh.Draw();
-			}
+			graphicsDevice.SetRenderTarget(finalLayer);
+			graphicsDevice.Clear(Color.Transparent);
+			float sunDepth = Vector3.Transform(Position, View).Z;
+			GraphicsDevice d = graphicsDevice;
+			//graphicsDevice.DepthStencilState = DepthStencilState.None;
+			//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+			//graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+			//graphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
+			//graphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+
+			//basicEffect.World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			//basicEffect.View = View;
+			//basicEffect.Projection = Projection;
+			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
+			//spriteBatch.Begin(0, null, null, null, RasterizerState.CullNone, basicEffect);
+
+			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+			spriteBatch.Draw(albedoLayer, Vector2.Zero, Color.White);// Drawの中でSamplerStateがLinearに戻されるらしい
+			//spriteBatch.Draw(albedoLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, sunDepth);
+
+			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+			//spriteBatch.Draw(additiveLayer0, Vector2.Zero, Color.White);
+			spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, Color.White);
+			//spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, sunDepth);
+			spriteBatch.End();
+			graphicsDevice.SetRenderTarget(null);
 		}
 		public void Draw(bool postEffect, Matrix View, Matrix Projection)
 		{
@@ -296,12 +335,12 @@ namespace HLSLTest
 				DrawSurface(postEffect, View, Projection);
 				DrawLayers(postEffect, View, Projection);
 			} else {
-				DrawSurface(postEffect, View, Projection);
+				/*DrawSurface(postEffect, View, Projection);
 				DrawLayers(postEffect, View, Projection);
 				ExtractHDR(View, Projection, 0.5f);
 				Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
-					//* Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0) * Matrix.CreateTranslation(Position);
-				BlurScreen(World);
+				//* Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0) * Matrix.CreateTranslation(Position);
+				BlurScreen(World);*/
 			}
 
 			graphicsDevice.BlendState = BlendState.Opaque;
@@ -316,27 +355,29 @@ namespace HLSLTest
 			}
 			
 			if (postEffect) {
+				/*//b1.effect.Parameters["AlphaTestValue"].SetValue(0.1f);
+				//b2.effect.Parameters["AlphaTestValue"].SetValue(0.1f);
+				//b1.effect.Parameters["AlphaTest"].SetValue(false);
+				//b2.effect.Parameters["AlphaTest"].SetValue(false);
 				b1.Texture = albedoLayer;
 				b2.Texture = hdrExtractedLayer;
 				b1.Draw(View, Projection, level.camera.Up, level.camera.Right);
-				b2.Draw(View, Projection, level.camera.Up, level.camera.Right);
-				/*float sunDepth = Vector3.Transform(Position, View).Z;
+				b2.Draw(View, Projection, level.camera.Up, level.camera.Right);*/
 
+				
+				/*graphicsDevice.SetRenderTarget(finalLayer);
+				graphicsDevice.Clear(Color.Transparent);
+				
 				GraphicsDevice d = graphicsDevice;
-				graphicsDevice.DepthStencilState = DepthStencilState.None;
+				//graphicsDevice.DepthStencilState = DepthStencilState.None;
 				//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
 				graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 				graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
 				//graphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
-				//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
 
-				basicEffect.World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
-				basicEffect.View = View;
-				basicEffect.Projection = Projection;
-				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
-				//spriteBatch.Begin(0, null, null, null, RasterizerState.CullNone, basicEffect);
 				
 				graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 				spriteBatch.Draw(albedoLayer, Vector2.Zero, Color.White);// Drawの中でSamplerStateがLinearに戻されるらしい
@@ -347,7 +388,45 @@ namespace HLSLTest
 				spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, Color.White);
 				//spriteBatch.Draw(hdrExtractedLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, sunDepth);
 				spriteBatch.End();
-				//graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;*/
+				graphicsDevice.SetRenderTarget(null);*/
+
+
+				// Axial billboard状態なのでやはり普通にBillboard使うかFull screen quadを用いるべきだろう
+				/*//basicEffect.World =  Matrix.CreateTranslation(Position);
+				basicEffect.World = Matrix.Identity;
+				basicEffect.View = View;
+				basicEffect.Projection = Projection;
+				//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, basicEffect);
+				//spriteBatch.Begin(0, null, null, null, RasterizerState.CullNone, basicEffect);
+				spriteBatch.Draw(finalLayer, Vector2.Zero, Color.White);
+				//spriteBatch.Draw(finalLayer, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, Math.Abs(sunDepth / level.camera.FarPlaneDistance));
+				spriteBatch.End();*/
+
+				//float sunDepth = Vector3.Transform(Position, View).Z;
+				Matrix world = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+				float sunDepth = Vector3.Transform(Vector3.Transform(Position, world), View).Z;
+				float sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), View).Z;
+				//graphicsDevice.BlendState = BlendState.Opaque;
+				graphicsDevice.BlendState = BlendState.AlphaBlend;
+				graphicsDevice.DepthStencilState = DepthStencilState.Default;
+				//graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+				quadEffect.Parameters["colorMap"].SetValue(finalLayer);
+				//quadEffect.Parameters["Depth"].SetValue(1 - Math.Abs(sunDepth / level.camera.FarPlaneDistance));// 中心のDepth利用
+				//quadEffect.Parameters["Depth"].SetValue(1 - Math.Abs(sunFrontDepth / level.camera.FarPlaneDistance));// 中心のDepth利用
+				quadEffect.Parameters["Depth"].SetValue(1 - (-sunFrontDepth / level.camera.FarPlaneDistance));
+				//quadEffect.Parameters["Depth"].SetValue((-sunDepth / level.camera.FarPlaneDistance));
+				//quadEffect.Parameters["Depth"].SetValue(0.98f);//0.99
+				//quadEffect.Parameters["Depth"].SetValue(sunDepth);
+				//quadEffect.Parameters["Depth"].SetValue(0f);
+				quadEffect.Parameters["FarPlane"].SetValue(level.camera.FarPlaneDistance);
+				quadEffect.Parameters["Position"].SetValue(Position);
+				quadEffect.Parameters["World"].SetValue(world);
+				quadEffect.Parameters["View"].SetValue(View);
+				quadEffect.Parameters["wvp"].SetValue(world * View * Projection);
+				quadRenderer.RenderFullScreenQuad(quadEffect);
+				graphicsDevice.BlendState = BlendState.Opaque;
+				graphicsDevice.DepthStencilState = DepthStencilState.Default;/**/
 			}
 
 			/*if (occlusionQueryActive) {
@@ -368,6 +447,38 @@ namespace HLSLTest
 			graphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
 			graphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 		}
+		public void Draw(bool postEffect, Matrix View, Matrix Projection, RenderTarget2D mask)
+		{
+			//float sunDepth = Vector3.Transform(Position, View).Z;
+			Matrix world = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			float sunDepth = Vector3.Transform(Vector3.Transform(Position, world), View).Z;
+			
+			//graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.BlendState = BlendState.AlphaBlend;
+			//graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+			quadEffect.Parameters["colorMap"].SetValue(finalLayer);
+			quadEffect.Parameters["Mask"].SetValue(mask);
+			//quadEffect.Parameters["Depth"].SetValue(1 - Math.Abs(sunDepth / level.camera.FarPlaneDistance));// 中心のDepth利用
+			//quadEffect.Parameters["Depth"].SetValue(1 - Math.Abs(sunFrontDepth / level.camera.FarPlaneDistance));// 中心のDepth利用
+			//quadEffect.Parameters["Depth"].SetValue(1 - (-sunFrontDepth / level.camera.FarPlaneDistance));
+			//quadEffect.Parameters["Depth"].SetValue((-sunDepth / level.camera.FarPlaneDistance));
+			//quadEffect.Parameters["Depth"].SetValue(0.98f);//0.99
+			//quadEffect.Parameters["Depth"].SetValue(sunDepth);
+			quadEffect.Parameters["Depth"].SetValue(0f);
+			quadEffect.Parameters["FarPlane"].SetValue(level.camera.FarPlaneDistance);
+			quadEffect.Parameters["Position"].SetValue(Position);
+			quadEffect.Parameters["World"].SetValue(world);
+			quadEffect.Parameters["View"].SetValue(View);
+			quadEffect.Parameters["wvp"].SetValue(world * View * Projection);
+			quadRenderer.RenderFullScreenQuad(quadEffect);
+
+
+			graphicsDevice.BlendState = BlendState.Opaque;
+			graphicsDevice.DepthStencilState = DepthStencilState.Default;
+			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;///\ null;//SamplerState.LinearWrap;
+		}
 
 		private void SetupRenderTargets()
 		{
@@ -379,6 +490,8 @@ namespace HLSLTest
 			//hdrExtractedLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.HalfVector4, DepthFormat.Depth24);
 			//hdrExtractedLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.Vector4, DepthFormat.Depth24);
 			hdrExtractedLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.Color, DepthFormat.Depth24);
+
+			finalLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.Color, DepthFormat.Depth24);
 
 			bluredLayer = new ChainedRenderTarget(spriteBatch, linearFilter ,graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
 			bluredLayer.RenderTarget = hdrExtractedLayer;
@@ -401,7 +514,10 @@ namespace HLSLTest
 			rotationAxis = Vector3.Normalize(new Vector3(1f, 2f, 1f));
 			rotationAngle = 0f;
 			rotationAxisLayer0 = Vector3.Normalize(new Vector3(3f, 1f, 1f));
-			rotationAxisLayer1 = Vector3.Normalize(new Vector3(1f, 5f, 2f));  
+			rotationAxisLayer1 = Vector3.Normalize(new Vector3(1f, 5f, 2f));
+
+			quadRenderer = new FullScreenQuadRenderer(graphics);
+			quadEffect = content.Load<Effect>("Effects\\QuadEffect");
 		}
 		#endregion
 	}

@@ -395,7 +395,8 @@ namespace HLSLTest
 			maskEffect.Parameters["wvp"].SetValue(World * View * Projection);
 
 			// calc Z value
-			Vector3 transformed = Vector3.Transform(Position, View);
+			/*Vector3 transformed = Vector3.Transform(Position, View);
+			// positionだけで判断しているせいで、床のマスク作成にバグあり！
 			if (transformed.Z > criteria) {// 基準より前にいたら、マスク作成
 				//Level.graphicsDevice.SetRenderTarget(rt);
 				CacheEffects();
@@ -403,7 +404,14 @@ namespace HLSLTest
 				DrawMesh(View, Projection, CameraPosition);
 				RestoreEffects();
 				//Level.graphicsDevice.SetRenderTarget(null);
-			}
+			}*/
+
+			// Shader内でピクセル単位でマスクを描画するようにした
+			maskEffect.Parameters["DepthValue"].SetValue(criteria);
+			CacheEffects();
+			SetModelEffect(maskEffect, true);
+			DrawMesh(View, Projection, CameraPosition);
+			RestoreEffects();
 		}
 
 		/// <summary>

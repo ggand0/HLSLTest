@@ -25,7 +25,8 @@ float4 PixelShaderFunction(
 	Color += tex2D( gRenderTarget, Coords );
 	Color *= 0.2;
 	
-    return float4( Color.rgb, 1.0 );
+    //return float4( Color.rgb, 1.0 );
+	return Color;
 }
 
 technique Technique1

@@ -91,6 +91,7 @@
     <Compile Include="Entity\Drawable.cs" />
     <Compile Include="Entity\LaserBillboardBullet.cs" />
     <Compile Include="Entity\Satellite.cs" />
+    <Compile Include="Graphics\FullScreenQuadRenderer.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
