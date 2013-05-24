@@ -24,7 +24,7 @@ namespace HLSLTest
 		private readonly float MAX_RADIUS = 1000;
 		private readonly int DEF_RADIUS = 10;
 		private Matrix Scale;
-		private ExplosionParticleEmitter eps;
+		//private ExplosionParticleEmitter eps;
 		private float speed;
 
 		public void Update(GameTime gameTime)
@@ -98,8 +98,6 @@ namespace HLSLTest
 			effect.Parameters["RimColor"].SetValue(new Vector4(Color.LightGreen.ToVector3(), 0.05f));
 			//effect.Parameters["RimColor"].SetValue(new Vector4(Color.Blue.ToVector3(), 0.05f));
 			effect.Parameters["WaveSpeed"].SetValue(3.0f);
-
-
 			effect.Parameters["BaseTexture"].SetValue(tex);
 			effect.Parameters["RefractionMap"].SetValue(level.Sky.TextureCube);
 			effect.Parameters["NormalMap"].SetValue(content.Load<Texture2D>("waterbump"));
@@ -108,10 +106,10 @@ namespace HLSLTest
 
 			reflectionTarg = new RenderTarget2D(graphics, graphics.Viewport.Width, graphics.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24);
 			//eps = new ExplosionParticleEmitter(graphics, content, content.Load<Texture2D>("Textures\\nova_2"), position + new Vector3(0, 10, 0), 1000, new Vector2(10), 20, 5f);
-			eps = new ExplosionParticleEmitter(graphics, content, position, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
+			//eps = new ExplosionParticleEmitter(graphics, content, position, content.Load<Texture2D>("Textures\\Particle\\nova_2"), 2000, new Vector2(10), 20, 5f);
+            //speed = eps.Velocity.Length();
 			currentRadius = DEF_RADIUS;
-			currentRadius = 300;
-			speed = eps.Velocity.Length();
+			currentRadius = scale;
 		}
 	}
 }

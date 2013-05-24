@@ -203,11 +203,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 		float3 NormalTex = (2 * (tex2D(BaseNormalSampler, input.TexCoord))) - 1.0;
 		float DiffuseTex = saturate(dot(LightDir, Normal));// ‰ö‚µ‚¢
-		//BaseColor *= DiffuseTex;
+		BaseColor *= DiffuseTex;
 
 		float4 height = tex2D(ColorMapSampler, input.TexCoord);
 		float4 texCol = tex2D(PallSampler, float2(subtype, height.x));
-		//texCol *= Diffuse;
+		texCol *= Diffuse;
 
 		output += weightMap.r * BaseColor * texCol + weightMap.g * texCol;
 		output += AmbientColor;

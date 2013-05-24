@@ -26,6 +26,8 @@ float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
 float3 CameraPosition;
 
+float3 AccentColor;
+
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
@@ -72,6 +74,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	}
 	// add lighter color for asteroid
 	color += float3(0.1f, 0.1f, 0.1f);
+	//color += float3(0.1f, 0.1f, 0.1f);// さらに明るくしないと宇宙空間の背景では見えない
+	//color *= AccentColor;
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
@@ -85,6 +89,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 view = normalize(input.ViewDirection);
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
+	//lighting += float3(0.3f, 0.3f, 0.3f);
 
 
 	// Calculate final color

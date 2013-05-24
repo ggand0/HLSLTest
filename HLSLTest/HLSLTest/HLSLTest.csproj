@@ -84,6 +84,7 @@
     <Compile Include="BillboardSystem\LaserBillboard.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
+    <Compile Include="Core\IDamageable.cs" />
     <Compile Include="Entity\ArmedSatellite.cs" />
     <Compile Include="Entity\BillboardBullet.cs" />
     <Compile Include="Entity\EntityBullet.cs" />
@@ -121,6 +122,7 @@
     <None Include="Planet\Cloud Generation\InitialVelocity.cs" />
     <None Include="Planet\Cloud Generation\PressureMap.cs" />
     <Compile Include="Planet\ChainedRenderTarget.cs" />
+    <Compile Include="Planet\DamageablePlanet.cs" />
     <Compile Include="Planet\MoltenPlanet.cs" />
     <Compile Include="Planet\Star.cs" />
     <Compile Include="Planet\Sun.cs" />
@@ -131,6 +133,7 @@
     <None Include="Scene\PauseScene.cs" />
     <Compile Include="Scene\Level2.cs" />
     <Compile Include="Scene\Level3.cs" />
+    <Compile Include="Scene\Level4.cs" />
     <Compile Include="Scene\Scene.cs" />
     <Compile Include="Sound\SoundControl.cs" />
     <Compile Include="Terrain\HeightMap.cs" />

@@ -16,7 +16,7 @@ namespace HLSLTest
 		private static readonly float VERTICAL_ANGLE_MIN = 0.01f;
 		private static readonly float VERTICAL_ANGLE_MAX = MathHelper.Pi - 0.01f;
 		private static readonly float ZOOM_MIN = 100;
-		private static readonly float ZOOM_MAX = 00.0f;
+		private static readonly float ZOOM_MAX = 10000.0f;
 		//private static readonly float ZOOM_RATE = 10; // スムーズにズームさせたい時に使用する予定
 
 		private short zoomMode = 0;
@@ -375,11 +375,18 @@ namespace HLSLTest
 				_horizontalAngle += MathHelper.ToRadians(JoyStick.vectorOther.X);
 			}
 
-			if (JoyStick.IsOnKeyDown(7)) {
+			/*if (JoyStick.IsOnKeyDown(7)) {
 				zoomMode++;
 				if (zoomMode == zoomState.Length) zoomMode = 0;
 			}
-			_zoom = zoomState[zoomMode];
+			_zoom = zoomState[zoomMode];*/
+			if (JoyStick.KEY(7)) {
+				Zoom += 20;
+			}
+			if (JoyStick.KEY(5)) {
+				Zoom -= 20;
+			}
+
 		}
 		/// <summary>
 		/// カメラを目的の位置に配置し、移動を停止します。これは、
@@ -484,6 +491,8 @@ namespace HLSLTest
 			if (gameTime == null) {
 				throw new ArgumentNullException("gameTime is null.");
 			}
+
+			UpdateChaseTarget(Vector3.Zero);
 			HandleInput();
 			UpdateWorldPositions();
 
@@ -497,6 +506,7 @@ namespace HLSLTest
 			Position += Velocity * elapsed;*/
 
 			Position = DesiredPosition;
+			//Position += Velocity;
 			/*if (Position.Y < 0) {
 				Position = new Vector3(Position.X, 0, Position.Z);
 			}*/

@@ -11,20 +11,6 @@ namespace HLSLTest
 {
 	public class WaterPlanet : Planet
 	{
-		
-
-		public WaterPlanet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
-			:this(DEF_POSITION, starPosition, graphics, content)
-		{
-		}
-		public WaterPlanet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
-			: base(position, starPosition, graphics, content)
-		{
-			Type = PlanetType.Water;
-			rotate = true;
-			//revolution = true;
-		}
-
 		protected override void LoadContent(ContentManager content)
 		{
 			terrain = content.Load<Effect>("Planets\\WaterPlanet");
@@ -33,10 +19,8 @@ namespace HLSLTest
 
 			base.LoadContent(content);
 			//model = content.Load<Model>("Models\\SkySphereMesh");
-			
 			//model = content.Load<Model>("Models\\sphereNoTex");
 			//model = content.Load<Model>("Models\\sphereTransparentTex");
-			
 
 			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10");
 			baseTexture = content.Load<Texture2D>("Textures\\Terrain\\water10_normal");
@@ -49,5 +33,22 @@ namespace HLSLTest
 
 			Generate(graphicsDevice);
 		}
+		
+
+
+		// Constructors
+		public WaterPlanet(Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			:this(DEF_POSITION, starPosition, graphics, content)
+		{
+		}
+		public WaterPlanet(Vector3 position, Vector3 starPosition, GraphicsDevice graphics, ContentManager content)
+			: base(position, starPosition, graphics, content)
+		{
+			Type = PlanetType.Water;
+			rotate = true;
+			//revolution = true;
+		}
+
+		
 	}
 }

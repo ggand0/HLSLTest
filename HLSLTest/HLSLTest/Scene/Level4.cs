@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class Level3 : Level
+	public class Level4 : Level
 	{
 		public Object Target { get; private set; }
 		public Object Ground { get; private set; }
@@ -25,14 +25,15 @@ namespace HLSLTest
 		ParticleEmitter basicEmitter, beamEmitter;
 		EnergyRingEffect discoidEffect;
 		EnergyShieldEffect shieldEffect;
-		ExplosionEffect explosionTest, smallExplosion, bigExplosion;
+		ExplosionEffect explosionTest, smallExplosion, bigExplosion, midExplosion;
 		Planet planet;
 		Star star;
 		Sun sun, sunCircle;
+		Effect shadowEffect;
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
-		
+
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
 		private bool spawned;
@@ -42,7 +43,7 @@ namespace HLSLTest
 		/// <summary>
 		/// 小惑星の最大spawn数
 		/// </summary>
-		private static readonly int MAX_SPAWN_NUM = 30;
+		private static readonly int MAX_SPAWN_NUM = 15;
 
 		public static float NextDouble(Random r, double min, double max)
 		{
@@ -51,23 +52,12 @@ namespace HLSLTest
 		private void AddAsteroids(int asteroidNum, float radius)
 		{
 			Asteroids = new List<Asteroid>();
-			Effect lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
-			//Object.SetEffectParameter(lightingEffect, "LightDirection", -LightPosition);
-			//Object.SetEffectParameter(lightingEffect, "SpecularPower", 200);
-			//Object.SetEffectParameter(lightingEffect, "AmbientColor", new Vector3(0.5f));
-
-			/*asteroids.Add(new Object(new Vector3(-100,0,100), "Models\\Asteroid"));
-			asteroids.Add(new Object(new Vector3(-500, 0, 500), "Models\\Asteroid"));
-			asteroids[0].Scale = 0.02f;
-			asteroids[0].SetModelEffect(lightingEffect, true);
-			asteroids[1].Scale = 0.02f;
-			asteroids[1].SetModelEffect(lightingEffect, true);*/
-            for (int i = 0; i < asteroidNum; i++) {
+			for (int i = 0; i < asteroidNum; i++) {
 				//random = new Random();
 				Asteroids.Add(new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid"));
 				//Asteroids[i].Scale = 0.02f;//0.1f;
-				Asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
-			}/**/
+				//Asteroids[i].SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
+			}
 		}
 		protected override void Initialize()
 		{
@@ -88,12 +78,12 @@ namespace HLSLTest
 			// Set up the reference grid
 			grid = new GridRenderer();
 			grid.GridColor = Color.DarkSeaGreen;//Color.LimeGreen;
-			grid.GridScale = 100f;
-			grid.GridSize = 32;//32;
+            grid.GridScale = 300f;//100f;
+            grid.GridSize = 64;;//32;
 			// Set the grid to draw on the x/z plane around the origin
 			grid.WorldMatrix = Matrix.Identity;
 		}
-		Effect shadowEffect;
+		
 		public override void Load()
 		{
 			base.Load();
@@ -103,12 +93,12 @@ namespace HLSLTest
 
 			Sky = new SkySphere(content, graphicsDevice, content.Load<TextureCube>("Textures\\SkyBox\\space4"), 100);// set 11 for debug
 
-
 			// Load stars
 			star = new Star(new Vector3(-500, 100, 500), graphicsDevice, content, StarType.G);
 			//star = new Star(-LightPosition, device, content, StarType.G);
 			LightPosition = star.Position;
-			sun = new Sun(new Vector3(-500, 100, 500), graphicsDevice, content, spriteBatch);
+			//sun = new Sun(new Vector3(-500, 100, 500), graphicsDevice, content, spriteBatch);
+			sun = new Sun(new Vector3(-2000, 500, 2000), graphicsDevice, content, spriteBatch);
 			sunCircle = new Sun(LightPosition, graphicsDevice, content, spriteBatch);
 
 			// Load planets
@@ -128,7 +118,7 @@ namespace HLSLTest
 			Planets.Add(icePlanet);
 			Planets.Add(gasGiant);
 
-			// Asteroids
+			// Load asteroids
 			random = new Random();
 			Asteroids = new List<Asteroid>();
 			AddAsteroids(5, 2000);
@@ -136,7 +126,7 @@ namespace HLSLTest
 				Models.Add(o);
 			}
 			spawned = true;
-			
+
 			// Load satellites
 			//Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
 			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser0");
@@ -149,9 +139,6 @@ namespace HLSLTest
 			shadowEffect = content.Load<Effect>("ProjectShadowDepthEffectV4");
 			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
 			foreach (Object o in Models) {
-				if (o is Satellite) {
-					string d = "";
-				}
 				o.RenderBoudingSphere = false;
 				o.SetModelEffect(shadowEffect, true);
 			}
@@ -166,18 +153,17 @@ namespace HLSLTest
 			renderer.Models = Models;
 			renderer.Camera = camera;
 			renderer.Lights = new List<PointLight>() {
-				new PointLightCircle(new Vector3(0, 1000, 0), 2000, Color.White, 2000),
-				new PointLight(new Vector3(0, 500, 0), Color.LightBlue, 2000),
-				new PointLight(new Vector3(0, 10000, 0), Color.White * .85f, 100000),// シーン全体を照らす巨大なライトにする
-				//new PointLightCircle(new Vector3(0, 200, 0), 200, Color.White, 2000),
-				//new PointLight(LightPosition, Color.White * .85f, 2000000),
-				//new PointLight(new Vector3(0, 200, 0), Color.White * .85f, 100000),
+				//new PointLightCircle(new Vector3(0, 1000, 0), 2000, Color.White, 2000),	// 影のデバッグ用
+				//new PointLight(new Vector3(0, 500, 0), Color.White, 2000),				// 太陽の光源
+                new PointLight(sun.Position, Color.White, 5000),							// 太陽の光源
+				new PointLight(new Vector3(0, 10000, 0), Color.White * .85f, 100000),		// シーン全体を照らす巨大なライトにする
 			};
 			renderer.ShadowLightPosition = new Vector3(300, 500, 300);//LightPosition;
 			renderer.ShadowLightTarget = new Vector3(0, 0, 0);
 			renderer.DoShadowMapping = true;
 			renderer.ShadowMult = 0.3f;//0.01f;//0.3f;
 			LightPosition = renderer.Lights[0].Position;
+
 
 			// Special effects
 			EnergyRingEffect.game = game;
@@ -188,10 +174,7 @@ namespace HLSLTest
 			smallExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", false);
 			//smallExplosion = new ExplosionEffect(content, device, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion0.xml", true);
 			bigExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion1.xml", false);
-
-			// pre-load
-			//setting = new ParticleSettings("Xml\\Particle\\particleExplosion0");
-
+			midExplosion = new ExplosionEffect(content, graphicsDevice, new Vector3(0, 50, 0), Vector2.One, false, "Xml\\Particle\\particleExplosion2.xml", false);
 
 			lb = new LaserBillboard(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
@@ -203,13 +186,13 @@ namespace HLSLTest
 		{
 			base.HandleInput();
 
-			/*float stickSensitivity = 0.2f;
+			float stickSensitivity = 0.2f;
 			//  スティックが倒されていればDirectionを再計算する
 			if (JoyStick.Vector.Length() > stickSensitivity) {
-				double analogAngle = Math.Atan2(JoyStick.Vector.Y, JoyStick.Vector.X);
+				/*double analogAngle = Math.Atan2(JoyStick.Vector.Y, JoyStick.Vector.X);
 				float speed = JoyStick.Vector.Length() * 30;
 				analogAngle += MathHelper.ToRadians(-90);
-
+                
 				Vector3 tmpVelocity = Vector3.Zero;
 				tmpDirention = tmpCameraPos - camera.Position;
 				tmpDirention = new Vector3(tmpDirention.X, 0, tmpDirention.Z);
@@ -219,9 +202,18 @@ namespace HLSLTest
 				tmpDirention = Vector3.Normalize(tmpDirention);// プロパティなので代入しないと反映されないことに注意
 				tmpVelocity = new Vector3(tmpDirention.X * speed, tmpVelocity.Y, tmpDirention.Z * speed);
 
-				tmpCameraPos += tmpVelocity;
+				tmpCameraPos += tmpVelocity;*/
+			}
+			/*if (JoyStick.stickDirection == Direction.LEFT) {
+				tmpCameraPos += new Vector3(-10, 0, 0);
+			} else if (JoyStick.stickDirection == Direction.RIGHT) {
+				tmpCameraPos += new Vector3(10, 0, 0);
+			}
+			if (JoyStick.stickDirection == Direction.UP) {
+				tmpCameraPos += new Vector3(0, 0, 10);
+			} else if (JoyStick.stickDirection == Direction.DOWN) {
+				tmpCameraPos += new Vector3(0, 0, -10);
 			}*/
-
 		}
 		protected override void Collide()
 		{
@@ -246,8 +238,17 @@ namespace HLSLTest
 						a.IsActive = false;
 						//b.IsActive = false;
 
-						ExplosionEffect e = (random.Next(0, 2) == 0) ? (ExplosionEffect)smallExplosion.Clone() : (ExplosionEffect)bigExplosion.Clone();
+						//ExplosionEffect e = (random.Next(0, 2) == 0) ? (ExplosionEffect)smallExplosion.Clone() : (ExplosionEffect)bigExplosion.Clone();
 						//ExplosionEffect e = (ExplosionEffect)bigExplosion.Clone();
+						ExplosionEffect e = null;
+						double p = random.NextDouble();
+						if (p <= 0.5) {
+							e = (ExplosionEffect)smallExplosion.Clone();
+						} else if (p <= 0.9) {
+							e = (ExplosionEffect)midExplosion.Clone();
+						} else {
+							e = (ExplosionEffect)bigExplosion.Clone();
+						}
 
 						e.Position = a.Position;
 						/*foreach (ExplosionParticleEmitter ep in e.emitters) {
@@ -255,7 +256,7 @@ namespace HLSLTest
 						}*/
 						e.Run();
 						effectManager.Add(e);
-					}/**/
+					}
 				}
 			}
 
@@ -273,7 +274,7 @@ namespace HLSLTest
 					if (!Asteroids[j].IsActive) {
 						Asteroids.RemoveAt(j);
 					}
-				}/**/
+				}
 			}
 			if (Bullets.Count > 0) {
 				for (int j = 0; j < Bullets.Count; j++) {
@@ -307,7 +308,7 @@ namespace HLSLTest
 				}
 				spawned = true;
 			}*/
-			if (Asteroids.Count < 15) {// = 15 -5
+			if (Asteroids.Count < MAX_SPAWN_NUM) {// = 15 -5
 				float radius = 3000;
 				Asteroid a = new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid");
 				//Asteroids[i].Scale = 0.02f;//0.1f;
@@ -320,9 +321,7 @@ namespace HLSLTest
 
 			base.Update(gameTime);
 
-
-			//camera.UpdateChaseTarget(Vector3.Zero);
-			camera.UpdateChaseTarget(tmpCameraPos);
+			HandleInput();
 			camera.Update(gameTime);
 			renderer.Update(gameTime);
 			LightPosition = renderer.Lights[0].Position;
@@ -335,9 +334,6 @@ namespace HLSLTest
 			foreach (Object o in Models) {
 				if (o.IsActive) o.Update(gameTime);
 			}
-			/*foreach (Object a in Asteroids) {
-				if (a.IsActive) a.Update(gameTime);
-			}*/
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Update(gameTime);
 			}
@@ -363,18 +359,16 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
+			// Initialize values (for debug)
 			ResetGraphicDevice();
-			/*graphicsDevice.SetRenderTarget(maskLayer);
-			graphicsDevice.Clear(Color.White);
-			graphicsDevice.SetRenderTarget(null);*/
-
 			float sunDepth = Vector3.Transform(sun.Position, camera.View).Z;
 			//sunDepth =   Vector3.Transform(Vector3.Transform(Vector3.Transform(sun.Position, sun.World), camera.View), camera.Projection).Z;
 			//float sunFrontDepth = Vector3.Transform(Vector3.Transform(sun.Position + (Vector3.Normalize(sun.Position - camera.CameraPosition) * 200), sun.world), camera.View).Z;
 			camera.FarPlaneDistance = 10000000;
 
+
 			// Draw pre-passes
-			graphicsDevice.SetRenderTarget(maskLayer);
+			/*graphicsDevice.SetRenderTarget(maskLayer);
 			graphicsDevice.Clear(Color.White);
 			foreach (Object o in Models) {
 				//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
@@ -382,25 +376,29 @@ namespace HLSLTest
 					o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
 				}
 			}
+			graphicsDevice.SetRenderTarget(null);*/
+			graphicsDevice.SetRenderTarget(maskLayer);
+			graphicsDevice.Clear(Color.White);
 			graphicsDevice.SetRenderTarget(null);
 			renderer.PreDraw();
 			sun.PreDraw(camera.View, camera.Projection);
 			graphicsDevice.Clear(Color.White);
 
-			// Environment
+
+			// Draw environment
 			ResetGraphicDevice();
 			Sky.Draw(camera.View, camera.Projection, camera.Position);
 			ResetGraphicDevice();
 			//sun.Draw(true, camera.View, camera.Projection, maskLayer);
 			ResetGraphicDevice();
-			//sun.Draw(false, camera.View, camera.Projection);
-			
 			sunCircle.Draw(false, camera.View, camera.Projection);
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
 			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
 			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
-
 			//star.Draw(camera.View, camera.Projection);
+
+
+			// Draw objects
 			foreach (Object o in Models) {
 				if (o.IsActive && camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
 					if (o is ArmedSatellite) {
@@ -410,22 +408,18 @@ namespace HLSLTest
 					}
 				}
 			}
-			
-			//ResetGraphicDevice();
-			sun.Draw(true, camera.View, camera.Projection, maskLayer);
-			//ResetGraphicDevice();
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
 			}
-
 			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			//bigExplosion.Draw(gameTime, camera);
 
+
+			// Draw grids and bounding volumes
 			renderer.Draw(gameTime);
-			// Grid
 			if (displayGrid) {
 				grid.ProjectionMatrix = camera.Projection;
 				grid.ViewMatrix = camera.View;
@@ -433,8 +427,8 @@ namespace HLSLTest
 				//grid.Draw();
 			}
 
-			//sun.Draw(true, camera.View, camera.Projection); // 4 debug
-			//effectManager.Draw(gameTime, camera);
+			// Draw effects
+			effectManager.Draw(gameTime, camera);
 
 			if (JoyStick.IsOnKeyDown(8)) {
 				using (Stream stream = File.OpenWrite("sundebug\\sunmask.png")) {
@@ -445,7 +439,7 @@ namespace HLSLTest
 		}
 
 
-		public Level3(Scene previousScene)
+		public Level4(Scene previousScene)
 			: base(previousScene)
 		{
 			displayGrid = true;

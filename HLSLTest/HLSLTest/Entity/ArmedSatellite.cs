@@ -11,16 +11,18 @@ namespace HLSLTest
 {
 	public class ArmedSatellite : Satellite
 	{
-		SoundEffect shootSound;
-		List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
+		private SoundEffect shootSound;
+		private List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
 		EnergyShieldEffect shieldEffect;
+
+        //private List<Enemy> currentEnemies;
 
 		private Vector3 SearchTarget()
 		{
 			float minDis = 9999;
 			Vector3 min = new Vector3(9999);
 
-			foreach (Asteroid a in (level as Level3).Asteroids) {
+			foreach (Asteroid a in (level as Level4).Asteroids) {
 				if ((Position - a.Position).Length() < minDis) {
 					minDis = (Position - a.Position).Length();
 					min = a.Position;
@@ -44,7 +46,7 @@ namespace HLSLTest
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 1));
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
 
-					if ((level as Level3).Asteroids.Count > 0) {
+					if ((level as Level4).Asteroids.Count > 0) {
 						Vector3 dir = Vector3.Normalize(new Vector3(3, 2, 1));//(level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
 						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
@@ -52,7 +54,7 @@ namespace HLSLTest
 					
 					break;
 				case 4://level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 40), new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(10, 5), 1));
-					if ((level as Level3).Asteroids.Count > 0) {
+					if ((level as Level4).Asteroids.Count > 0) {
 						//Vector3 tmp = new Vector3(100, 60, -100);
 
 						//Vector3 tmp = (level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
@@ -70,9 +72,9 @@ namespace HLSLTest
 			}
 		}
 
-		Random r = new Random();
+		private Random r = new Random();
 		private int count;
-		private int shootRate = 60;
+		private readonly int shootRate = 60;
 		private int chargeTime;
 		private bool canShoot;
 		public override void Update(GameTime gameTime)
@@ -91,11 +93,11 @@ namespace HLSLTest
 				//shootSoundInstance.Play();
 
 				if (!Level.mute) {
-				SoundEffectInstance ls = shootSound.CreateInstance();
-				ls.Volume = 0.1f;
-				ls.Play();
-				currentSounds.Add(ls);
-					}
+				    SoundEffectInstance ls = shootSound.CreateInstance();
+				    ls.Volume = 0.1f;
+				    ls.Play();
+				    currentSounds.Add(ls);
+				}
 			}
 
 			for (int i = currentSounds.Count - 1; i >= 0; i--) {
@@ -133,7 +135,7 @@ namespace HLSLTest
 			//random = new Random();
 			chargeTime = random.Next(10, 70);
 			shootSound = content.Load<SoundEffect>(SEPath);
-			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(300), 250);
+			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(150), 100);//300,250
 		}
 		#endregion
 	}

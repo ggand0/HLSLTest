@@ -28,7 +28,10 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	if (input.Depth > DepthValue) {
+	float d = DepthValue;
+
+	//if (input.Depth > d) {
+	if (abs(input.Depth) < abs(d)) {
 		return float4(colour, 1);
 	} else {
 		return float4(1,1,1,1);

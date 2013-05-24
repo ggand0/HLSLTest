@@ -38,10 +38,34 @@ namespace HLSLTest
 		BasicEffect basicEffect;
 		BillboardSystem b1, b2;
 
-		OcclusionQuery occlusionQuery;
+        #region flare fields
+        OcclusionQuery occlusionQuery;
 		bool occlusionQueryActive = false;
 		float occlusionAlpha;
-		public float sunFrontDepth;
+        Texture2D glowSprite;
+        float glowSize = 400;
+        GraphicsDevice graphics;
+        bool holdoff;
+
+        Flare[] flares =
+        {
+            new Flare(-0.5f, 0.7f, new Color( 50,  25,  50), "flare1"),
+            new Flare( 0.3f, 0.4f, new Color(100, 255, 200), "flare1"),
+            new Flare( 1.2f, 1.0f, new Color(100,  50,  50), "flare1"),
+            new Flare( 1.5f, 1.5f, new Color( 50, 100,  50), "flare1"),
+
+            new Flare(-0.3f, 0.7f, new Color(200,  50,  50), "flare2"),
+            new Flare( 0.6f, 0.9f, new Color( 50, 100,  50), "flare2"),
+            new Flare( 0.7f, 0.4f, new Color( 50, 200, 200), "flare2"),
+
+            new Flare(-0.7f, 0.7f, new Color( 50, 100,  25), "flare3"),
+            new Flare( 0.0f, 0.6f, new Color( 25,  25,  25), "flare3"),
+            new Flare( 2.0f, 1.4f, new Color( 25,  50, 100), "flare3"),
+        };
+        #endregion
+        public float sunFrontDepth;
+
+
 
 		public override void Update(GameTime gameTime)
 		{
@@ -65,7 +89,7 @@ namespace HLSLTest
 #endif
 			string s = Position.ToString();
 
-			World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 			//sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), level.camera.View).Z;
 			sunFrontDepth = Vector3.Transform(Position + (Vector3.Normalize(level.camera.CameraPosition - Position) * 200), level.camera.View).Z;
 		}
@@ -105,7 +129,7 @@ namespace HLSLTest
 		bool hasSaved;
 		private void DrawSurface(bool postEffect, Matrix View, Matrix Projection)
 		{
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateFromAxisAngle(rotationAxis, rotationAngle)
+			Matrix World = Matrix.CreateScale(Scale) * Matrix.CreateFromAxisAngle(rotationAxis, rotationAngle)
 				* Matrix.CreateTranslation(Position);
 			Matrix wvp = World * View * Projection;
 
@@ -166,7 +190,7 @@ namespace HLSLTest
 				graphicsDevice.BlendState = BlendState.Additive;
 			}
 
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0)
+			Matrix World = Matrix.CreateScale(Scale) * Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0)
 				* Matrix.CreateTranslation(Position);
 			Matrix wvp = World * View * Projection;
 			foreach (ModelMesh mesh in sphere.Meshes) {
@@ -185,7 +209,7 @@ namespace HLSLTest
 			}
 
 
-			World = Matrix.CreateScale(Scale * 200) * Matrix.CreateFromAxisAngle(rotationAxisLayer1, rotationAngleLayer1)
+			World = Matrix.CreateScale(Scale) * Matrix.CreateFromAxisAngle(rotationAxisLayer1, rotationAngleLayer1)
 				* Matrix.CreateTranslation(Position);
 			wvp = World * View * Projection;
 			foreach (ModelMesh mesh in sphere.Meshes) {
@@ -267,7 +291,7 @@ namespace HLSLTest
 			DrawSurface(true, View, Projection);
 			DrawLayers(true, View, Projection);
 			ExtractHDR(View, Projection, 0.5f);
-			Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			Matrix World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 			//* Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0) * Matrix.CreateTranslation(Position);
 			BlurScreen(World);
 
@@ -285,7 +309,7 @@ namespace HLSLTest
 			//graphicsDevice.SamplerStates[2] = SamplerState.PointWrap;
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
 
-			//basicEffect.World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			//basicEffect.World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 			//basicEffect.View = View;
 			//basicEffect.Projection = Projection;
 			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, DepthStencilState.DepthRead, RasterizerState.CullNone, basicEffect);
@@ -327,7 +351,6 @@ namespace HLSLTest
 				occlusionQueryActive = true;
 				holdoff = false;
 			}*/
-
 			//graphics.RenderState.DepthBufferEnable = true;
 
 			if (!postEffect) {
@@ -338,7 +361,7 @@ namespace HLSLTest
 				/*DrawSurface(postEffect, View, Projection);
 				DrawLayers(postEffect, View, Projection);
 				ExtractHDR(View, Projection, 0.5f);
-				Matrix World = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+				Matrix World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 				//* Matrix.CreateFromAxisAngle(rotationAxisLayer0, rotationAngleLayer0) * Matrix.CreateTranslation(Position);
 				BlurScreen(World);*/
 			}
@@ -404,7 +427,7 @@ namespace HLSLTest
 				spriteBatch.End();*/
 
 				//float sunDepth = Vector3.Transform(Position, View).Z;
-				Matrix world = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+				Matrix world = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 				float sunDepth = Vector3.Transform(Vector3.Transform(Position, world), View).Z;
 				float sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), View).Z;
 				//graphicsDevice.BlendState = BlendState.Opaque;
@@ -429,17 +452,17 @@ namespace HLSLTest
 				graphicsDevice.DepthStencilState = DepthStencilState.Default;/**/
 			}
 
-			/*if (occlusionQueryActive) {
+			if (occlusionQueryActive) {
 				if (!holdoff)
 					occlusionQuery.End();
 			}
 			// If it is visible, draw the flare effect.
 			if (occlusionAlpha > 0) {
-				graphics.DepthStencilState = DepthStencilState.DepthRead;
-				graphics.RasterizerState = RasterizerState.CullNone;
+				graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                graphicsDevice.RasterizerState = RasterizerState.CullNone;
 				DrawGlow(TransformPosition(View, Projection, Position));//Position
 				DrawFlares(TransformPosition(View, Projection, Position));//Position
-			}*/
+			}/**/
 			graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -450,7 +473,7 @@ namespace HLSLTest
 		public void Draw(bool postEffect, Matrix View, Matrix Projection, RenderTarget2D mask)
 		{
 			//float sunDepth = Vector3.Transform(Position, View).Z;
-			Matrix world = Matrix.CreateScale(Scale * 200) * Matrix.CreateTranslation(Position);
+			Matrix world = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 			float sunDepth = Vector3.Transform(Vector3.Transform(Position, world), View).Z;
 			
 			//graphicsDevice.BlendState = BlendState.Opaque;
@@ -473,14 +496,99 @@ namespace HLSLTest
 			quadEffect.Parameters["wvp"].SetValue(world * View * Projection);
 			quadRenderer.RenderFullScreenQuad(quadEffect);
 
+            /*if (occlusionAlpha > 0) {
+				graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                graphicsDevice.RasterizerState = RasterizerState.CullNone;
+				DrawGlow(TransformPosition(View, Projection, Position));//Position
+				DrawFlares(TransformPosition(View, Projection, Position));//Position
+			}*/
 
 			graphicsDevice.BlendState = BlendState.Opaque;
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
 			graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;///\ null;//SamplerState.LinearWrap;
 		}
+		public void DrawAsBackGround(Matrix View, Matrix Projection)
+		{
+		}
 
-		private void SetupRenderTargets()
+
+        #region Draw flares
+        /// <summary>
+        /// Draws a large circular glow sprite, centered on the sun.
+        /// </summary>
+        void DrawGlow(Vector2 lightPosition)
+        {
+            Vector4 color = new Vector4(1, 1, 1, occlusionAlpha);
+            Vector2 origin = new Vector2(glowSprite.Width, glowSprite.Height) / 2;
+            float scale = glowSize * 2 / glowSprite.Width;
+
+            //spriteBatch.Begin(SpriteBlendMode.AlphaBlend);
+            //spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
+            spriteBatch.Draw(glowSprite, lightPosition, null, new Color(color), 0,
+                             origin, scale, SpriteEffects.None, 0);
+
+            spriteBatch.End();
+        }
+
+        public Vector2 TransformPosition(Matrix View, Matrix Projection, Vector3 oPosition)
+        {
+            Vector4 oTransformedPosition = Vector4.Transform(oPosition, View * Projection);
+            if (oTransformedPosition.W != 0) {
+                oTransformedPosition.X = oTransformedPosition.X / oTransformedPosition.W;
+                oTransformedPosition.Y = oTransformedPosition.Y / oTransformedPosition.W;
+                oTransformedPosition.Z = oTransformedPosition.Z / oTransformedPosition.W;
+            }
+
+            Vector2 oPosition2D = new Vector2(
+              oTransformedPosition.X * graphicsDevice.PresentationParameters.BackBufferWidth / 2 + graphicsDevice.PresentationParameters.BackBufferWidth / 2,
+              -oTransformedPosition.Y * graphicsDevice.PresentationParameters.BackBufferHeight / 2 + graphicsDevice.PresentationParameters.BackBufferHeight / 2);
+
+            return oPosition2D;
+        }
+        /// <summary>
+        /// Draws the lensflare sprites, computing the position
+        /// of each one based on the current angle of the sun.
+        /// </summary>
+        public void DrawFlares(Vector2 lightPosition)
+        {
+            Viewport viewport = graphicsDevice.Viewport;
+
+            // Lensflare sprites are positioned at intervals along a line that
+            // runs from the 2D light position toward the center of the screen.
+            Vector2 screenCenter = new Vector2(viewport.Width, viewport.Height) / 2;
+
+            Vector2 flareVector = screenCenter - lightPosition;
+
+            // Draw the flare sprites using additive blending.
+            //spriteBatch.Begin(SpriteBlendMode.Additive);
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
+
+            foreach (Flare flare in flares) {
+                // Compute the position of this flare sprite.
+                Vector2 flarePosition = lightPosition + flareVector * flare.Position;
+
+                // Set the flare alpha based on the previous occlusion query result.
+                Vector4 flareColor = flare.Color.ToVector4();
+
+                flareColor.W *= occlusionAlpha;
+
+                // Center the sprite texture.
+                Vector2 flareOrigin = new Vector2(flare.Texture.Width,
+                                                  flare.Texture.Height) / 2;
+
+                // Draw the flare.
+                spriteBatch.Draw(flare.Texture, flarePosition, null,
+                                 new Color(flareColor), 1, flareOrigin,
+                                 flare.Scale, SpriteEffects.None, 0);
+            }
+
+            spriteBatch.End();
+        }
+        #endregion
+
+        private void SetupRenderTargets()
 		{
 			albedoLayer = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.HalfVector4, DepthFormat.Depth24);
 			//additiveLayer0 = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, true, SurfaceFormat.HalfVector4, DepthFormat.Depth24);
@@ -518,6 +626,8 @@ namespace HLSLTest
 
 			quadRenderer = new FullScreenQuadRenderer(graphics);
 			quadEffect = content.Load<Effect>("Effects\\QuadEffect");
+
+            Scale = 500;
 		}
 		#endregion
 	}

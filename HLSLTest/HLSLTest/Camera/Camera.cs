@@ -9,12 +9,26 @@ namespace HLSLTest
 {
 	public abstract class Camera
 	{
-		public Matrix View { get; set; }
-		public Matrix Projection { get; set; }
+		private Matrix _view, _projection;
+		public Matrix View {
+			get { return _view; }
+			set {
+				_view = value;
+				GenerateFrustrum();
+			}
+		}
+		public Matrix Projection {
+			get { return _projection; }
+			set	{
+				_projection = value;
+				GenerateFrustrum();
+			}
+		}
 		public Vector3 Up { get; protected set; }
 		public Vector3 Right { get; protected set; }
 		public Vector3 Direction { get; protected set; }
 		public Vector3 Position { get; set; }
+		public BoundingFrustum Frustrum { get; private set; }
 
 		protected GraphicsDevice GraphicsDevice { get; set; }
 		/// <summary>
@@ -37,6 +51,8 @@ namespace HLSLTest
 		}
 		private float farPlaneDistance = 1000000.0f;
 
+
+
 		public Camera()
 		{
 		}
@@ -45,6 +61,20 @@ namespace HLSLTest
 			//FarPlaneDistance = 2000;
 			this.GraphicsDevice = graphicsDevice;
 			generatePerspectiveProjectionMatrix(MathHelper.PiOver4);
+		}
+
+		public bool BoundingVolumeIsInView(BoundingSphere sphere)
+		{
+			return (Frustrum.Contains(sphere) != ContainmentType.Disjoint);
+		}
+		public bool BoundingVolumeIsInView(BoundingBox box)
+		{
+			return (Frustrum.Contains(box) != ContainmentType.Disjoint);
+		}
+		private void GenerateFrustrum()
+		{
+			Matrix viewProjection = View * Projection;
+			Frustrum = new BoundingFrustum(viewProjection);
 		}
 		private void generatePerspectiveProjectionMatrix(float FieldOfView)
 		{

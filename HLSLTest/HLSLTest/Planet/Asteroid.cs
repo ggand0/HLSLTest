@@ -13,6 +13,7 @@ namespace HLSLTest
 	{
 		public Vector3 Destination { get; private set; }
 		public float Speed { get; private set; }
+		Effect lightingEffect;
 
 		protected override void UpdateWorldMatrix()
 		{
@@ -27,6 +28,11 @@ namespace HLSLTest
 
 			UpdateWorldMatrix();
 		}
+		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			SetEffectParameter(lightingEffect, "AccentColor", Color.MediumVioletRed.ToVector3());
+			base.Draw(View, Projection, CameraPosition);
+		}
 
 		public Asteroid(Vector3 position, float scale, string fileName)
 			:base(position, scale, fileName)
@@ -37,6 +43,11 @@ namespace HLSLTest
 		{
 			this.Destination = destination;
 			Speed = 1;
+
+			lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
+
+			// Accent Colorを後で変えたいので、変更をそのまま反映させるためfalseにする
+			SetModelEffect(lightingEffect, false);					// set effect to each modelmeshpart
 		}
 	}
 }
