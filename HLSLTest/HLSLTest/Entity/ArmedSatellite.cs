@@ -134,8 +134,8 @@ namespace HLSLTest
 		{
 			base.Draw(View, Projection, CameraPosition);
 
-			shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);
-			billboardStrip.Draw(View, Projection,  level.camera.Up, level.camera.Right,CameraPosition);
+			billboardStrip.Draw(View, Projection, level.camera.Up, level.camera.Right, CameraPosition);
+			shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);	
 		}
 
 		#region Constructors
@@ -158,7 +158,7 @@ namespace HLSLTest
 			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(150), 100);//300,250
 
 			positions = new List<Vector3>();
-			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(10, 50), positions);
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line1T1"), new Vector2(10, 200), positions);
 		}
 		#endregion
 	}

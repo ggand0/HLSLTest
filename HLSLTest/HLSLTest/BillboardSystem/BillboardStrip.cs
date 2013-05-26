@@ -278,8 +278,8 @@ namespace HLSLTest
 
 				SetEffectParameters(View, Projection, Up, Right, CameraPosition);
 				effect.Parameters["LaserColor"].SetValue(LaserColor.ToVector4());
-				graphicsDevice.BlendState = BlendState.AlphaBlend;
-				//graphicsDevice.BlendState = BlendState.Additive;
+				//graphicsDevice.BlendState = BlendState.AlphaBlend;
+				graphicsDevice.BlendState = BlendState.Additive;
 
 				// Draw the billboards
 				//graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4 * nBillboards, 0, nBillboards * 2);

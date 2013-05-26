@@ -18,7 +18,49 @@ namespace HLSLTest
 	{
 		public FighterState State { get; private set; }
 		public Vector3 Target { get; private set; }
+		public Vector3 StartPosiiton { get; private set; }
 
+		private Vector3 currentWayPoint;
+		private int currentWayPointIndex;
+		private Vector3[] wayPoints0;
+
+		BillboardStrip engineTrailEffect;
+		private List<Vector3> positions;
+
+		private void Initialize()
+		{
+			// Initialize waypoints
+			wayPoints0 = new Vector3[] {
+				Target + Vector3.Normalize(StartPosiiton - Target) * 1000,
+				Target + Vector3.UnitY * 200,
+				Target - Vector3.Normalize(StartPosiiton - Target) * 1000,
+				Target - Vector3.UnitY * 200,
+			};
+		}
+		private void UpdateLocus()
+		{
+			positions.Add(Position);
+			engineTrailEffect.Positions = positions;
+			if (positions.Count >= BillboardStrip.MAX_SIZE) {
+				positions.RemoveAt(0);
+			} else if (positions.Count > 0) {
+				engineTrailEffect.AddVertices();
+			}
+		}
+		/// <summary>
+		/// WayPoint loop movement
+		/// </summary>
+		/// <param name="wayPoints"></param>
+		private void Move(Vector3[] wayPoints)
+		{
+			float margin = 1.0f;
+			if ((currentWayPoint - Position).Length() < Velocity.Length() + margin) {
+				currentWayPointIndex++;
+				if (currentWayPointIndex >= wayPoints.Length) currentWayPointIndex = 0;
+
+				currentWayPoint = wayPoints[currentWayPointIndex];
+			}
+		}
 		private void Shoot(int bulletType)
 		{
 			switch (bulletType) {
@@ -59,7 +101,7 @@ namespace HLSLTest
 			_world.Up = Up;
 			_world.Right = Right;*/
 		}
-		public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
+		private void BasicAttackMove()
 		{
 			if ((Target - Position).Length() < 1000) State = FighterState.Attack;
 
@@ -74,17 +116,54 @@ namespace HLSLTest
 					Shoot(2);
 				}
 			}
-			Position += Velocity;
-
-			UpdateWorldMatrix();
 		}
+		private void WayPointMove()
+		{
+			float speed = 5;
+
+			Move(wayPoints0);
+
+			Velocity = Vector3.Normalize(currentWayPoint - Position) * speed;
+			Direction = Vector3.Normalize(Velocity);
+		}
+		public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
+		{
+			WayPointMove();
+
+			Position += Velocity;
+			UpdateWorldMatrix();
+
+			UpdateLocus();
+			engineTrailEffect.Update(gameTime);
+		}
+		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			base.Draw(View, Projection, CameraPosition);
+
+			if (!DrawingPrePass) {
+				engineTrailEffect.Draw(level.camera);
+			}
+		}
+		/*public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition)
+		{
+			base.Draw(View, Projection, CameraPosition);
+
+			engineTrailEffect.Draw(View, Projection, level.camera.Up, level.camera.Right, CameraPosition);
+		}*/
 
 
 		public Fighter(Vector3 position, Vector3 target, float scale, string filePath)
 			:base(position, scale, filePath)
 		{
+			this.StartPosiiton = position;
 			this.Target = target;
 			this.State = FighterState.Move;
+
+			positions = new List<Vector3>();
+			engineTrailEffect = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line2T1"),
+				new Vector2(10, 100), positions);
+
+			Initialize();
 		}
 	}
 }
