@@ -147,7 +147,6 @@ namespace HLSLTest
 				o.DrawingDepthNormalPass = true;
 				o.CacheEffects();// すでにあるエフェクトを上書きさせないために退避させておく
 				if (o is Planet) {
-					
 					o.SetModelEffect(planetDepthNormalEffect, false);
 				} else {
 					o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする

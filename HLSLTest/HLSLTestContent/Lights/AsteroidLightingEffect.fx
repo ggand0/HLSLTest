@@ -26,7 +26,26 @@ float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
 float3 CameraPosition;
 
-float3 AccentColor;
+float4 AccentColor;
+
+
+#include "..//PPShared.vsi"
+// shadow関係
+bool DoShadowMapping = false;
+float4x4 ShadowView;
+float4x4 ShadowProjection;
+texture2D ShadowMap;
+sampler2D shadowSampler = sampler_state {
+	texture = <ShadowMap>;
+	minfilter = point;
+	magfilter = point;
+	mipfilter = point;
+};
+// perform the depth comparison
+float3 ShadowLightPosition;
+float ShadowFarPlane;
+float ShadowMult = 0.3f;
+float ShadowBias =  0.001f;
 
 struct VertexShaderInput
 {
@@ -44,6 +63,7 @@ struct VertexShaderOutput
 	float2 UV : TEXCOORD0;
 	float3 Normal : TEXCOORD1;
 	float3 ViewDirection : TEXCOORD2;
+	float4 ShadowScreenPosition : TEXCOORD3;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -59,9 +79,25 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.UV = input.UV;// テクスチャを貼るだけなので場所は変えない
 	output.ViewDirection = worldPosition - CameraPosition;
 
+
+	output.ShadowScreenPosition = mul(mul(input.Position, World),
+		mul(ShadowView, ShadowProjection));
+
     return output;
 }
 
+
+
+float2 sampleShadowMap(float2 UV)
+{
+	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1) {
+		return float2(1, 1);
+	}
+
+	float2 debug = tex2D(shadowSampler, UV).rg;
+	return debug;
+	//return tex2D(shadowSampler, UV).rg;// returns read and green value
+}
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
 	// Start with diffuse color
@@ -73,9 +109,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 		color *= tex2D(BasicTextureSampler, input.UV);
 	}
 	// add lighter color for asteroid
-	color += float3(0.1f, 0.1f, 0.1f);
-	//color += float3(0.1f, 0.1f, 0.1f);// さらに明るくしないと宇宙空間の背景では見えない
-	//color *= AccentColor;
+	//color += float3(0.1f, 0.1f, 0.1f);
+	//color += float3(0.3f, 0.3f, 0.3f);
+	//color += AccentColor * 0.2f;
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
@@ -89,13 +125,50 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 view = normalize(input.ViewDirection);
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
-	//lighting += float3(0.3f, 0.3f, 0.3f);
+
+	// Scaleが小さい場合宇宙空間の背景では見えないため、単にモデル全体を明るくすることにした
+	//float3 lighting = float3(1,1,1);
+
+
+	float shadow = 1;
+	if (DoShadowMapping) {
+		float2 shadowTexCoord = postProjToScreen(input.ShadowScreenPosition)
+			+ halfPixel();
+		float ShadowBias = 0.001f;//0.001f
+		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+
+		if (realDepth < 1) {// realDepth > momentsなら描画？
+			// Variance shadow mapping code below from the variance shadow
+			// mapping demo code @ http://www.punkuser.net/vsm/
+
+			// Sample from depth texture
+			float2 moments = sampleShadowMap(shadowTexCoord);
+
+			// check if we're in shadow
+			// momentsは元々depthを出力させているのでどちらの要素も同じ
+			float lit_factor = (realDepth <= moments.x);// ピクセルが影かどうか：つまり0 or 1
+
+			// Variance shadow mapping
+			float E_x2 = moments.y;									// = E(x^2)
+			float Ex_2 = moments.x * moments.x;						// (E(x))^2
+
+			// 分散 = s^2 = E(x^2) - (E(x))^2 = M_2 - (M_1)^2 (pdfより)
+			//float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float m_d = (moments.x - realDepth);					// =t-μ
+			float p = variance / (variance + m_d * m_d);			// pdfの(5)式 p=1になってしまう←floatをfloat2にいれていたせい
+
+			shadow = clamp(max(lit_factor, p), ShadowMult, 1.0f);
+		}
+	}
 
 
 	// Calculate final color
-	float3 output = saturate(lighting) * color;
-
-	return float4(output, 1);
+	float3 output = saturate(lighting) * color * shadow;
+	float4 d = float4(0,0,0,0);
+	d += AccentColor;
+	//return float4(1,0,0,1);
+	return AccentColor.rgba;
 }
 
 technique Technique1

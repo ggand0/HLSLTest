@@ -426,7 +426,6 @@ namespace HLSLTest
 			}
 
 			if (DrawingPrePass) {
-				
 				base.Draw(View, Projection, CameraPosition);
 			} else {
 				for (int pass = 0; pass < draw.CurrentTechnique.Passes.Count; pass++) {

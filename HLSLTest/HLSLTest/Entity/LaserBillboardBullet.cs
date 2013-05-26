@@ -29,6 +29,7 @@ namespace HLSLTest
 			if (Mode == 0) {
 				for (int i = 0; i < particles.Length; i++) {
 					particles[i].StartPosition += Direction * Speed;
+					particles[i].DirectedPosition += Direction * Speed;// これをUpdateしていないせいでは？？？
 				}
 
 
@@ -76,7 +77,8 @@ namespace HLSLTest
 		}
 		public LaserBillboardBullet(GraphicsDevice graphicsDevice,
 			ContentManager content, Vector3 position, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize, int mode)
-			: base(graphicsDevice, content, texture, billboardSize, position, position + direction)
+			//: base(graphicsDevice, content, texture, billboardSize, position, position + direction)
+			: base(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X)
 		{
 			this.Direction = direction;
 			this.Speed = speed;
@@ -87,8 +89,8 @@ namespace HLSLTest
 		}
 
 		public LaserBillboardBullet(GraphicsDevice graphicsDevice,
-			ContentManager content, Vector3 startPosition, Vector3 endPosition, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize, int mode)
-			: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition)
+			ContentManager content, Vector3 startPosition, Vector3 endPosition, Vector3 direction, float speed, Texture2D texture, Color laserColor, BlendState laserBlendState, Vector2 billboardSize, int mode)
+			: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition, laserColor, laserBlendState)
 		{
 			this.Direction = direction;
 			this.Speed = speed;

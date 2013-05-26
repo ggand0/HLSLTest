@@ -62,9 +62,12 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			base.Initialize();
+			new DebugOverlay(graphicsDevice, content);
+
 			// Entities
 			Models = new List<Object>();
 			Ground = new Object(new Vector3(0, -200, 0), 1f, "Models\\ground");
+			Ground.RenderBoudingSphere = false;
 			Models.Add(Ground);
 			Target = new Object(new Vector3(0, 20, 0), 20, "Models\\cube");
 			//Models.Add(Target);
@@ -122,7 +125,7 @@ namespace HLSLTest
 			random = new Random();
 			Asteroids = new List<Asteroid>();
 			AddAsteroids(5, 2000);
-			foreach (Object o in Asteroids) {
+			foreach (Asteroid o in Asteroids) {
 				Models.Add(o);
 			}
 			spawned = true;
@@ -131,7 +134,9 @@ namespace HLSLTest
 			//Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
 			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser0");
 			Models.Add(Satellite);
+			Models.Add(new Satellite(false, waterPlanet.Position + new Vector3(400, 100, 600), waterPlanet.Position, 100f, "Models\\spacestation4"));
 			Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
+			Models.Add(new Fighter(new Vector3(2000, 50, 1000), waterPlanet.Position, 20f, "Models\\fighter0"));
 			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\laser0"));
 
 
@@ -140,7 +145,9 @@ namespace HLSLTest
 			Effect lightingEffect = content.Load<Effect>("PPModel");	// load Prelighting Effect
 			foreach (Object o in Models) {
 				o.RenderBoudingSphere = false;
-				o.SetModelEffect(shadowEffect, true);
+				if (!(o is Asteroid)) {
+					o.SetModelEffect(shadowEffect, true);
+				}
 			}
 			foreach (Planet p in Planets) {
 				p.RenderBoudingSphere = false;
@@ -312,7 +319,7 @@ namespace HLSLTest
 				float radius = 3000;
 				Asteroid a = new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid");
 				//Asteroids[i].Scale = 0.02f;//0.1f;
-				a.SetModelEffect(shadowEffect, true);					// set effect to each modelmeshpart
+				//a.SetModelEffect(shadowEffect, true);					// set effect to each modelmeshpart
 				a.IsActive = true;
 				a.RenderBoudingSphere = false;
 				Asteroids.Add(a);
@@ -402,23 +409,17 @@ namespace HLSLTest
 			foreach (Object o in Models) {
 				if (o.IsActive && camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
 					if (o is ArmedSatellite) {
-						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition);
+						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.Position);
 					} else {
-						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+						o.Draw(camera.View, camera.Projection, camera.Position);
 					}
 				}
 			}
 			foreach (Drawable b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
 			}
-			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
-			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			//explosionTest.Draw(gameTime, camera);
-			//bigExplosion.Draw(gameTime, camera);
 
-
-			// Draw grids and bounding volumes
+			// Draw debug overlays
 			renderer.Draw(gameTime);
 			if (displayGrid) {
 				grid.ProjectionMatrix = camera.Projection;
@@ -426,16 +427,13 @@ namespace HLSLTest
 				// draw the reference grid so it's easier to get our bearings
 				//grid.Draw();
 			}
+			DebugOverlay.Arrow(Vector3.Zero, Vector3.UnitX * 1000, 1, Color.Red);
+			DebugOverlay.Arrow(Vector3.Zero, Vector3.UnitY * 1000, 1, Color.Green);
+			DebugOverlay.Arrow(Vector3.Zero, Vector3.UnitZ * 1000, 1, Color.Blue);
+			DebugOverlay.Singleton.Draw(camera.Projection, camera.View);
 
 			// Draw effects
 			effectManager.Draw(gameTime, camera);
-
-			if (JoyStick.IsOnKeyDown(8)) {
-				using (Stream stream = File.OpenWrite("sundebug\\sunmask.png")) {
-					maskLayer.SaveAsPng(stream, maskLayer.Width, maskLayer.Height);
-					stream.Position = 0;
-				}
-			}
 		}
 
 

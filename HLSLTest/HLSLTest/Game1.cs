@@ -37,6 +37,7 @@ namespace HLSLTest
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 
+
 			//this.graphics.PreferredBackBufferWidth = 1920;
 			//this.graphics.PreferredBackBufferHeight = 1080;
 			//this.graphics.PreferredBackBufferWidth = 600;
@@ -67,6 +68,8 @@ namespace HLSLTest
 		/// </summary>
 		protected override void LoadContent()
 		{
+            base.LoadContent();
+
 			// 新規の SpriteBatch を作成します。これはテクスチャーの描画に使用できます。
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			Debug.game = this;

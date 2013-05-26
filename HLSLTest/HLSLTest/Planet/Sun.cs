@@ -528,7 +528,6 @@ namespace HLSLTest
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Additive);
             spriteBatch.Draw(glowSprite, lightPosition, null, new Color(color), 0,
                              origin, scale, SpriteEffects.None, 0);
-
             spriteBatch.End();
         }
 

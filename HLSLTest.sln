@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HLSLTest", "HLSLTest\HLSLTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HLSLTestContent", "HLSLTest\HLSLTestContent\HLSLTestContent.contentproj", "{95346E69-0FCC-406C-A088-4284AF64C583}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlenderToXNAProcessor", "BlenderToXNAProcessor\BlenderToXNAProcessor.csproj", "{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -29,6 +31,18 @@ Global
 		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|x86.ActiveCfg = Release|x86
 		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|Xbox 360.ActiveCfg = Release|x86
 		{95346E69-0FCC-406C-A088-4284AF64C583}.Release|Zune.ActiveCfg = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|x86.ActiveCfg = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|x86.Build.0 = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|Xbox 360.Build.0 = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|Zune.ActiveCfg = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Debug|Zune.Build.0 = Debug|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|x86.ActiveCfg = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|x86.Build.0 = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|Xbox 360.ActiveCfg = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|Xbox 360.Build.0 = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|Zune.ActiveCfg = Release|x86
+		{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}.Release|Zune.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

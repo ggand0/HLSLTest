@@ -8,13 +8,19 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class LaserBillboard : Drawable
+	/// <summary>
+	/// シームレスに繋がったビルボードを管理するクラス。
+	/// 軌跡エフェクト向けにLaserBillboardを複数繋げる試み
+	/// </summary>
+	public class BillboardStrip : Drawable
 	{
-		// Vertex buffer and index buffer, particle
-		// and index arrays
+		private static readonly int MAX_SIZE = 120;
+		public List<Vector3> Positions { get; set; }
+
+		public List<LaserBillboard> Billboards { get; private set; }
+		#region test
 		protected VertexBuffer vertexBuffers;
 		protected IndexBuffer indexBuffers;
-		//protected ParticleVertex[] particles;
 		protected ParticleVertex[] particles;
 
 
@@ -29,6 +35,13 @@ namespace HLSLTest
 		public bool EnsureOcclusion = true;
 		public enum BillboardMode { Cylindrical, Spherical };
 		public BillboardMode Mode = BillboardMode.Spherical;
+
+
+		public Vector3 Start { get; private set; }
+		public Vector3 End { get; private set; }
+		public Vector3 Mid { get; private set; }
+		public Color LaserColor { get; private set; }
+
 
 		void GenerateParticles(Vector3[] particlePositions)
 		{
@@ -86,45 +99,8 @@ namespace HLSLTest
 
 		}
 
-		/// <summary>
-		/// 使ってない
-		/// </summary>
-		protected void UpdateParticles()
-		{
-			//float now = (float)(DateTime.Now - start).TotalSeconds;
-			//int startIndex = activeStart;
-			//int end = activeParticlesNum;
 
-			// For each particle marked as active...
-			for (int i = 0; i < nBillboards * 4; i++) {
-				particles[i].StartPosition += Vector3.Normalize(End - Start) * 3;
-			}
-
-			// Update the vertex and index buffers
-			vertexBuffers.SetData<ParticleVertex>(particles);
-			indexBuffers.SetData<int>(indices);
-		}
-		/// <summary>
-		/// BillboardStrip(old ver)用
-		/// </summary>
-		public void UpdatePositions(Vector3 start, Vector3 end)
-		{
-			this.Start = start;
-			this.End = end;
-
-			for (int i = 0; i < particles.Length; i++) {
-				particles[i].StartPosition = Start;
-				particles[i].DirectedPosition = End;
-			}
-
-			vertexBuffers.SetData<ParticleVertex>(particles);
-			indexBuffers.SetData<int>(indices);
-		}
-
-		public Color LaserColor { get; private set; }
-		public BlendState LaserBlendState { get; private set; }
-
-		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
+		/*public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
 		{
 			// Set the vertex and index buffer to the graphics card
 			graphicsDevice.SetVertexBuffer(vertexBuffers);
@@ -133,8 +109,7 @@ namespace HLSLTest
 			SetEffectParameters(View, Projection, Up, Right, CameraPosition);
 			effect.Parameters["LaserColor"].SetValue(LaserColor.ToVector4());
 			// Enable alpha blending
-			//graphicsDevice.BlendState = BlendState.AlphaBlend;
-			graphicsDevice.BlendState = LaserBlendState;
+			graphicsDevice.BlendState = BlendState.AlphaBlend;
 			// Draw the billboards
 			//graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 4 * nBillboards, 0, nBillboards * 2);
 			if (EnsureOcclusion) {
@@ -153,7 +128,7 @@ namespace HLSLTest
 			// Un-set the vertex and index buffer
 			graphicsDevice.SetVertexBuffer(null);
 			graphicsDevice.Indices = null;
-		}
+		}*/
 		public override void Draw(Camera camera)
 		{
 			//base.Draw(camera);
@@ -182,18 +157,49 @@ namespace HLSLTest
 			effect.Parameters["AlphaTestGreater"].SetValue(false);
 			DrawBillboards();
 		}
+		#endregion
 
-		public Vector3 Start { get; private set; }
-		public Vector3 End { get; private set; }
-		public Vector3 Mid { get; private set; }
+		#region Constructors
+		public BillboardStrip(GraphicsDevice graphicsDevice,
+			ContentManager content, Texture2D texture, Vector2 billboardSize, List<Vector3> positions)
+		{
+			this.Positions = positions;
+			Billboards = new List<LaserBillboard>();
+			for (int i = 0; i < positions.Count - 1; i++) {
+				Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, positions[i], positions[i + 1]));
+			}
+		}
 
-		public LaserBillboard(GraphicsDevice graphicsDevice,
+		public void AddBillboard(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//List<Vector3> positions)
+		{
+			//Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, start, end));
+			Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, start, end, Color.White, BlendState.Additive));
+		}
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
+
+			/*if (Billboards.Count > MAX_SIZE) {
+				Billboards.RemoveAt(0);
+			}*/
+			for (int i = 0; i < Billboards.Count - 1; i++) {
+				Billboards[i].UpdatePositions(Positions[i], Positions[i + 1]);
+			}
+		}
+		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
+		{
+			foreach (LaserBillboard lb in Billboards) {
+				lb.Draw(View, Projection, Up, Right, CameraPosition);
+			}
+		}
+
+		public BillboardStrip(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//, Vector3[] particlePositions)
-			:this(graphicsDevice, content, texture, billboardSize, start, end, Color.White,  BlendState.AlphaBlend)
+			: this(graphicsDevice, content, texture, billboardSize, start, end, Color.White)
 		{
 		}
-		public LaserBillboard(GraphicsDevice graphicsDevice,
-			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor, BlendState laserBlendState)//, Vector3[] particlePositions)
+		public BillboardStrip(GraphicsDevice graphicsDevice,
+			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor)//, Vector3[] particlePositions)
 		{
 			//this.nBillboards = particlePositions.Length;
 			this.nBillboards = 1;
@@ -205,7 +211,6 @@ namespace HLSLTest
 			//effect = content.Load<Effect>("LaserBillboardEffectV3");
 			effect = content.Load<Effect>("Billboard\\LaserBillboardEffectV4");
 			this.LaserColor = laserColor;
-			this.LaserBlendState = laserBlendState;
 
 			float debugLength = (end - start).Length();
 			Mid = (start + end) / 2.0f;
@@ -215,5 +220,6 @@ namespace HLSLTest
 			//GenerateParticles(new Vector3[] { Mid });
 			GenerateParticles(new Vector3[] { Mid });
 		}
+		#endregion
 	}
 }

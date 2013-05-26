@@ -55,10 +55,10 @@ namespace HLSLTest
 			Rotate = false;
 			Revolution = false;
 		}
-		public Satellite(Vector3 position, Vector3 center, float scale, string fileName)
+		public Satellite(bool revolution, Vector3 position, Vector3 center, float scale, string fileName)
 			:base(position, scale, fileName)
 		{
-			Revolution = true;
+			this.Revolution = revolution;
 			this.Center = center;
 		}
 		#endregion

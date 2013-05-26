@@ -317,6 +317,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Billboard\BillboardStripEffect.fx">
+      <Name>BillboardStripEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="CellularNoise.vsi">
       <Name>CellularNoise</Name>
       <Importer>EffectImporter</Importer>
@@ -355,6 +360,31 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Fonts\debugFont.spritefont">
+      <Name>debugFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\menuFont.spritefont">
+      <Name>menuFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\Pump_Demi_Bold.spritefont">
+      <Name>Pump_Demi_Bold</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\Pump_Demi_Bold2.spritefont">
+      <Name>Pump_Demi_Bold2</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\titleFont.spritefont">
+      <Name>titleFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
     <None Include="Lights\ShadowLightEffect.fx">
       <Name>ShadowLightEffect</Name>
       <Importer>EffectImporter</Importer>
@@ -375,6 +405,11 @@
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
+    <Compile Include="Models\fighter0.fbx">
+      <Name>fighter0</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>AlignedModelProcessor</Processor>
+    </Compile>
     <None Include="Models\Rosetta2.fbx">
       <Name>Rosetta2</Name>
       <Importer>FbxImporter</Importer>
@@ -384,6 +419,11 @@
       <Name>Rosetta3</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\spacestation4.fbx">
+      <Name>spacestation4</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>AlignedModelProcessor</Processor>
     </Compile>
     <None Include="Models\Stardust.fbx">
       <Name>Stardust</Name>
@@ -1162,6 +1202,12 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BlenderToXNAProcessor\BlenderToXNAProcessor.csproj">
+      <Project>{FF0A4651-2DF9-4697-AB3A-7CADD7D22F20}</Project>
+      <Name>BlenderToXNAProcessor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -57,6 +57,7 @@ namespace HLSLTest
 
 			graphics.DepthStencilState = DepthStencilState.None;
 			graphics.RasterizerState = RasterizerState.CullNone;
+			model.RenderBoudingSphere = false;
 			model.Position = CameraPosition;
 			model.World = Matrix.CreateScale(model.Scale) * Matrix.CreateTranslation(model.Position);//p19
 			model.Draw(View, Projection, CameraPosition); // debug

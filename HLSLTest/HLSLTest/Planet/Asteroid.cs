@@ -28,9 +28,15 @@ namespace HLSLTest
 
 			UpdateWorldMatrix();
 		}
+		int blinkCount;
+		float e;
 		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
-			SetEffectParameter(lightingEffect, "AccentColor", Color.MediumVioletRed.ToVector3());
+			blinkCount++;
+			if (blinkCount % 5 == 0) e += 60f;//30f;//.02f;
+			float dColor = (float)Math.Sin(e * 8) / 2.0f + 0.5f;
+			SetEffectParameter(lightingEffect, "AccentColor", Color.Red * dColor);
+
 			base.Draw(View, Projection, CameraPosition);
 		}
 
@@ -45,9 +51,9 @@ namespace HLSLTest
 			Speed = 1;
 
 			lightingEffect = content.Load<Effect>("Lights\\AsteroidLightingEffect");	// load Prelighting Effect
-
+			SetEffectParameter(lightingEffect, "AccentColor", Color.Red);
 			// Accent Colorを後で変えたいので、変更をそのまま反映させるためfalseにする
-			SetModelEffect(lightingEffect, false);					// set effect to each modelmeshpart
+			SetModelEffect(lightingEffect, true);					// set effect to each modelmeshpart
 		}
 	}
 }

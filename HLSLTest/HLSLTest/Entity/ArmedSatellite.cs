@@ -64,13 +64,30 @@ namespace HLSLTest
 
 						Vector3 dir = Vector3.Normalize(tmp - Position);
 						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, tmp, dir, 1,
-							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(50, 30), 1));
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));
 						/*level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
 							content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));*/
 					}
 					break;
 			}
 		}
+
+		private BillboardStrip billboardStrip;
+		private List<Vector3> positions;
+
+		private void UpdateLocus()
+		{
+			positions.Add(Position);
+            billboardStrip.Positions = positions;
+			if (positions.Count >= BillboardStrip.MAX_SIZE) {//120
+				positions.RemoveAt(0);
+            } else if (positions.Count > 0) {//positions.Count >= 2
+				//billboardStrip.AddBillboard(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 40), positions[positions.Count - 2], positions[positions.Count - 1]);
+				//billboardStrip.AddBillboard(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(10, 40), positions[positions.Count - 2], positions[positions.Count - 1]);
+				billboardStrip.AddVertices();
+			}
+		}
+
 
 		private Random r = new Random();
 		private int count;
@@ -109,6 +126,8 @@ namespace HLSLTest
 
 			shieldEffect.Position = Position;
 			shieldEffect.Update(gameTime);
+			UpdateLocus();
+			billboardStrip.Update(gameTime);
 		}
 
 		public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition)
@@ -116,6 +135,7 @@ namespace HLSLTest
 			base.Draw(View, Projection, CameraPosition);
 
 			shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);
+			billboardStrip.Draw(View, Projection,  level.camera.Up, level.camera.Right,CameraPosition);
 		}
 
 		#region Constructors
@@ -130,12 +150,15 @@ namespace HLSLTest
 		{
 		}
 		public ArmedSatellite(Vector3 position, Vector3 center, float scale, string fileName, string SEPath)
-			: base(position, center, scale, fileName)
+			: base(true, position, center, scale, fileName)
 		{
 			//random = new Random();
 			chargeTime = random.Next(10, 70);
 			shootSound = content.Load<SoundEffect>(SEPath);
 			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(150), 100);//300,250
+
+			positions = new List<Vector3>();
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(10, 50), positions);
 		}
 		#endregion
 	}

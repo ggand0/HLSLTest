@@ -381,10 +381,10 @@ namespace HLSLTest
 			}
 			_zoom = zoomState[zoomMode];*/
 			if (JoyStick.KEY(7)) {
-				Zoom += 20;
+				_zoom += 20;
 			}
 			if (JoyStick.KEY(5)) {
-				Zoom -= 20;
+				_zoom -= 20;
 			}
 
 		}
