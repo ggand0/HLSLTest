@@ -240,6 +240,14 @@ namespace HLSLTest
 
 			return targetSphere.Intersects(mySphere);
 		}
+		public bool IsHitWith(BoundingSphere targetSphere)
+		{
+			BoundingSphere mySphere = new BoundingSphere(
+				Position,
+				Model.Meshes[0].BoundingSphere.Radius);
+
+			return targetSphere.Intersects(mySphere);
+		}
 		public override void Update(GameTime gameTime)
 		{
 			//UpdateWorldMatrix();

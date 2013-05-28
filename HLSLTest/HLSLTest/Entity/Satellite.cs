@@ -11,15 +11,15 @@ namespace HLSLTest
 {
 	public class Satellite : Object
 	{
-		public bool Rotate { get; private set; }
-		public bool Revolution { get; private set; }
+		public bool Rotate { get; protected set; }
+		public bool Revolution { get; protected set; }
 		/// <summary>
 		/// Means planet position
 		/// </summary>
-		public Vector3 Center { get; private set; }
-		public float Radius { get; private set; }
-		public float Roll { get; private set; }
-		public float Pitch { get; private set; }
+		public Vector3 Center { get; protected set; }
+		public float Radius { get; protected set; }
+		public float Roll { get; protected set; }
+		public float Pitch { get; protected set; }
 		private float rotationSpeed, revolutionSpeed, revolutionAngle;
 
 		public override void Update(GameTime gameTime)

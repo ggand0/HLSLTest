@@ -33,6 +33,7 @@ namespace HLSLTest
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
+		
 
 		Random random;
 		List<ExplosionEffect> ex = new List<ExplosionEffect>();
@@ -85,8 +86,7 @@ namespace HLSLTest
             grid.GridSize = 64;;//32;
 			// Set the grid to draw on the x/z plane around the origin
 			grid.WorldMatrix = Matrix.Identity;
-		}
-		
+		}	
 		public override void Load()
 		{
 			base.Load();
@@ -125,18 +125,22 @@ namespace HLSLTest
 			random = new Random();
 			Asteroids = new List<Asteroid>();
 			AddAsteroids(5, 2000);
-			foreach (Asteroid o in Asteroids) {
+			/*foreach (Asteroid o in Asteroids) {
 				Models.Add(o);
+			}*/
+			foreach (Object o in Enemies) {
+				Enemies.Add(o);
 			}
 			spawned = true;
 
 			// Load satellites
 			//Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
-			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser0");
+			Satellite = new ArmedSatellite(new Vector3(300, 50, 300), sun.Position, 5, "Models\\ISS", "SoundEffects\\laser0");
 			Models.Add(Satellite);
 			Models.Add(new Satellite(false, waterPlanet.Position + new Vector3(400, 100, 600), waterPlanet.Position, 100f, "Models\\spacestation4"));
 			Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
 			Models.Add(new Fighter(new Vector3(2000, 50, 1000), waterPlanet.Position, 20f, "Models\\fighter0"));
+			Enemies.Add(Models[Models.Count - 1]);
 			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\laser0"));
 
 

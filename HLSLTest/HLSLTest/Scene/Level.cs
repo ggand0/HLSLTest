@@ -33,8 +33,11 @@ namespace HLSLTest
 			= new Vector3(-2000, 0, 2000);
 			//= new Vector3(-200, 500, 200);
 
+
+		// Members for RTS game (used in Level3, 4)
 		//public List<EntityBullet> Bullets { get; protected set; }
 		public List<Drawable> Bullets { get; protected set; }
+		public List<Object> Enemies { get; private set; }
 
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
@@ -59,6 +62,7 @@ namespace HLSLTest
 			Models = new List<Object>();
 			effectManager = new EffectManager();
 			Bullets = new List<Drawable>();
+			Enemies = new List<Object>();
 
 			EnergyShieldEffect.level = this;
 			BoundingSphereRenderer.level = this;
@@ -81,8 +85,9 @@ namespace HLSLTest
 				return;
 			}
 			if (JoyStick.IsOnKeyDown(9)) {
-				isEndScene = true;
-				game.MoveNextLevel = true;
+				//isEndScene = true;
+				//game.MoveNextLevel = true;
+				PushScene(new PauseMenu(this));
 			}
 		}
 		public override void Load()

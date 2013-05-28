@@ -19,7 +19,7 @@ namespace HLSLTest
 		{
 			Type = PlanetType.Water;
 			//rotate = true;
-			revolution = true;
+			//revolution = true;
 		}
 
 		protected override void LoadContent(ContentManager content)

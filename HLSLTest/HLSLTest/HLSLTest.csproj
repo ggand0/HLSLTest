@@ -96,6 +96,8 @@
     <Compile Include="Entity\Drawable.cs" />
     <Compile Include="Entity\LaserBillboardBullet.cs" />
     <Compile Include="Entity\Satellite.cs" />
+    <Compile Include="Entity\SpaceStation.cs" />
+    <Compile Include="Entity\Turret.cs" />
     <Compile Include="Graphics\DebugOverlay.cs" />
     <Compile Include="Graphics\DrawFPS.cs" />
     <Compile Include="Graphics\FullScreenQuadRenderer.cs" />
@@ -135,8 +137,8 @@
     <Compile Include="Scene\Level.cs" />
     <Compile Include="Scene\Level0.cs" />
     <Compile Include="Scene\Level1.cs" />
-    <None Include="Scene\MenuScene.cs" />
-    <None Include="Scene\PauseScene.cs" />
+    <Compile Include="Scene\MenuScene.cs" />
+    <Compile Include="Scene\PauseScene.cs" />
     <Compile Include="Scene\Level2.cs" />
     <Compile Include="Scene\Level3.cs" />
     <Compile Include="Scene\Level4.cs" />

@@ -26,11 +26,11 @@ namespace HLSLTest
 
 		public override void Load()
 		{
-			TEXT_POSITION = new Vector2(Game1.WIDTH / 2,
-				Game1.HEIGHT / 2 - game.menuFont.MeasureString("A").Y * (buttonNum * 2 / 4));// * (buttonNum * 1 / 4)
-			TITLE_POSITION = new Vector2(Game1.WIDTH / 2, game.menuFont.MeasureString("A").Y / 2);
+			TEXT_POSITION = new Vector2(game.Width / 2,
+				(game.Height / 2 - game.menuFont.MeasureString("A").Y * (buttonNum * 2 / 4)));// * (buttonNum * 1 / 4)
+			TITLE_POSITION = new Vector2(game.Width / 2, game.menuFont.MeasureString("A").Y / 2);
 			//backGround = content.Load<Texture2D>("General\\Menu\\MenuBG");
-			mask = content.Load<Texture2D>("Images\\whiteBoard");
+			mask = content.Load<Texture2D>("Textures\\whiteBoard");
 			//mask = content.Load<Texture2D>("General\\Menu\\MaskTexture");
 		}
 		protected virtual void UpdateTexts()
@@ -82,7 +82,7 @@ namespace HLSLTest
 
 			for (int i = 0; i < buttonNum; i++) {
 				origin = game.menuFont.MeasureString(button[i].name) / 2;
-				game.spriteBatch.DrawString(game.menuFont, button[i].name,
+				spriteBatch.DrawString(game.menuFont, button[i].name,
 					v, (i == curButton ? Color.White : Color.Gray),
 				   0, origin, 1, SpriteEffects.None, 0);
 				//1列分空けて次のメニューを表示

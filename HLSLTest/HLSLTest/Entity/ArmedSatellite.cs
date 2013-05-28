@@ -15,20 +15,34 @@ namespace HLSLTest
 		private List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
 		EnergyShieldEffect shieldEffect;
 
-        //private List<Enemy> currentEnemies;
+        private List<Object> visibleEnemies;
+		private BoundingSphere sensorSphere;
 
-		private Vector3 SearchTarget()
+		private Vector3 SearchTarget(int tactics)
 		{
 			float minDis = 9999;
 			Vector3 min = new Vector3(9999);
 
-			foreach (Asteroid a in (level as Level4).Asteroids) {
+			/*foreach (Asteroid a in (level as Level4).Asteroids) {
 				if ((Position - a.Position).Length() < minDis) {
 					minDis = (Position - a.Position).Length();
 					min = a.Position;
 				}
+			}*/
+			switch (tactics) {
+				default:
+					return visibleEnemies[r.Next(0, visibleEnemies.Count)].Position;
+				case 1:
+					foreach (Object o in visibleEnemies) {
+						if ((Position - o.Position).Length() < minDis) {
+							minDis = (Position - o.Position).Length();
+							min = o.Position;
+						}
+					}
+					return min;
 			}
-			return min;
+			
+			
 		}
 		private void Shoot(int bulletType)
 		{
@@ -42,10 +56,9 @@ namespace HLSLTest
 				case 2:
 					level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
 					break;
-				case 3:
+				/*case 3:
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 1));
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
-
 					if ((level as Level4).Asteroids.Count > 0) {
 						Vector3 dir = Vector3.Normalize(new Vector3(3, 2, 1));//(level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
 						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, dir, 1,
@@ -60,13 +73,26 @@ namespace HLSLTest
 						//Vector3 tmp = (level as Level3).Asteroids[r.Next(0, (level as Level3).Asteroids.Count)].Position;
                         //Vector3 tmp = (level as Level3).Asteroids[0].Position;
 						Vector3 tmp = SearchTarget();
-						
-
 						Vector3 dir = Vector3.Normalize(tmp - Position);
 						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, tmp, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));
-						/*level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
-							content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));*/
+						//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, tmp, dir, 1,
+							//content.Load<Texture2D>("Textures\\Laser2"), new Vector2(200, 10), 1));
+					}
+					break;*/
+				case 3:
+					if (visibleEnemies.Count > 0) {
+						Vector3 dir = visibleEnemies[r.Next(0, visibleEnemies.Count)].Position;//Vector3.Normalize(new Vector3(3, 2, 1));
+						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, dir, 1,
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
+					}
+					break;
+				case 4:
+					if (visibleEnemies.Count > 0) {
+						Vector3 tmp = SearchTarget(0);
+						Vector3 dir1 = Vector3.Normalize(tmp - Position);
+						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, tmp, dir1, 1,
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));
 					}
 					break;
 			}
@@ -87,6 +113,17 @@ namespace HLSLTest
 				billboardStrip.AddVertices();
 			}
 		}
+		private void CheckEnemies()
+		{
+			sensorSphere.Center = Position;
+
+			visibleEnemies.Clear();
+			foreach (Object o in level.Enemies) {
+				if (o.IsHitWith(sensorSphere)) {
+					visibleEnemies.Add(o);
+				}
+			}
+		}
 
 
 		private Random r = new Random();
@@ -99,6 +136,7 @@ namespace HLSLTest
 			count++;
 			base.Update(gameTime);
 
+			CheckEnemies();
 			if (!canShoot && count > chargeTime) {
 				canShoot = true;
 				count = 0;
@@ -159,6 +197,9 @@ namespace HLSLTest
 
 			positions = new List<Vector3>();
 			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line1T1"), new Vector2(10, 200), positions);
+
+			visibleEnemies = new List<Object>();
+			sensorSphere = new BoundingSphere(Position, 1000);
 		}
 		#endregion
 	}

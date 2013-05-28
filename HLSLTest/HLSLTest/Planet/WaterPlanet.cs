@@ -32,6 +32,7 @@ namespace HLSLTest
 			Nz = 1;//128;
 
 			Generate(graphicsDevice);
+			Scale = 50;
 		}
 		
 

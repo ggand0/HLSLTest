@@ -32,12 +32,16 @@ namespace HLSLTest
 		public int LevelNum { get; private set; }
 		public bool MoveNextLevel { get; set; }
 
+		public float Width { get; private set; }
+		public float Height { get; private set; }
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 
-
+			Width = this.graphics.PreferredBackBufferWidth;
+			Height = graphics.PreferredBackBufferHeight;
 			//this.graphics.PreferredBackBufferWidth = 1920;
 			//this.graphics.PreferredBackBufferHeight = 1080;
 			//this.graphics.PreferredBackBufferWidth = 600;
@@ -79,6 +83,8 @@ namespace HLSLTest
 			Level.content = Content;
 			//Scene.spriteBatch = this.spriteBatch;
 			Scene.Initialize(this, spriteBatch, Content);
+			menuFont = Content.Load<SpriteFont>("Fonts\\menuFont");
+			titleFont = Content.Load<SpriteFont>("Fonts\\titleFont");
 
 			// Create levels
 			//Levels = new Level[] { new Level0(null), new Level1(null), new Level2(null) };
@@ -91,10 +97,8 @@ namespace HLSLTest
 
 			// 最初に表示するシーンを追加
 			PushScene(new Level4(null));
-			//PushScene(new Level2(null));
+			//PushScene(new Level0(null));
 			//PushScene(Levels[LevelNum]);
-			
-
 		}
 
 		/// <summary>
@@ -197,4 +201,3 @@ namespace HLSLTest
 		}
 	}
 }
-

@@ -123,6 +123,12 @@ Content\Textures\glow.xnb
 Content\Textures\Mercury\Beam2.xnb
 Content\Textures\Particle\GlowRing.xnb
 Content\Textures\Planet\FireGradient.xnb
+Content\Textures\Lines\LineT0.xnb
+Content\Textures\Lines\LineT1.xnb
+Content\Textures\Lines\Line.xnb
+Content\Textures\Lines\Line1T1.xnb
+Content\Textures\Lines\Line2T1.xnb
+Content\Textures\whiteBoard.xnb
 Content\Lights\SimpleEffect.xnb
 Content\Lights\LightingEffect.xnb
 Content\Lights\PointLightEffect.xnb
@@ -148,6 +154,7 @@ Content\Lights\EnergyShieldEffect.xnb
 Content\Lights\EnergyRingEffect.xnb
 Content\Billboard\LaserBillboardEffectV4.xnb
 Content\Backup\ColorMap_bak0.xnb
+Content\Billboard\BillboardStripEffect.xnb
 Content\Planets\MoltenPlanet.xnb
 Content\Planets\SkyFromSpace.xnb
 Content\Lights\AsteroidLightingEffect.xnb
@@ -220,9 +227,3 @@ Content\Models\brushed_metal_texture_0.xnb
 Content\Models\Solar_Cells_Color_0.xnb
 Content\Models\asteroid1_0.xnb
 Content\Models\pea_proj_0.xnb
-Content\Billboard\BillboardStripEffect.xnb
-Content\Textures\Lines\LineT0.xnb
-Content\Textures\Lines\LineT1.xnb
-Content\Textures\Lines\Line.xnb
-Content\Textures\Lines\Line1T1.xnb
-Content\Textures\Lines\Line2T1.xnb

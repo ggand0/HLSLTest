@@ -20,7 +20,7 @@ namespace HLSLTest
 		{
 			Type = PlanetType.Gas;
 			rotate = true;
-			revolution = true;
+			//revolution = true;
 		}
 
 		protected override void LoadContent(ContentManager content)

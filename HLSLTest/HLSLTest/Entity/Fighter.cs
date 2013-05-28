@@ -22,20 +22,40 @@ namespace HLSLTest
 
 		private Vector3 currentWayPoint;
 		private int currentWayPointIndex;
-		private Vector3[] wayPoints0;
+		private Vector3[] wayPoints0, yawDebug, pitchDebug, rollDebug;
+		private List<Vector3> changeDirWayPoints;
+
+		private List<BoundingSphere> obstacles;
+		private BoundingSphere viewSphere;
 
 		BillboardStrip engineTrailEffect;
 		private List<Vector3> positions;
 
+		protected Vector3 upPosition;
+
 		private void Initialize()
 		{
+			// Initialize default up position. this value is used for calculating Up vector later.
+			upPosition = Position + Vector3.UnitY;
+
+			viewSphere = new BoundingSphere(Position, 100);// 2000
+			obstacles = new List<BoundingSphere>();
+
 			// Initialize waypoints
+			changeDirWayPoints = new List<Vector3>();
 			wayPoints0 = new Vector3[] {
-				Target + Vector3.Normalize(StartPosiiton - Target) * 1000,
+				Target + Vector3.Normalize(StartPosiiton - Target) * 500,
 				Target + Vector3.UnitY * 200,
-				Target - Vector3.Normalize(StartPosiiton - Target) * 1000,
+				Target - Vector3.Normalize(StartPosiiton - Target) * 500,
 				Target - Vector3.UnitY * 200,
 			};
+			yawDebug = new Vector3[] {
+				Target + Vector3.Normalize(StartPosiiton - Target) * 500,
+				Target + Vector3.UnitX * 500,
+				Target - Vector3.Normalize(StartPosiiton - Target) * 500,
+				Target - Vector3.UnitX * 500,
+			};
+			currentWayPoint = wayPoints0[0];
 		}
 		private void UpdateLocus()
 		{
@@ -57,6 +77,8 @@ namespace HLSLTest
 			if ((currentWayPoint - Position).Length() < Velocity.Length() + margin) {
 				currentWayPointIndex++;
 				if (currentWayPointIndex >= wayPoints.Length) currentWayPointIndex = 0;
+
+				if (currentWayPointIndex == 1 || currentWayPointIndex == 3) Shoot(2);
 
 				currentWayPoint = wayPoints[currentWayPointIndex];
 			}
@@ -84,22 +106,44 @@ namespace HLSLTest
 		int shootRate = 120;
 		protected override void UpdateWorldMatrix()
 		{
-			Up = Vector3.UnitY;
+			Direction.Normalize();
+			//Up = Vector3.UnitY; // Upが誤っているので表示されない
+			Up = Vector3.Normalize(upPosition - Position);
 			Up.Normalize();
 			Right = Vector3.Cross(Direction, Up);
-			Up = Vector3.Cross(Right, Direction);
-			RotationMatrix = Matrix.Identity;
-			RotationMatrix.Forward = Direction;
-			RotationMatrix.Up = Up;
-			RotationMatrix.Right = Right;
+			Right.Normalize();
+
+			Vector3 projectedDirection = Direction - Vector3.Dot(Direction, Vector3.UnitY) * Vector3.UnitY;
+			float angleX = (float)Math.Acos((double)(Vector3.Dot(Direction, projectedDirection)
+				/ (Direction.Length() * projectedDirection.Length())));
+			//float angleY = Math.Atan();
+			//float angleZ = Math.Atan();
 
 			// ContentProcessorで処理した結果、デフォルトでUnitXの方向を向いているので、Directionと内積を取って角度を求めて回転させる。
-			// Worldの3軸を直接変更した方が簡単だと思ったが上手くいかなかった
+			// Worldの3軸を直接変更した方が簡単だと思ったがUpが定まらないので無理
+			/*_world = Matrix.Identity;
+			_world = Matrix.CreateScale(Scale)
+				//* Matrix.CreateRotationY((-Vector3.Dot(Vector3.UnitX, Direction) + MathHelper.ToRadians(90)))
+				* Matrix.CreateFromYawPitchRoll(angleX//Vector3.Dot(Vector3.UnitZ, Direction
+					, 0//-Vector3.Dot(Vector3.UnitY, Direction) + MathHelper.ToRadians(90)
+					, 0)
+				* Matrix.CreateTranslation(Position);*/
+
+			/*_world = Matrix.Identity;
+			_world *= Matrix.CreateScale(Scale);
+			_world.Forward *= Direction;
+			_world.Up *= Up;
+			_world.Right *= Right;
+			_world *= Matrix.CreateTranslation(Position);*/
 			_world = Matrix.Identity;
-			_world = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((-Vector3.Dot(Vector3.UnitX, Direction) + MathHelper.ToRadians(90))) * Matrix.CreateTranslation(Position);
-			/*_world.Forward = Direction;
-			_world.Up = Up;
-			_world.Right = Right;*/
+			_world.Forward = Direction;
+			_world.Up = Up; ;
+			_world.Right = Right;/**/
+			_world *= Matrix.CreateScale(Scale);
+			_world *= Matrix.CreateTranslation(Position);
+
+			/*_world = Matrix.CreateWorld(Position, Direction, Vector3.Up);
+			_world *= Matrix.CreateScale(Scale);*/
 		}
 		private void BasicAttackMove()
 		{
@@ -119,18 +163,91 @@ namespace HLSLTest
 		}
 		private void WayPointMove()
 		{
-			float speed = 5;
-
 			Move(wayPoints0);
 
-			Velocity = Vector3.Normalize(currentWayPoint - Position) * speed;
+			// 速度の決定
+			float speed = 1;//5
+			//Velocity = Vector3.Normalize(currentWayPoint - Position) * speed;
+			Vector3 dest = Vector3.Normalize(currentWayPoint - Position);
+			/*float maxAnglePerFrame = (float)Math.PI / 2.0f / 20f;
+			float angle = Vector3.Dot(Velocity, dest);
+			Velocity += Vector3.Lerp(Velocity, dest, 0.2f);*/
+			Velocity += dest * speed;
+			Velocity *= 0.9f;
+
 			Direction = Vector3.Normalize(Velocity);
+		}
+		private void BuildDirectionChangeWayPoints()
+		{
+			// とりあえず今乗っている平面内での円形ターンするルートで
+			Matrix rotation = Matrix.CreateFromAxisAngle(Up, MathHelper.ToRadians(90));
+			Vector3 optionalUnitVector = Vector3.Transform(Direction, rotation);
+			changeDirWayPoints.Add(Position + Vector3.Normalize(Velocity) * 100);
+			changeDirWayPoints.Add(changeDirWayPoints[0] + Direction * 50 + optionalUnitVector * 50);
+			changeDirWayPoints.Add(changeDirWayPoints[0] + optionalUnitVector * 100);
+			changeDirWayPoints.Add(Position + optionalUnitVector * 100);
+		}
+		private bool ChangeDirection()
+		{
+			float margin = 1.0f;
+			if ((currentWayPoint - Position).Length() < Velocity.Length() + margin) {
+				currentWayPointIndex++;
+				if (currentWayPointIndex >= changeDirWayPoints.Count) return true;//currentWayPointIndex = 0;
+
+				currentWayPoint = changeDirWayPoints[currentWayPointIndex];
+			}
+			return false;
+		}
+		private void CheckObstacles()
+		{
+			obstacles.Clear();
+			viewSphere.Center = Position;
+			foreach (Object o in level.Models) {
+				if (viewSphere.Intersects(o.transformedBoundingSphere)) {
+					obstacles.Add(o.transformedBoundingSphere);
+				}
+			}
+		}
+		private bool IsGoingToCollide(BoundingSphere target)
+		{
+			Vector3 v = Direction * 100;
+			Vector3 dir = target.Center - Position;
+			Vector3 dirProjected = Vector3.Dot(v, dir) * v / (v.Length() * v.Length());
+			Vector3 b = dirProjected - dir;
+
+			return target.Radius > b.Length();
+		}
+		private bool IsLeft(Vector3 vector, Vector3 targetPoint)
+		{
+			return Math.Sin(vector.X * (targetPoint.Y - 0) - vector.Y * (targetPoint.X - 0)) > 0;
+		}
+		private void AddAvoidanceVelocity()
+		{
+			float avoidSpeed = 0.5f;
+			Vector3 projectedDirection = Direction - Vector3.Dot(Direction, Up) * Up;
+
+			foreach (BoundingSphere bs in obstacles) {
+				if (IsGoingToCollide(bs)) {
+					Vector3 planeToCenter = bs.Center - Position;
+					float distancePlaneToCenter = Vector3.Dot(planeToCenter, Up);
+					Vector3 projectedCenter =  bs.Center - distancePlaneToCenter * Up;
+
+					Vector3 avoidVelocity = IsLeft(projectedDirection, projectedCenter) ? _world.Right : _world.Left;
+
+					Velocity += avoidVelocity * avoidSpeed;
+					//Velocity += Vector3.UnitX * avoidSpeed;
+				}
+			}
 		}
 		public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
 		{
+			CheckObstacles();
+			AddAvoidanceVelocity();
 			WayPointMove();
 
+
 			Position += Velocity;
+			upPosition += Velocity;
 			UpdateWorldMatrix();
 
 			UpdateLocus();
