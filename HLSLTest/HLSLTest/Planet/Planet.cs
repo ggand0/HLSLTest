@@ -490,6 +490,12 @@ namespace HLSLTest
 
 				Position = tmp;
 			}
+
+			_world = Matrix.CreateScale(p_radius) * Matrix.CreateRotationY(roll) * Matrix.CreateRotationX(pitch)
+				* Matrix.CreateTranslation(Position);
+			transformedBoundingSphere = new BoundingSphere(
+				Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world)
+				, Model.Meshes[0].BoundingSphere.Radius * _world.Forward.Length());
 		}
 		#region Constructors
 		public Planet(GraphicsDevice graphics, ContentManager content)

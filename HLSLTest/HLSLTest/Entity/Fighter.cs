@@ -12,13 +12,16 @@ namespace HLSLTest
 	public enum FighterState
 	{
 		Move,
+		MoveToAttack,
+		AttackMove,
+		ChangeDirection,
 		Attack
 	}
 	public class Fighter : Object
 	{
 		public FighterState State { get; private set; }
 		public Vector3 Target { get; private set; }
-		public Vector3 StartPosiiton { get; private set; }
+		public Vector3 StartPosition { get; private set; }
 
 		private Vector3 currentWayPoint;
 		private int currentWayPointIndex;
@@ -38,21 +41,21 @@ namespace HLSLTest
 			// Initialize default up position. this value is used for calculating Up vector later.
 			upPosition = Position + Vector3.UnitY;
 
-			viewSphere = new BoundingSphere(Position, 100);// 2000
+			viewSphere = new BoundingSphere(Position, 500);// 2000,100
 			obstacles = new List<BoundingSphere>();
 
 			// Initialize waypoints
 			changeDirWayPoints = new List<Vector3>();
 			wayPoints0 = new Vector3[] {
-				Target + Vector3.Normalize(StartPosiiton - Target) * 500,
-				Target + Vector3.UnitY * 200,
-				Target - Vector3.Normalize(StartPosiiton - Target) * 500,
-				Target - Vector3.UnitY * 200,
+				Target + Vector3.Normalize(StartPosition - Target) * 500,
+				Target + Vector3.UnitY * 400,
+				Target - Vector3.Normalize(StartPosition - Target) * 500,
+				Target - Vector3.UnitY * 400,
 			};
 			yawDebug = new Vector3[] {
-				Target + Vector3.Normalize(StartPosiiton - Target) * 500,
+				Target + Vector3.Normalize(StartPosition - Target) * 500,
 				Target + Vector3.UnitX * 500,
-				Target - Vector3.Normalize(StartPosiiton - Target) * 500,
+				Target - Vector3.Normalize(StartPosition - Target) * 500,
 				Target - Vector3.UnitX * 500,
 			};
 			currentWayPoint = wayPoints0[0];
@@ -103,7 +106,7 @@ namespace HLSLTest
 			}
 		}
 		int count;
-		int shootRate = 120;
+		int shootRate = 10;//120
 		protected override void UpdateWorldMatrix()
 		{
 			Direction.Normalize();
@@ -161,6 +164,68 @@ namespace HLSLTest
 				}
 			}
 		}
+		bool hasBuild, shouldShoot, turned;
+		private void AttackMove()
+		{
+			float speed = 1;
+			float targetRadius = 200;
+			float runLength = 1500;
+
+			switch (State) {
+				case FighterState.MoveToAttack:
+					hasBuild = false;
+					shouldShoot = true;
+					currentWayPoint = !turned ? (Target + Vector3.Normalize(StartPosition - Target) * runLength)
+						: (Target + Vector3.Normalize(Target - StartPosition) * runLength);
+					Velocity += Vector3.Normalize(currentWayPoint - Position) * speed;
+					Velocity *= 0.9f;
+
+					if ((currentWayPoint - Position).Length() < Velocity.Length() + 1.0f) {
+						State = FighterState.AttackMove;
+					}
+					break;
+				case FighterState.AttackMove:
+					count++;
+
+					// 対象を貫くルートになるが、Collision Avoidanceの速度を常に足しているので避けられるはず
+					currentWayPoint = !turned ? (Target + Vector3.Normalize(Target - StartPosition) * runLength)// positionにするとカオス！
+						: (Target + Vector3.Normalize(StartPosition - Target) * runLength);
+					Velocity += Vector3.Normalize(currentWayPoint - Position) * speed;
+					Velocity *= 0.9f;
+
+					if ((Position - Target).Length() < targetRadius + speed + 200f) {
+						shouldShoot = false;// 通り過ぎたので
+					}
+					if (shouldShoot && count % shootRate == 0) {
+						Shoot(2);
+					}
+
+					if ((currentWayPoint - Position).Length() < Velocity.Length() + 1.0f) {
+						State = FighterState.ChangeDirection;
+						shouldShoot = false;// 一応
+					}
+					break;
+				case FighterState.ChangeDirection:
+					if (!hasBuild) {
+						BuildDirectionChangeWayPoints();
+						currentWayPointIndex = 0;
+						currentWayPoint = changeDirWayPoints[0];
+						hasBuild = true;
+						turned = turned ? false : true;
+					}
+					bool next = ChangeDirection();
+					if (next) {
+						State = FighterState.MoveToAttack;
+					}
+
+					Velocity += Vector3.Normalize(currentWayPoint - Position) * speed;
+					Velocity *= 0.9f;
+					break;
+			}
+
+
+			Direction = Vector3.Normalize(Velocity);
+		}
 		private void WayPointMove()
 		{
 			Move(wayPoints0);
@@ -179,20 +244,31 @@ namespace HLSLTest
 		}
 		private void BuildDirectionChangeWayPoints()
 		{
+			changeDirWayPoints.Clear();
+
 			// とりあえず今乗っている平面内での円形ターンするルートで
-			Matrix rotation = Matrix.CreateFromAxisAngle(Up, MathHelper.ToRadians(90));
-			Vector3 optionalUnitVector = Vector3.Transform(Direction, rotation);
-			changeDirWayPoints.Add(Position + Vector3.Normalize(Velocity) * 100);
-			changeDirWayPoints.Add(changeDirWayPoints[0] + Direction * 50 + optionalUnitVector * 50);
-			changeDirWayPoints.Add(changeDirWayPoints[0] + optionalUnitVector * 100);
-			changeDirWayPoints.Add(Position + optionalUnitVector * 100);
+			//Matrix rotation = Matrix.CreateFromAxisAngle(Up, MathHelper.ToRadians(90));
+			Vector3 optionalUnitVector =
+				//Vector3.Transform(Direction, rotation);
+				Right;
+			Vector3 left = Vector3.Normalize(_world.Left);
+			/*changeDirWayPoints.Add(Position + Direction * 100);//Vector3.Normalize(Velocity)
+			changeDirWayPoints.Add(changeDirWayPoints[0] + Direction * 100 + optionalUnitVector * 100);
+			changeDirWayPoints.Add(changeDirWayPoints[0] + optionalUnitVector * 200);
+			changeDirWayPoints.Add(Position + optionalUnitVector * 200);*/
+			changeDirWayPoints.Add(Position + Direction * 150 + left * 150);//Vector3.Normalize(Velocity)
+			changeDirWayPoints.Add(Position + Direction * 300);
+			changeDirWayPoints.Add(Position + Direction * 150 + Right * 150);
+			changeDirWayPoints.Add(Position);
 		}
 		private bool ChangeDirection()
 		{
-			float margin = 1.0f;
+			float margin = 5.0f;
 			if ((currentWayPoint - Position).Length() < Velocity.Length() + margin) {
 				currentWayPointIndex++;
-				if (currentWayPointIndex >= changeDirWayPoints.Count) return true;//currentWayPointIndex = 0;
+				if (currentWayPointIndex >= changeDirWayPoints.Count) {
+					return true;//currentWayPointIndex = 0;
+				}
 
 				currentWayPoint = changeDirWayPoints[currentWayPointIndex];
 			}
@@ -203,7 +279,8 @@ namespace HLSLTest
 			obstacles.Clear();
 			viewSphere.Center = Position;
 			foreach (Object o in level.Models) {
-				if (viewSphere.Intersects(o.transformedBoundingSphere)) {
+				if (viewSphere.Intersects(o.transformedBoundingSphere)
+					&& o.transformedBoundingSphere.Radius < 1000) {// Goundがリストに入るとまずいのでこれで除外
 					obstacles.Add(o.transformedBoundingSphere);
 				}
 			}
@@ -221,29 +298,50 @@ namespace HLSLTest
 		{
 			return Math.Sin(vector.X * (targetPoint.Y - 0) - vector.Y * (targetPoint.X - 0)) > 0;
 		}
-		private void AddAvoidanceVelocity()
+		private void AddAvoidanceVelocity(Vector3 projectedDirection, Vector3 projectedDirection2, BoundingSphere bs)
 		{
-			float avoidSpeed = 0.5f;
+			// 距離の近さに応じて速さを調整するべきだろう
+			float distance = (bs.Center - Position).Length();
+			float avoidSpeed = 2.5f * 1 / (distance / 100f);
+			Vector3 avoidVelocity = Vector3.Zero;
+
+			// DirectionとUpからなる平面上での、Directionにおける障害物中心点の左右判定（左右どちらに避けるか）
+			Vector3 planeToCenter = bs.Center - Position;
+			float distancePlaneToCenter = Vector3.Dot(planeToCenter, Up);
+			Vector3 projectedCenter = bs.Center - distancePlaneToCenter * Up;
+
+			avoidVelocity += IsLeft(projectedDirection, projectedCenter) ? _world.Right : _world.Left;
+
+
+			// DirectionとRightからなる平面上での左右判定（上下どちらに避けるか）
+			//Vector3 planeToCenter2 = bs.Center - Position;
+			float distancePlaneToCenter2 = Vector3.Dot(planeToCenter, Right);
+			Vector3 projectedCenter2 = bs.Center - distancePlaneToCenter * Right;
+
+			avoidVelocity += IsLeft(projectedDirection2, projectedCenter2) ? _world.Up : _world.Down;
+			
+
+			Velocity += avoidVelocity * avoidSpeed;
+			//Velocity += Vector3.UnitX * avoidSpeed;
+		}
+		private void AvoidCollision()//AddAvoidanceVelocity
+		{
+			
 			Vector3 projectedDirection = Direction - Vector3.Dot(Direction, Up) * Up;
+			Vector3 projectedDirection2 = Direction - Vector3.Dot(Direction, Right) * Right;
 
 			foreach (BoundingSphere bs in obstacles) {
 				if (IsGoingToCollide(bs)) {
-					Vector3 planeToCenter = bs.Center - Position;
-					float distancePlaneToCenter = Vector3.Dot(planeToCenter, Up);
-					Vector3 projectedCenter =  bs.Center - distancePlaneToCenter * Up;
-
-					Vector3 avoidVelocity = IsLeft(projectedDirection, projectedCenter) ? _world.Right : _world.Left;
-
-					Velocity += avoidVelocity * avoidSpeed;
-					//Velocity += Vector3.UnitX * avoidSpeed;
+					AddAvoidanceVelocity(projectedDirection, projectedDirection2, bs);
 				}
 			}
 		}
 		public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
 		{
 			CheckObstacles();
-			AddAvoidanceVelocity();
-			WayPointMove();
+			AvoidCollision();
+			//WayPointMove();
+			AttackMove();
 
 
 			Position += Velocity;
@@ -272,9 +370,10 @@ namespace HLSLTest
 		public Fighter(Vector3 position, Vector3 target, float scale, string filePath)
 			:base(position, scale, filePath)
 		{
-			this.StartPosiiton = position;
+			this.StartPosition = position;
 			this.Target = target;
-			this.State = FighterState.Move;
+			//this.State = FighterState.Move;
+			this.State = FighterState.MoveToAttack;
 
 			positions = new List<Vector3>();
 			engineTrailEffect = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line2T1"),

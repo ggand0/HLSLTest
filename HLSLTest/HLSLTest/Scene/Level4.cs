@@ -33,6 +33,7 @@ namespace HLSLTest
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
+		public List<Fighter> Fighters { get; private set; }
 		
 
 		Random random;
@@ -67,7 +68,7 @@ namespace HLSLTest
 
 			// Entities
 			Models = new List<Object>();
-			Ground = new Object(new Vector3(0, -200, 0), 1f, "Models\\ground");
+			Ground = new Object(new Vector3(0, -500, 0), 1f, "Models\\ground");//-200
 			Ground.RenderBoudingSphere = false;
 			Models.Add(Ground);
 			Target = new Object(new Vector3(0, 20, 0), 20, "Models\\cube");
@@ -139,9 +140,24 @@ namespace HLSLTest
 			Models.Add(Satellite);
 			Models.Add(new Satellite(false, waterPlanet.Position + new Vector3(400, 100, 600), waterPlanet.Position, 100f, "Models\\spacestation4"));
 			Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
-			Models.Add(new Fighter(new Vector3(2000, 50, 1000), waterPlanet.Position, 20f, "Models\\fighter0"));
-			Enemies.Add(Models[Models.Count - 1]);
+
+			
 			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\laser0"));
+
+			// Load fighters
+			//Models.Add(new Fighter(new Vector3(2000, 50, 1000), waterPlanet.Position, 20f, "Models\\fighter0"));
+			//Enemies.Add(Models[Models.Count - 1]);
+			Fighters = new List<Fighter>();
+			Fighters.Add(new Fighter(new Vector3(2000, 50, 1000), waterPlanet.Position, 20f, "Models\\fighter0"));
+			Fighters.Add(new Fighter(new Vector3(100, 1000, 100), waterPlanet.Position, 20f, "Models\\fighter0"));
+			Fighters.Add(new Fighter(new Vector3(-100, -1000, -100), waterPlanet.Position, 20f, "Models\\fighter0"));
+			Fighters.Add(new Fighter(new Vector3(-2000, 50, -1000), waterPlanet.Position, 20f, "Models\\fighter0"));
+			foreach (Fighter f in Fighters) {
+				Enemies.Add(f);
+			}
+			foreach (Object o in Enemies) {
+				Models.Add(o);
+			}
 
 
 			// Set up light effects !!

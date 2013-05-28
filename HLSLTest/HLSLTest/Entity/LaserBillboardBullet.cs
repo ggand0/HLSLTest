@@ -8,6 +8,11 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
+	public enum BulletIFF
+	{
+		Friend,
+		Foe
+	}
 	public class LaserBillboardBullet : LaserBillboard
 	{
 		protected static float MAX_DISTANCE = 10000;
@@ -15,6 +20,11 @@ namespace HLSLTest
 		/// インターフェース実装で関数として機能があるからプロパティは消してもいいかも
 		/// </summary>
 		//public bool IsActive { get; set; }
+
+		/// <summary>
+		/// 敵弾か味方弾かの情報
+		/// </summary>
+		public BulletIFF Identification { get; private set; }
 		public float Speed { get; private set; }
 		public Vector3 Direction { get; private set; }
 		private float distanceTravelled;
