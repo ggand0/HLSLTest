@@ -259,7 +259,7 @@ namespace HLSLTest
 					//effectManager.Add(e);
 				}
 			}*/
-			foreach (Drawable b in Bullets) {
+			foreach (Bullet b in Bullets) {
 				foreach (Object a in Asteroids) {
 					if (b.IsActive && a.IsActive && b.IsHitWith(a)) {
 						a.IsActive = false;
@@ -285,6 +285,19 @@ namespace HLSLTest
 						effectManager.Add(e);
 					}
 				}
+
+				// Collide with waterPlanet
+				foreach (Planet p in Planets) {
+					if (b.Identification == IFF.Foe && b.IsHitWith(p)) {
+						b.IsActive = false;
+
+						// 重い！数が多いのでもっと軽いエフェクトを作ろう
+						/*ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();
+						e.Position = b.Position;
+						e.Run();
+						effectManager.Add(e);*/
+					}
+				}
 			}
 
 
@@ -293,6 +306,7 @@ namespace HLSLTest
 				//planet.IsActive = false;
 				//effectManager.Add(new ExplosionEffect(content, device, planet.Position, Vector2.One));
 			}
+
 
 
 			// Remove dead objects
@@ -361,7 +375,7 @@ namespace HLSLTest
 			foreach (Object o in Models) {
 				if (o.IsActive) o.Update(gameTime);
 			}
-			foreach (Drawable b in Bullets) {
+			foreach (Bullet b in Bullets) {
 				if (b.IsActive) b.Update(gameTime);
 			}
 
@@ -435,7 +449,7 @@ namespace HLSLTest
 					}
 				}
 			}
-			foreach (Drawable b in Bullets) {
+			foreach (Bullet b in Bullets) {
 				if (b.IsActive) b.Draw(camera);
 			}
 

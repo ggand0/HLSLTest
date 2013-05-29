@@ -9,6 +9,7 @@ namespace HLSLTest
 	public interface IBullet
 	{
 		bool IsActiveNow();
+		IFF Identify();
 		void Draw(Matrix View, Matrix Projection, Matrix CameraPosition);
 		void Update(GameTime gameTime);
 	}

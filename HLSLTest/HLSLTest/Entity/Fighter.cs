@@ -90,18 +90,20 @@ namespace HLSLTest
 		{
 			switch (bulletType) {
 				case 0:
-					level.Bullets.Add(new EntityBullet(this, 1, new Vector3(1, 0, 0)
-						, this.Position, 20, "Models\\cube"));
+					/*level.Bullets.Add(new EntityBullet(this, 1, new Vector3(1, 0, 0)
+						, this.Position, 20, "Models\\cube"));*/
 					break;
 				case 1:
-					level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position
-						, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10)));
+					/*level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position
+						, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10)));*/
 					break;
 				case 2:
 					/*level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position
 						, Position + Direction, Direction, 50, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10f, 40), 0));*/
-					level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position
-						,Position + Direction * 200, Direction,50, content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.Red, BlendState.AlphaBlend, new Vector2(200f, 100), 0));
+					/*level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position
+						,Position + Direction * 200, Direction,50, content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.Red, BlendState.AlphaBlend, new Vector2(200f, 100), 0));*/
+					level.Bullets.Add(new LaserBillboardBullet(IFF.Foe, Level.graphicsDevice, content, Position
+						, Position + Direction * 200, Direction, 50, content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.Red, BlendState.AlphaBlend, new Vector2(200f, 100), 0));
 					break;
 			}
 		}

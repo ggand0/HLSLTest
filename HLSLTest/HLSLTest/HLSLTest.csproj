@@ -82,6 +82,7 @@
   <ItemGroup>
     <None Include="Backups\Planet_bak0.cs" />
     <None Include="Backups\BillboardStrip_bak0.cs" />
+    <None Include="Backups\LaserBillboardBullet_bak0.cs" />
     <Compile Include="BillboardSystem\BillboardStrip.cs" />
     <Compile Include="BillboardSystem\LaserBillboard.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\BillboardStripVertex.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Core\IDamageable.cs" />
     <Compile Include="Entity\ArmedSatellite.cs" />
     <Compile Include="Entity\BillboardBullet.cs" />
+    <Compile Include="Entity\Bullet.cs" />
     <Compile Include="Entity\EntityBullet.cs" />
     <Compile Include="Entity\Fighter.cs" />
     <Compile Include="Entity\IBullet.cs" />
@@ -165,7 +167,7 @@
     <Compile Include="Graphics\MeshTag.cs" />
     <Compile Include="Entity\Object.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\FlameParticleEmitter.cs" />
-    <None Include="BillboardSystem\LaserBillboard_bak.cs" />
+    <None Include="Backups\LaserBillboard_bak.cs" />
     <Compile Include="BillboardSystem\LoadParticles.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleEmitter.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleVertex.cs" />

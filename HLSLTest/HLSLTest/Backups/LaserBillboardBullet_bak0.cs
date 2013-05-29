@@ -8,9 +8,23 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class LaserBillboardBullet : Bullet//LaserBillboard
+	public class LaserBillboardBullet : LaserBillboard
 	{
-		protected LaserBillboard laserRenderer;
+		protected static float MAX_DISTANCE = 10000;
+		/// <summary>
+		/// インターフェース実装で関数として機能があるからプロパティは消してもいいかも
+		/// </summary>
+		//public bool IsActive { get; set; }
+
+		/// <summary>
+		/// 敵弾か味方弾かの情報
+		/// </summary>
+		public IFF Identification { get; private set; }
+		public float Speed { get; private set; }
+		public Vector3 Direction { get; private set; }
+		private float distanceTravelled;
+		public Vector3 StartPosition { get; private set; }
+
 		public int Mode { get; private set; }
 		private int count;
 
@@ -18,26 +32,22 @@ namespace HLSLTest
 		{
 			count++;
 			if (Mode == 0) {
-				/*for (int i = 0; i < particles.Length; i++) {
+				for (int i = 0; i < particles.Length; i++) {
 					particles[i].StartPosition += Direction * Speed;
 					particles[i].DirectedPosition += Direction * Speed;// これをUpdateしていないせいでは？？？
 				}
 
 
 				vertexBuffers.SetData<ParticleVertex>(particles);
-				indexBuffers.SetData<int>(indices);*/
-				laserRenderer.MoveLaser(Direction, Speed);
-				
+				indexBuffers.SetData<int>(indices);
 			}
 
-			Position = laserRenderer.Mid;
 			IsActive = IsActiveNow();
 		}
-		public override bool IsActiveNow()
+		public bool IsActiveNow()
 		{
 			if (Mode == 0) {
-				//distanceTravelled = Vector3.Distance(StartPosition, laserRenderer.particles[0].StartPosition);
-				distanceTravelled = laserRenderer.GetTraveledDistance(0);
+				distanceTravelled = Vector3.Distance(StartPosition, particles[0].StartPosition);
 				if (distanceTravelled > MAX_DISTANCE) {
 					return false;
 				} else {
@@ -51,63 +61,47 @@ namespace HLSLTest
 		{
 			return base.IsHitWith(d);
 		}
-		/// <summary>
-		/// http://www.antun.net/tips/algorithm/collision.html より。
-		/// </summary>
-		/// <param name="o"></param>
-		/// <returns></returns>
 		public override bool IsHitWith(Object o)
 		{
-			/*BoundingSphere bs = new BoundingSphere(Position, laserRenderer.billboardSize.Y);
+			BoundingSphere bs = new BoundingSphere(Position, billboardSize.Y);
 			//return (bs.Center - o.Model.Meshes[0].BoundingSphere.Center).Length() < bs.Radius + o.Model.Meshes[0].BoundingSphere.Radius;
 			//return (o.Model.Meshes[0].BoundingSphere.Center - End).Length() < bs.Radius;
 			//return (o.Position - End).Length() < o.Model.Meshes[0].BoundingSphere.Radius;//bs.Radius;
 
 			//return End == o.Position;
-			//return (laserRenderer.End - o.Position).Length() < 50;
-			return (laserRenderer.End - o.Position).Length() < bs.Radius;*/
-
-
-			// Bullet側から移動してるparticlesの位置を参照するのは面倒なのでLaserBillboardに任せる
-			return laserRenderer.IsHitWith(o);
+			return (End - o.Position).Length() < 50;
 		}
-		public override void Draw(Camera camera)
-		{
-			//base.Draw(camera);
-			laserRenderer.Draw(camera);
-		}
-
 
 		// Constructors
-		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
+		public LaserBillboardBullet(GraphicsDevice graphicsDevice,
 			ContentManager content, Vector3 position, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize)
 			//:base(graphicsDevice, content, texture, billboardSize, position, position + direction)
-			: this(id, graphicsDevice, content, position, direction, speed, texture, billboardSize, 0)
+			: this(graphicsDevice, content, position, direction, speed, texture, billboardSize, 0)
 		{
 		}
-		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
+		public LaserBillboardBullet(GraphicsDevice graphicsDevice,
 			ContentManager content, Vector3 position, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize, int mode)
 			//: base(graphicsDevice, content, texture, billboardSize, position, position + direction)
-			//: base(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X)
-			:base(id, position, direction, speed)
+			: base(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X)
 		{
+			this.Direction = direction;
+			this.Speed = speed;
 			IsActive = true;
 			Direction.Normalize();
+			StartPosition = position;
 			this.Mode = mode;
-
-			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X);
 		}
 
-		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
+		public LaserBillboardBullet(GraphicsDevice graphicsDevice,
 			ContentManager content, Vector3 startPosition, Vector3 endPosition, Vector3 direction, float speed, Texture2D texture, Color laserColor, BlendState laserBlendState, Vector2 billboardSize, int mode)
-			//: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition, laserColor, laserBlendState)
-			: base(id, startPosition, direction, speed)
+			: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition, laserColor, laserBlendState)
 		{
+			this.Direction = direction;
+			this.Speed = speed;
 			IsActive = true;
 			Direction.Normalize();
+			StartPosition = startPosition;
 			this.Mode = mode;
-
-			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, startPosition, endPosition);
 		}
 	}
 }

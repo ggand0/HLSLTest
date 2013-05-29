@@ -36,7 +36,8 @@ namespace HLSLTest
 
 		// Members for RTS game (used in Level3, 4)
 		//public List<EntityBullet> Bullets { get; protected set; }
-		public List<Drawable> Bullets { get; protected set; }
+		//public List<Drawable> Bullets { get; protected set; }
+		public List<Bullet> Bullets { get; protected set; }
 		public List<Object> Enemies { get; private set; }
 
 		/// <summary>
@@ -61,7 +62,8 @@ namespace HLSLTest
 		{
 			Models = new List<Object>();
 			effectManager = new EffectManager();
-			Bullets = new List<Drawable>();
+			//Bullets = new List<Drawable>();
+			Bullets = new List<Bullet>();
 			Enemies = new List<Object>();
 
 			EnergyShieldEffect.level = this;

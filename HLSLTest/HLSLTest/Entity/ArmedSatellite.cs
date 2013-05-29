@@ -48,13 +48,13 @@ namespace HLSLTest
 		{
 			switch (bulletType) {
 				case 0:
-					level.Bullets.Add(new EntityBullet(this, 1, new Vector3(1, 0, 0), this.Position, 20, "Models\\cube"));
+					//level.Bullets.Add(new EntityBullet(this, 1, new Vector3(1, 0, 0), this.Position, 20, "Models\\cube"));
 					break;
 				case 1:
-					level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10) ));
+					//level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10) ));
 					break;
 				case 2:
-					level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
+					level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
 					break;
 				/*case 3:
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 1));
@@ -83,16 +83,16 @@ namespace HLSLTest
 				case 3:
 					if (visibleEnemies.Count > 0) {
 						Vector3 dir = visibleEnemies[r.Next(0, visibleEnemies.Count)].Position;//Vector3.Normalize(new Vector3(3, 2, 1));
-						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, dir, 1,
-							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));
+						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, dir, 1,
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));/**/
 					}
 					break;
 				case 4:
 					if (visibleEnemies.Count > 0) {
 						Vector3 tmp = SearchTarget(0);
 						Vector3 dir1 = Vector3.Normalize(tmp - Position);
-						level.Bullets.Add(new LaserBillboardBullet(Level.graphicsDevice, content, Position, tmp, dir1, 1,
-							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));
+						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, tmp, dir1, 1,
+							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));/**/
 					}
 					break;
 			}

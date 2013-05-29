@@ -21,7 +21,7 @@ namespace HLSLTest
 		protected int[] indices;
 		// Billboard settings
 		protected int nBillboards;
-		protected Vector2 billboardSize;
+		public Vector2 billboardSize { get; protected set; }
 		protected Texture2D texture;
 		// GraphicsDevice and Effect
 		protected GraphicsDevice graphicsDevice;
@@ -120,10 +120,62 @@ namespace HLSLTest
 			vertexBuffers.SetData<ParticleVertex>(particles);
 			indexBuffers.SetData<int>(indices);
 		}
+		
+		
+		/// <summary>
+		/// LaserBillboardBullet向けに速度に合わせて始点・終点を更新する
+		/// </summary>
+		/// <param name="gameTime"></param>
+		public void MoveLaser(Vector3 direction, float speed)
+		{
+			for (int i = 0; i < particles.Length; i++) {
+				particles[i].StartPosition += direction * speed;
+				particles[i].DirectedPosition += direction * speed;// これをUpdateしていないせいでは？？？
+			}
+			Start = particles[0].StartPosition;
+			End = particles[0].DirectedPosition;
+			Mid = (Start + End) / 2f;
+
+			vertexBuffers.SetData<ParticleVertex>(particles);
+			indexBuffers.SetData<int>(indices);
+		}
+		public float GetTraveledDistance(int particleIndex)
+		{
+			return Vector3.Distance(Start, particles[particleIndex].StartPosition);
+		}
+		/// <summary>
+		/// 線分と球の交叉判定を行う
+		/// </summary>
+		/// <param name="o"></param>
+		/// <returns></returns>
+		public override bool IsHitWith(Object o)
+		{
+			BoundingSphere bs = o.transformedBoundingSphere;
+			// 移動しているかもしれないので、Start・Endは使わず配列から参照。
+			// むしろ毎フレームStartへ値を入れて更新させたほうがいいのかもしれないが。
+			Vector3 lineVector = particles[0].DirectedPosition - particles[0].StartPosition;
+			Vector3 startToCenterVector = bs.Center - particles[0].StartPosition;
+
+			float dotProduct = Vector3.Dot(lineVector, startToCenterVector);
+			if (dotProduct < 0) {
+				return startToCenterVector.Length() < bs.Radius;
+			} else {
+				float squared = lineVector.LengthSquared();
+				if (dotProduct > squared) {
+					Vector3 endToCenterVector = bs.Center - particles[0].DirectedPosition;
+					return endToCenterVector.LengthSquared() < bs.Radius * bs.Radius;
+				} else {
+					float verticalSquared = startToCenterVector.LengthSquared() - (dotProduct * dotProduct) / lineVector.LengthSquared();
+					return verticalSquared < bs.Radius * bs.Radius;
+				}
+			}
+		}
+
 
 		public Color LaserColor { get; private set; }
 		public BlendState LaserBlendState { get; private set; }
 
+		#region Draw methods
 		public void Draw(Matrix View, Matrix Projection, Vector3 Up, Vector3 Right, Vector3 CameraPosition)
 		{
 			// Set the vertex and index buffer to the graphics card
@@ -159,7 +211,6 @@ namespace HLSLTest
 			//base.Draw(camera);
 			this.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.Position);
 		}
-
 		void DrawOpaquePixels()
 		{
 			graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -182,6 +233,7 @@ namespace HLSLTest
 			effect.Parameters["AlphaTestGreater"].SetValue(false);
 			DrawBillboards();
 		}
+		#endregion
 
 		public Vector3 Start { get; private set; }
 		public Vector3 End { get; private set; }
