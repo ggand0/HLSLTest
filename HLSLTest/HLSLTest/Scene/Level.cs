@@ -39,6 +39,7 @@ namespace HLSLTest
 		//public List<Drawable> Bullets { get; protected set; }
 		public List<Bullet> Bullets { get; protected set; }
 		public List<Object> Enemies { get; private set; }
+		public List<EnergyShieldEffect> transparentEffects { get; set; }
 
 		/// <summary>
 		/// GraphicsDeviceのStateをデフォルトの状態に戻す。
@@ -65,6 +66,7 @@ namespace HLSLTest
 			//Bullets = new List<Drawable>();
 			Bullets = new List<Bullet>();
 			Enemies = new List<Object>();
+			transparentEffects = new List<EnergyShieldEffect>();
 
 			EnergyShieldEffect.level = this;
 			BoundingSphereRenderer.level = this;

@@ -97,6 +97,7 @@
     <Compile Include="Entity\IBullet.cs" />
     <Compile Include="Entity\Drawable.cs" />
     <Compile Include="Entity\LaserBillboardBullet.cs" />
+    <Compile Include="Entity\Missile.cs" />
     <Compile Include="Entity\Satellite.cs" />
     <Compile Include="Entity\SpaceStation.cs" />
     <Compile Include="Entity\Turret.cs" />

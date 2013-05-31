@@ -9,6 +9,11 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace HLSLTest
 {
+	public enum SatelliteWeapon
+	{
+		Laser,
+		Missile
+	}
 	public class ArmedSatellite : Satellite
 	{
 		private SoundEffect shootSound;
@@ -41,8 +46,32 @@ namespace HLSLTest
 					}
 					return min;
 			}
-			
-			
+		}
+		private Object SearchTargetObj(int tactics)
+		{
+			float minDis = 9999;
+			Vector3 min = new Vector3(9999);
+			Object minObj = null;
+
+			/*foreach (Asteroid a in (level as Level4).Asteroids) {
+				if ((Position - a.Position).Length() < minDis) {
+					minDis = (Position - a.Position).Length();
+					min = a.Position;
+				}
+			}*/
+			switch (tactics) {
+				default:
+					return visibleEnemies[r.Next(0, visibleEnemies.Count)];
+				case 1:
+					foreach (Object o in visibleEnemies) {
+						if ((Position - o.Position).Length() < minDis) {
+							minDis = (Position - o.Position).Length();
+							min = o.Position;
+							minObj = o;
+						}
+					}
+					return minObj;
+			}
 		}
 		private void Shoot(int bulletType)
 		{
@@ -54,7 +83,8 @@ namespace HLSLTest
 					//level.Bullets.Add(new BillboardBullet(Level.graphicsDevice, content, Position, new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Star"), new Vector2(10) ));
 					break;
 				case 2:
-					level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(30, 20)));
+					level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position,
+						new Vector3(1, 0.5f, 0.3f), 1, content.Load<Texture2D>("Textures\\Lines\\laser0"), new Vector2(30, 20)));//Textures\\Mercury\\Laser
 					break;
 				/*case 3:
 					//level.Bullets.Add(new LaserBillboardBullet(Level.device, content, Position, Position + new Vector3(100, 50, 0), new Vector3(1, 0, 0), 1, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 1));
@@ -92,7 +122,15 @@ namespace HLSLTest
 						Vector3 tmp = SearchTarget(0);
 						Vector3 dir1 = Vector3.Normalize(tmp - Position);
 						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, tmp, dir1, 1,
-							content.Load<Texture2D>("Textures\\Mercury\\Laser"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));/**/
+							content.Load<Texture2D>("Textures\\Lines\\laser0"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));/**/
+					}
+					break;
+				case 5:
+					if (visibleEnemies.Count > 0) {
+						//Vector3 tmp = SearchTarget(0);
+						Object tmp = SearchTargetObj(0);
+						Vector3 dir1 = Vector3.Normalize(tmp.Position - Position);
+						level.Bullets.Add(new Missile(IFF.Friend, this, tmp, 5.0f, dir1, Position, 1, "Models\\AGM65Missile"));/**/
 					}
 					break;
 			}
@@ -131,10 +169,12 @@ namespace HLSLTest
 		private readonly int shootRate = 60;
 		private int chargeTime;
 		private bool canShoot;
+
+		public SatelliteWeapon Weapon { get; protected set; }
 		public override void Update(GameTime gameTime)
 		{
 			count++;
-			base.Update(gameTime);
+			base.Update(gameTime);//RotationMatrix = Matrix.CreateRotationX((float)Math.PI);
 
 			CheckEnemies();
 			if (!canShoot && count > chargeTime) {
@@ -143,7 +183,11 @@ namespace HLSLTest
 			}
 
 			if (canShoot && JoyStick.IsOnKeyDown(2) || count % shootRate == 0) {
-				Shoot(4);
+				if (Weapon == SatelliteWeapon.Missile) {
+					Shoot(5);
+				} else {
+					Shoot(4);
+				}
 				//shootSound.Play();
 				//shootSoundInstance.Play();
 
@@ -173,7 +217,8 @@ namespace HLSLTest
 			base.Draw(View, Projection, CameraPosition);
 
 			billboardStrip.Draw(View, Projection, level.camera.Up, level.camera.Right, CameraPosition);
-			shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);	
+			// levelのリストでまとめて描画させることにした
+			//shieldEffect.Draw(gameTime, View, Projection, CameraPosition, level.camera.Direction, level.camera.Up, level.camera.Right);	
 		}
 
 		#region Constructors
@@ -188,12 +233,18 @@ namespace HLSLTest
 		{
 		}
 		public ArmedSatellite(Vector3 position, Vector3 center, float scale, string fileName, string SEPath)
+			: this(SatelliteWeapon.Laser, position, center, scale, fileName, SEPath)
+		{
+		}
+		public ArmedSatellite(SatelliteWeapon weaponType, Vector3 position, Vector3 center, float scale, string fileName, string SEPath)
 			: base(true, position, center, scale, fileName)
 		{
 			//random = new Random();
+			this.Weapon = weaponType;
 			chargeTime = random.Next(10, 70);
 			shootSound = content.Load<SoundEffect>(SEPath);
 			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(150), 100);//300,250
+			level.transparentEffects.Add(shieldEffect);
 
 			positions = new List<Vector3>();
 			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line1T1"), new Vector2(10, 200), positions);

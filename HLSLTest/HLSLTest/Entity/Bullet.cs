@@ -20,13 +20,14 @@ namespace HLSLTest
 	public class Bullet : Drawable
 	{
 		protected static float MAX_DISTANCE = 10000;
+		public static ContentManager content;
 
 		/// <summary>
 		/// 敵弾か味方弾かの情報
 		/// </summary>
 		public IFF Identification { get; private set; }
 		public float Speed { get; private set; }
-		public Vector3 Direction { get; private set; }
+		public Vector3 Direction { get; protected set; }
 		public Vector3 StartPosition { get; private set; }
 
 		

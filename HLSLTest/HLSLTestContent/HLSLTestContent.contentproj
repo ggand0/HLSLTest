@@ -30,8 +30,23 @@
     <Reference Include="Microsoft.Xna.Framework.Content.Pipeline.VideoImporters, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\DeepSpace.fbx">
+      <Name>DeepSpace</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <Compile Include="Models\Rosetta.fbx">
       <Name>Rosetta</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\TDRS.fbx">
+      <Name>TDRS</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\TDRS_high.fbx">
+      <Name>TDRS_high</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
@@ -400,38 +415,23 @@
       <Importer>XImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
-    <Compile Include="Models\DeepSpace.fbx">
-      <Name>DeepSpace</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-    </Compile>
     <Compile Include="Models\fighter0.fbx">
       <Name>fighter0</Name>
       <Importer>FbxImporter</Importer>
       <Processor>AlignedModelProcessor</Processor>
-    </Compile>
-    <None Include="Models\Rosetta2.fbx">
-      <Name>Rosetta2</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-    </None>
-    <Compile Include="Models\Rosetta3.fbx">
-      <Name>Rosetta3</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\spacestation4.fbx">
       <Name>spacestation4</Name>
       <Importer>FbxImporter</Importer>
       <Processor>AlignedModelProcessor</Processor>
     </Compile>
-    <None Include="Models\Stardust.fbx">
-      <Name>Stardust</Name>
+    <Compile Include="Models\Dawn.fbx">
+      <Name>Dawn</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-    </None>
-    <Compile Include="Models\TDRS.fbx">
-      <Name>TDRS</Name>
+      <Processor>AlignedModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\AGM65Missile.fbx">
+      <Name>AGM65Missile</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
@@ -1241,6 +1241,25 @@
   <ItemGroup>
     <Compile Include="Textures\whiteBoard.png">
       <Name>whiteBoard</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Lines\laser0.png">
+      <Name>laser0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\Lines\laser1.png">
+      <Name>laser1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Lines\smoke.png">
+      <Name>smoke</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

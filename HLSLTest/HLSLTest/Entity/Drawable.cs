@@ -10,6 +10,7 @@ namespace HLSLTest
 	{
 		public bool IsActive { get; set; }
 		public Vector3 Position { get; set; }
+		
 
 		public virtual void Update(GameTime gameTime)
 		{

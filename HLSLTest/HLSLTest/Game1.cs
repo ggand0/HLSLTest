@@ -60,8 +60,10 @@ namespace HLSLTest
 			KeyConfig.LoadXML("KeyConfig", "Xml\\KeyConfig.xml");
 			Scene.Initialize(this, spriteBatch, Content);
 			Object.game = this;
+			
 			PointLight.game = this;
 			Object.content = Content;
+			Bullet.content = Content;
 
 			base.Initialize();
 		}

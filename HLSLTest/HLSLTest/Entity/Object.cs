@@ -218,7 +218,14 @@ namespace HLSLTest
 		/// </summary>
 		public void DrawBoundingSphere()
 		{
-			BoundingSphere defBS = new BoundingSphere(Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world), Model.Meshes[0].BoundingSphere.Radius);
+			BoundingSphere defBS;
+			if (Model != null) {
+				defBS = new BoundingSphere(Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world),
+					Model.Meshes[0].BoundingSphere.Radius);
+			} else {
+				defBS = new BoundingSphere(Position,
+					Scale);
+			}
 			defBS.Radius = defBS.Radius * _world.Forward.Length();
 
 			transformedBoundingSphere = defBS;
@@ -254,9 +261,15 @@ namespace HLSLTest
 			_world = Matrix.CreateScale(Scale) * RotationMatrix * Matrix.CreateTranslation(Position);
 
 			// Bounding Sphereを更新：World行列の更新後に行うこと。
-			transformedBoundingSphere = new BoundingSphere(
-				Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world)
-				, Model.Meshes[0].BoundingSphere.Radius * _world.Forward.Length());
+			if (Model != null) {
+				transformedBoundingSphere = new BoundingSphere(
+					Vector3.Transform(Model.Meshes[0].BoundingSphere.Center, _world)
+					, Model.Meshes[0].BoundingSphere.Radius * _world.Forward.Length());
+			} else {
+				transformedBoundingSphere = new BoundingSphere(
+					Position
+					, Scale);
+			}
 		}
 
 		protected void GenerateTags()
