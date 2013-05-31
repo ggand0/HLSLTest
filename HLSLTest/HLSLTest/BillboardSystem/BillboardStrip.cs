@@ -40,6 +40,7 @@ namespace HLSLTest
 		public Vector3 End { get; private set; }
 		public Vector3 Mid { get; private set; }
 		public Color LaserColor { get; private set; }
+		public bool AdjustedWidth { get; private set; }
 
 
 		#region private methods
@@ -278,6 +279,7 @@ namespace HLSLTest
 
 				SetEffectParameters(View, Projection, Up, Right, CameraPosition);
 				effect.Parameters["LaserColor"].SetValue(LaserColor.ToVector4());
+				effect.Parameters["AdjustedWidth"].SetValue(AdjustedWidth);
 				//graphicsDevice.BlendState = BlendState.AlphaBlend;
 				graphicsDevice.BlendState = BlendState.Additive;
 
@@ -339,12 +341,18 @@ namespace HLSLTest
 		#region Constructors
 		public BillboardStrip(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, List<Vector3> positions)
+			:this(graphicsDevice, content, texture, billboardSize, positions, false)
 		{
-            this.billboardSize = billboardSize;
-            this.graphicsDevice = graphicsDevice;
-            this.texture = texture;
-
+		}
+		public BillboardStrip(GraphicsDevice graphicsDevice,
+			ContentManager content, Texture2D texture, Vector2 billboardSize, List<Vector3> positions, bool adjustedWidth)
+		{
+			this.billboardSize = billboardSize;
+			this.graphicsDevice = graphicsDevice;
+			this.texture = texture;
 			this.Positions = positions;
+			this.AdjustedWidth = adjustedWidth;
+
 			Billboards = new List<LaserBillboard>();
 			for (int i = 0; i < positions.Count - 1; i++) {
 				Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, positions[i], positions[i + 1]));
@@ -354,9 +362,11 @@ namespace HLSLTest
 			effect = content.Load<Effect>("Billboard\\BillboardStripEffect");
 			particles = new List<BillboardStripVertex>();
 			indices = new List<int>();
-            // とりあえず１つだけBillboardをbufferにセットしておく?
-            //Initialize();
+			// とりあえず１つだけBillboardをbufferにセットしておく?
+			//Initialize();
 		}
+
+
 		public BillboardStrip(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//, Vector3[] particlePositions)
 			:this(graphicsDevice, content, texture, billboardSize, start, end, Color.White)
@@ -364,6 +374,11 @@ namespace HLSLTest
 		}
 		public BillboardStrip(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor)//, Vector3[] particlePositions)
+			:this(graphicsDevice, content, texture, billboardSize, start, end, laserColor, false)
+		{
+		}
+		public BillboardStrip(GraphicsDevice graphicsDevice,
+			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor, bool adjustedWidth)//, Vector3[] particlePositions)
 		{
 			//this.nBillboards = particlePositions.Length;
 			this.nBillboards = 1;
@@ -375,6 +390,7 @@ namespace HLSLTest
 			//effect = content.Load<Effect>("LaserBillboardEffectV3");
 			effect = content.Load<Effect>("Billboard\\LaserBillboardEffectV4");
 			this.LaserColor = laserColor;
+			this.AdjustedWidth = adjustedWidth;
 
 			float debugLength = (end - start).Length();
 			Mid = (start + end) / 2.0f;

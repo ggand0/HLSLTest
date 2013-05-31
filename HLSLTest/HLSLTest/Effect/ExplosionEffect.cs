@@ -29,6 +29,7 @@ namespace HLSLTest
 		//private List<ExplosionParticleEmitter> emitters;
 		public List<ExplosionParticleEmitter> emitters;
 		private EnergyRingEffect shockWaveEffect;
+		private bool renderBoundingSphere;
 
 		private float speed;
 		public bool Repeat { get; private set; }
@@ -77,9 +78,11 @@ namespace HLSLTest
 			}
 
 			// Draw BoundingBox for debug
-			 int size = 25;
-			 BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-size / 2.0f, -size / 2.0f, -size / 2.0f) + Position, new Vector3(size / 2.0f, size / 2.0f, size / 2.0f) + Position)
-				 , graphicsDevice, camera.View, camera.Projection, Color.White);
+			if (renderBoundingSphere) {
+				int size = 25;
+				BoundingBoxRenderer.Render(new BoundingBox(new Vector3(-size / 2.0f, -size / 2.0f, -size / 2.0f) + Position, new Vector3(size / 2.0f, size / 2.0f, size / 2.0f) + Position)
+					, graphicsDevice, camera.View, camera.Projection, Color.White);
+			}
 		}
 
 		public void Run()

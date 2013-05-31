@@ -19,6 +19,7 @@ namespace HLSLTest
 		PrelightingRenderer renderer;
 		GridRenderer grid;
 
+        // Effect test
 		FlameParticleEmitter ps;
 		ExplosionParticleEmitter eps;
 		DiscoidParticleEmitter discoid;
@@ -34,19 +35,25 @@ namespace HLSLTest
 		public List<Planet> Planets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
 		public List<Fighter> Fighters { get; private set; }
-		
 
-		Random random;
-		List<ExplosionEffect> ex = new List<ExplosionEffect>();
+        private Random random;
+        private List<ExplosionEffect> ex = new List<ExplosionEffect>();
 		private bool spawned;
 		private int count;
 		//ParticleSettings setting;
-		LaserBillboard lb;
+        private LaserBillboard lb;
 		/// <summary>
 		/// 小惑星の最大spawn数
 		/// </summary>
 		private static readonly int MAX_SPAWN_NUM = 15;
 
+        private Vector3 tmpDirention;
+        private Vector3 tmpCameraPos;
+        private Matrix RotationMatrix = Matrix.Identity;
+
+        /// <summary>
+        /// Utility専用クラスにまとめるべき
+        /// </summary>
 		public static float NextDouble(Random r, double min, double max)
 		{
 			return (float)(min + r.NextDouble() * (max - min));
@@ -208,10 +215,6 @@ namespace HLSLTest
 
 			lb = new LaserBillboard(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
-
-		Vector3 tmpDirention;
-		Vector3 tmpCameraPos;
-		Matrix RotationMatrix = Matrix.Identity;
 		protected override void HandleInput()
 		{
 			base.HandleInput();
@@ -287,6 +290,21 @@ namespace HLSLTest
 						e.Run();
 						effectManager.Add(e);
 					}
+
+				}
+
+				foreach (Object o in Enemies) {
+					if ((b is Missile) && b.IsActive && b.Identification == IFF.Friend && b.IsHitWith(o)) {
+						 b.IsActive = false;
+
+						ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();
+						e.Position = o.Position;
+						/*foreach (ExplosionParticleEmitter ep in e.emitters) {
+							ep.Position = e.Position;// もう既にparticlesは初期化されてしまってるので手遅れ！
+						}*/
+						e.Run();
+						effectManager.Add(e);
+					}
 				}
 
 				// Collide with waterPlanet
@@ -302,14 +320,11 @@ namespace HLSLTest
 					}
 				}
 			}
-
-
 			BoundingSphere bs = new BoundingSphere(planet.Position, 200);
 			if (discoidEffect.IsHitWith(bs)) {
 				//planet.IsActive = false;
 				//effectManager.Add(new ExplosionEffect(content, device, planet.Position, Vector2.One));
 			}
-
 
 
 			// Remove dead objects
@@ -398,7 +413,6 @@ namespace HLSLTest
 
 			effectManager.Update(gameTime);
 		}
-
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
@@ -476,7 +490,6 @@ namespace HLSLTest
 				ese.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
 			}
 		}
-
 
 		public Level4(Scene previousScene)
 			: base(previousScene)

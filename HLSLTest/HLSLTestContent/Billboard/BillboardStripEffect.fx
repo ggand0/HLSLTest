@@ -23,6 +23,8 @@ float3 CameraDir;
 
 float3 CenterNormal;
 float4 LaserColor = float4(1,1,1,1);
+float MAX_LENGTH = 120;
+bool AdjustedWidth = false;
 
 struct VertexShaderInput
 {
@@ -64,8 +66,15 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	//position += offset.x * leng.x * lineDir + offset.y * Size.y * pvUp;
 
 	// 前の2頂点は既にstripの後ろに割り当てられているはずなので、endPosを左右に振り分けてpositionを決定
+	float width = input.Id / MAX_LENGTH;
+
 	//position = endPos + offset * Size.y * pvUp;
-	position = input.DirectedPosition + offset * Size.y * pvUp;
+	if (AdjustedWidth) {
+		position = input.DirectedPosition + offset * width * Size.y * pvUp;
+	} else {
+		position = input.DirectedPosition + offset * Size.y * pvUp;
+	}
+	
 
 
 	// Transform the position by view and projection

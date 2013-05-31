@@ -22,6 +22,7 @@ namespace HLSLTest
 		//private float Scale;
 		private BillboardStrip billboardStrip;
 		private List<Vector3> positions;
+		private BoundingSphere boundingSphere;
 		private void UpdateLocus()
 		{
 			positions.Add(Position);
@@ -42,6 +43,7 @@ namespace HLSLTest
 
 			Position += Velocity;
 			UpdateWorldMatrix();
+			boundingSphere = new BoundingSphere(Position, Renderer.Model.Meshes[0].BoundingSphere.Radius * Renderer.Scale);
 
 			Renderer.Position = Position;
 			Renderer.World = _world;
@@ -72,7 +74,11 @@ namespace HLSLTest
 			_world.Up *= Vector3.Normalize(Vector3.Cross(_world.Forward, workVector));
 			_world.Right *= Vector3.Normalize(Vector3.Cross(_world.Forward, _world.Up));*/
 		}
-
+		public override bool IsHitWith(Object o)
+		{
+			//return Renderer.IsHitWith(o.transformedBoundingSphere);
+			return boundingSphere.Intersects(o.transformedBoundingSphere);
+		}
 
 
 
@@ -101,10 +107,11 @@ namespace HLSLTest
 			this.Velocity = Direction * speed;
 			Load(filePath);*/
 
+			MAX_DISTANCE = 2000;
 			this.Target = target;
 			positions = new List<Vector3>();
 			Renderer = new Object(position, scale, filePath);
-			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 30), positions);
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 30), positions, true);
 		}
 	}
 }

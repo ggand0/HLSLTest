@@ -10,9 +10,9 @@ namespace HLSLTest
 {
 	public class LaserBillboardBullet : Bullet//LaserBillboard
 	{
+        private int count;
 		protected LaserBillboard laserRenderer;
 		public int Mode { get; private set; }
-		private int count;
 
 		public override void Update(GameTime gameTime)
 		{
@@ -22,7 +22,6 @@ namespace HLSLTest
 					particles[i].StartPosition += Direction * Speed;
 					particles[i].DirectedPosition += Direction * Speed;// これをUpdateしていないせいでは？？？
 				}
-
 
 				vertexBuffers.SetData<ParticleVertex>(particles);
 				indexBuffers.SetData<int>(indices);*/
@@ -78,8 +77,8 @@ namespace HLSLTest
 		}
 
 
-		// Constructors
-		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
+        #region Constructors
+        public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
 			ContentManager content, Vector3 position, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize)
 			//:base(graphicsDevice, content, texture, billboardSize, position, position + direction)
 			: this(id, graphicsDevice, content, position, direction, speed, texture, billboardSize, 0)
@@ -103,11 +102,13 @@ namespace HLSLTest
 			//: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition, laserColor, laserBlendState)
 			: base(id, startPosition, direction, speed)
 		{
+            MAX_DISTANCE = 2000;
 			IsActive = true;
 			Direction.Normalize();
 			this.Mode = mode;
 
 			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, startPosition, endPosition);
-		}
-	}
+        }
+        #endregion
+    }
 }

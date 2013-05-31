@@ -12,7 +12,8 @@ namespace HLSLTest
 	public class SpaceStation : Satellite
 	{
 		public List<Turret> Turrets { get; private set; }
-		private Vector3[] turretPositions = new Vector3[] { new Vector3(100, 0, 0), new Vector3(200, 0, 0), new Vector3(300, 0, 0) };
+		private Vector3[] turretPositions
+            = new Vector3[] { new Vector3(100, 0, 0), new Vector3(200, 0, 0), new Vector3(300, 0, 0) };
 
 		public override void Update(GameTime gameTime)
 		{
@@ -22,15 +23,15 @@ namespace HLSLTest
 				t.Update(gameTime);
 			}
 		}
-
 		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			base.Draw(View, Projection, CameraPosition);
 
-			if (!DrawingPrePass)
-				foreach (Turret t in Turrets) {
-					t.Draw(View, Projection, CameraPosition);
-				}
+            if (!DrawingPrePass) {
+                foreach (Turret t in Turrets) {
+                    t.Draw(View, Projection, CameraPosition);
+                }
+            }
 		}
 
 		#region Constructors

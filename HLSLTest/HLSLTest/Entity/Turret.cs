@@ -13,7 +13,7 @@ namespace HLSLTest
 	{
 		private SoundEffect shootSound;
 		private List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
-		EnergyShieldEffect shieldEffect;
+		private EnergyShieldEffect shieldEffect;
 
 		private List<Object> visibleEnemies;
 		private BoundingSphere sensorSphere;
@@ -34,7 +34,6 @@ namespace HLSLTest
 				}
 			}
 		}
-
 		private Vector3 SearchTarget(int tactics)
 		{
 			float minDis = 9999;
@@ -58,8 +57,6 @@ namespace HLSLTest
 					}
 					return min;
 			}
-
-
 		}
 		private void Shoot(int bulletType)
 		{

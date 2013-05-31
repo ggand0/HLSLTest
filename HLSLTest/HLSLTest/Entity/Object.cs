@@ -272,7 +272,8 @@ namespace HLSLTest
 			}
 		}
 
-		protected void GenerateTags()
+        #region Draw methods
+        protected void GenerateTags()
 		{
 			foreach (ModelMesh mesh in Model.Meshes)
 				foreach (ModelMeshPart part in mesh.MeshParts)
@@ -434,7 +435,6 @@ namespace HLSLTest
 			DrawMesh(View, Projection, CameraPosition);
 			RestoreEffects();
 		}
-
 		/// <summary>
 		/// ReflectionMap作成のためにClipPlaneを決定する
 		/// </summary>
@@ -453,10 +453,11 @@ namespace HLSLTest
 				}
 			}
 		}
-		#endregion
+        #endregion
+        #endregion
 
-		#region Constructors
-		public Object()
+        #region Constructors
+        public Object()
 			: this(Vector3.Zero)
 		{
 		}

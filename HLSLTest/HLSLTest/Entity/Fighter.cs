@@ -27,14 +27,15 @@ namespace HLSLTest
 		private int currentWayPointIndex;
 		private Vector3[] wayPoints0, yawDebug, pitchDebug, rollDebug;
 		private List<Vector3> changeDirWayPoints;
-
 		private List<BoundingSphere> obstacles;
 		private BoundingSphere viewSphere;
-
-		BillboardStrip engineTrailEffect;
+		private BillboardStrip engineTrailEffect;
 		private List<Vector3> positions;
-
-		protected Vector3 upPosition;
+        protected Vector3 upPosition;
+        private int count;
+        private static readonly int shootRate = 10;//120
+        private bool hasBuild, shouldShoot, turned;
+		
 
 		private void Initialize()
 		{
@@ -107,8 +108,7 @@ namespace HLSLTest
 					break;
 			}
 		}
-		int count;
-		int shootRate = 10;//120
+		
 		protected override void UpdateWorldMatrix()
 		{
 			Direction.Normalize();
@@ -166,7 +166,6 @@ namespace HLSLTest
 				}
 			}
 		}
-		bool hasBuild, shouldShoot, turned;
 		private void AttackMove()
 		{
 			float speed = 1;
@@ -281,7 +280,8 @@ namespace HLSLTest
 			obstacles.Clear();
 			viewSphere.Center = Position;
 			foreach (Object o in level.Models) {
-				if (viewSphere.Intersects(o.transformedBoundingSphere)
+				if (o.Position != Position// とりあえず位置だけで自分じゃないかを判断する
+					&& viewSphere.Intersects(o.transformedBoundingSphere)
 					&& o.transformedBoundingSphere.Radius < 1000) {// Goundがリストに入るとまずいのでこれで除外
 					obstacles.Add(o.transformedBoundingSphere);
 				}
@@ -349,6 +349,9 @@ namespace HLSLTest
 			Position += Velocity;
 			upPosition += Velocity;
 			UpdateWorldMatrix();
+			transformedBoundingSphere = new BoundingSphere(
+					Position
+					, Model.Meshes[0].BoundingSphere.Radius * Scale);/**/
 
 			UpdateLocus();
 			engineTrailEffect.Update(gameTime);
@@ -369,6 +372,7 @@ namespace HLSLTest
 		}*/
 
 
+        // Constructor
 		public Fighter(Vector3 position, Vector3 target, float scale, string filePath)
 			:base(position, scale, filePath)
 		{

@@ -18,7 +18,7 @@ namespace HLSLTest
 	{
 		private SoundEffect shootSound;
 		private List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
-		EnergyShieldEffect shieldEffect;
+		private EnergyShieldEffect shieldEffect;
 
         private List<Object> visibleEnemies;
 		private BoundingSphere sensorSphere;
@@ -130,7 +130,7 @@ namespace HLSLTest
 						//Vector3 tmp = SearchTarget(0);
 						Object tmp = SearchTargetObj(0);
 						Vector3 dir1 = Vector3.Normalize(tmp.Position - Position);
-						level.Bullets.Add(new Missile(IFF.Friend, this, tmp, 5.0f, dir1, Position, 1, "Models\\AGM65Missile"));/**/
+						level.Bullets.Add(new Missile(IFF.Friend, this, tmp, 20.0f, dir1, Position, 1, "Models\\AGM65Missile"));/**/
 					}
 					break;
 			}
@@ -138,6 +138,13 @@ namespace HLSLTest
 
 		private BillboardStrip billboardStrip;
 		private List<Vector3> positions;
+
+        private Random r = new Random();
+        private int count;
+        private readonly int shootRate = 60;
+        private int chargeTime;
+        private bool canShoot;
+        public SatelliteWeapon Weapon { get; protected set; }
 
 		private void UpdateLocus()
 		{
@@ -162,15 +169,6 @@ namespace HLSLTest
 				}
 			}
 		}
-
-
-		private Random r = new Random();
-		private int count;
-		private readonly int shootRate = 60;
-		private int chargeTime;
-		private bool canShoot;
-
-		public SatelliteWeapon Weapon { get; protected set; }
 		public override void Update(GameTime gameTime)
 		{
 			count++;
@@ -211,7 +209,6 @@ namespace HLSLTest
 			UpdateLocus();
 			billboardStrip.Update(gameTime);
 		}
-
 		public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			base.Draw(View, Projection, CameraPosition);
