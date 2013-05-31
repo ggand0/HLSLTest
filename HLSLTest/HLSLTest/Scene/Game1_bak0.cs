@@ -478,7 +478,7 @@ namespace HLSLTest
 		}
 		private void PreDrawScene(GameTime gameTime)
 		{
-			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
+			softParticle.DrawDepth(camera.View, camera.Projection, camera.Position);
 			water.PreDraw(camera, new GameTime());// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 			glassEffect.PreDraw(camera, gameTime);
 			renderer.Draw();
@@ -499,7 +499,7 @@ namespace HLSLTest
 			string belndState = GraphicsDevice.BlendState.ToString();
 			string depthState = GraphicsDevice.DepthStencilState.ToString();
 			string rasterizerState = GraphicsDevice.RasterizerState.ToString();
-			softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
+			softParticle.DrawDepth(camera.View, camera.Projection, camera.Position);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 			//glassEffect.PreDraw(camera, gameTime);
 			//EnvironmentalMap = RenderCubeMap();// 動的環境マップ生成: 6回シーンを描画するので滅茶苦茶重い
@@ -507,8 +507,8 @@ namespace HLSLTest
 			GraphicsDevice.Clear(Color.Black);
 
 			// Draw terrain
-			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			//water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			Sky.Draw(camera.View, camera.Projection, camera.Position);
+			//water.Draw(camera.View, camera.Projection, camera.Position);
 			terrain.Draw(false, camera.View, camera.Projection);
 			sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
@@ -520,7 +520,7 @@ namespace HLSLTest
 			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
 			foreach (Object o in Models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
-				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				o.Draw(camera.View, camera.Projection, camera.Position);
 			}
 
 			//trees.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
@@ -535,14 +535,14 @@ namespace HLSLTest
 			//beamEmitter.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// test effect
-			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			//softParticle.Draw(camera.View, camera.Projection, camera.Up, camera.Right);
 
 			// laser test
 			lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
 
 			// glassEffect test
-			//glassEffect.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//glassEffect.Draw(camera.View, camera.Projection, camera.Position);
 
 
 			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection);

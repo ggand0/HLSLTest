@@ -21,7 +21,7 @@ namespace HLSLTest
 			base.Initialize();
 
 			camera = new ArcBallCamera();
-			camera.Initialize(game, Vector3.Zero);
+			//camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
 		}
 		public override void Load()
@@ -68,7 +68,7 @@ namespace HLSLTest
 			}
 
 			//renderer.Update();
-			camera.UpdateChaseTarget(Vector3.Zero);
+			//camera.UpdateChaseTarget(Vector3.Zero);
 			camera.Update(gameTime);
 			water.Update(gameTime);
 			//Ground.Update(gameTime);
@@ -77,15 +77,15 @@ namespace HLSLTest
 		{
 			base.Draw(gameTime);
 
-			//softParticle.DrawDepth(camera.View, camera.Projection, camera.CameraPosition);
+			//softParticle.DrawDepth(camera.View, camera.Projection, camera.Position);
 			water.PreDraw(camera, gameTime);// renderer.Drawとの順番に注意　前に行わないとrendererのパラメータを汚してしまう?
 			//renderer.Draw();
 			graphicsDevice.Clear(Color.Black);
 
 			// Draw terrain
-			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			Sky.Draw(camera.View, camera.Projection, camera.Position);
 			terrain.Draw(false, camera.View, camera.Projection);
-			water.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			water.Draw(camera.View, camera.Projection, camera.Position);
 			
 			//sphericalTerrain.Draw(false, camera.View, camera.Projection);
 
@@ -93,7 +93,7 @@ namespace HLSLTest
 			//Ground.Model.Draw(Ground.World, camera.View, camera.Projection);
 			foreach (Object o in Models) {
 				//if (camera.BoundingVolumeIsInView(model.BoundingSphere)) {
-				o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				o.Draw(camera.View, camera.Projection, camera.Position);
 			}
 
 		}

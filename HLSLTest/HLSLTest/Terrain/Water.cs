@@ -40,12 +40,12 @@ namespace HLSLTest
 		/// 反射マップを作成する
 		/// </summary>
 		/// <param name="camera">main camera instance</param>
-		public void RenderReflection(ArcBallCamera camera)
+		public void RenderReflection(Camera camera)
 		{
 			// Reflect the camera's properties across the water plane
 			Vector3 reflectedCameraPosition = camera.Position;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMesh.Position.Y * 2;
-			Vector3 reflectedCameraTarget = camera.ChasePosition;
+			Vector3 reflectedCameraTarget = camera.Target;
 			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - camera.LookAtOffset.Y/**/ + waterMesh.Position.Y * 2;
 
 			// Create a temporary camera to render the reflected scene
@@ -99,7 +99,7 @@ namespace HLSLTest
 				}
 				// ここでreflectionCameraを設定しているはずなのだが... 
 				//renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
-				//renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
+				//renderable.Draw(camera.View, camera.Projection, camera.Position);// ここでreflectionCameraを設定しているはずなのだが... 
 				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
 
 				renderable.SetClipPlane(null);
@@ -120,22 +120,19 @@ namespace HLSLTest
 				}
 				// ここでreflectionCameraを設定しているはずなのだが... 
 				//renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
-				//renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
+				//renderable.Draw(camera.View, camera.Projection, camera.Position);// ここでreflectionCameraを設定しているはずなのだが... 
 				renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
 
 				renderable.SetClipPlane(null);
 			}*/
 
 
-			/*if (!hasSaved) {
-				using (Stream stream = File.OpenWrite("reflection_map.png")) {
+			if (JoyStick.IsOnKeyDown(8)) {
+				using (Stream stream = File.OpenWrite("reflection_map_d.png")) {
 					reflectionTarg.SaveAsPng(stream, reflectionTarg.Width, reflectionTarg.Height);
 					stream.Position = 0;
-					//MediaLibrary media = new MediaLibrary();
-					//media.SavePicture("shadowDepth.jpg", stream);
-					hasSaved = true; // 下でfalseに
 				}
-			}*/
+			}
 
 			// Set the reflected scene to its effect parameter in
 			// the water effect
@@ -150,7 +147,7 @@ namespace HLSLTest
 			}
 			renderer.Update(gameTime);
 		}
-		public void PreDraw(ArcBallCamera camera, GameTime gameTime)
+		public void PreDraw(Camera camera, GameTime gameTime)
 		{
 			RenderReflection(camera);
 			waterEffect.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);

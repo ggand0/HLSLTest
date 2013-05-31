@@ -13,6 +13,7 @@ namespace HLSLTest
 	{
 		#region Fields
 		// statics
+		
 		private static readonly float VERTICAL_ANGLE_MIN = 0.01f;
 		private static readonly float VERTICAL_ANGLE_MAX = MathHelper.Pi - 0.01f;
 		private static readonly float ZOOM_MIN = 100;
@@ -29,7 +30,7 @@ namespace HLSLTest
 		//public Vector3 Position { get; set; }
 		public Vector3 Velocity { get; set; }
 		// Chased object properties
-		public Vector3 ChasePosition { get; set; }
+		//public Vector3 Target { get; set; }//ChasePosition
 		public Vector3 ChaseDirection { get; set; }
 		//public Vector3 Up { get; private set; }
 		//public Vector3 Right { get; private set; }
@@ -41,8 +42,8 @@ namespace HLSLTest
 		/// <summary>
 		/// 少し上からプレイヤーを見下ろす視点にしたい時など、視点の調整に使用。
 		/// </summary>
-		public Vector3 LookAtOffset { get; set; }
-		public Vector3 LookAt { get; set; }
+		//public Vector3 LookAtOffset { get; set; }
+		//public Vector3 LookAt { get; set; }
 		public Vector3 CameraPosition { get; set; }
 		public Matrix rotation = Matrix.Identity;
 
@@ -356,9 +357,9 @@ namespace HLSLTest
 			// Rotate horizontally
 			CameraPosition = Vector3.Transform(CameraPosition, Matrix.CreateRotationY(_horizontalAngle));
 			//Position = ChasePosition + CameraPosition;
-			DesiredPosition = ChasePosition + CameraPosition;
+			DesiredPosition = Target + CameraPosition;
 
-			LookAt = ChasePosition +
+			LookAt = Target +
 				Vector3.TransformNormal(LookAtOffset, transform);
 		}
 		private void UpdateViewProjection()
@@ -403,56 +404,12 @@ namespace HLSLTest
 
 			// 目的の位置に設定する
 			//Position = ChasePosition + AdjustOffset/**/ + CameraPosition;// AdjustOffsetを加えてPlayerの少し上を追わせるようにする
-			Position = ChasePosition + CameraPosition;
+			Position = Target + CameraPosition;
 			//Position = DesiredPosition + AdjustOffset;
 			
 			UpdateViewProjection();
 		}
-		/// <summary>
-		/// Targetの設定を含む初期化を行う。
-		/// </summary>
-		public void Initialize(Game1 game, Object target)
-		{
-			// カメラのオフセットを設定します
-			DesiredPositionOffset = new Vector3(0.0f, 2000.0f, 3500.0f);
-			//LookAtOffset = new Vector3(0.0f, 150.0f, 0.0f);// 少し上を見るように調整されてあるようだ
-			LookAtOffset = new Vector3(0.0f, 25.0f, 0.0f);
-
-			// カメラの視点を設定します
-			NearPlaneDistance = 10.0f;
-			FarPlaneDistance = 100000.0f;
-			// カメラのアスペクト比を設定します
-			// これは、グラフィック デバイスを初期化する base.Initalize() の
-			// 呼び出しの後で行う必要があります。
-			AspectRatio = (float)game.GraphicsDevice.Viewport.Width /
-				game.GraphicsDevice.Viewport.Height;
-
-			// カメラで初期リセットを実行し、静止位置で開始するようにます。これを行わないと、カメラは原点で開始し
-			// 追尾対象オブジェクトを追ってワールド中を移動します。ここで実行する理由は、Reset でアスペクト比が必要になるためです。
-			UpdateChaseTarget(target);
-			Reset();
-		}
-		public void Initialize(Game1 game, Vector3 target)
-		{
-			// カメラのオフセットを設定します
-			DesiredPositionOffset = new Vector3(0.0f, 2000.0f, 3500.0f);
-			//LookAtOffset = new Vector3(0.0f, 150.0f, 0.0f);// 少し上を見るように調整されてあるようだ
-			LookAtOffset = new Vector3(0.0f, 25.0f, 0.0f);
-
-			// カメラの視点を設定します
-			NearPlaneDistance = 10.0f;
-			FarPlaneDistance = 100000.0f;
-			// カメラのアスペクト比を設定します
-			// これは、グラフィック デバイスを初期化する base.Initalize() の
-			// 呼び出しの後で行う必要があります。
-			AspectRatio = (float)game.GraphicsDevice.Viewport.Width /
-				game.GraphicsDevice.Viewport.Height;
-
-			// カメラで初期リセットを実行し、静止位置で開始するようにます。これを行わないと、カメラは原点で開始し
-			// 追尾対象オブジェクトを追ってワールド中を移動します。ここで実行する理由は、Reset でアスペクト比が必要になるためです。
-			UpdateChaseTarget(target);
-			Reset();
-		}
+		
 
 
 		/// <summary>
@@ -466,14 +423,14 @@ namespace HLSLTest
 			Up = target.Up;*/
 
 			// ActionGameと違って今は対象の方向と一致していない
-			ChasePosition = target.Position;
+			Target = target.Position;
 			ChaseDirection = target.Position - Position;
 			//Up = target.RotationMatrix.Up;
 		}
 		public void UpdateChaseTarget(Vector3 target)
 		{
 			// ActionGameと違って今は対象の方向と一致していない
-			ChasePosition = target;
+			Target = target;
 			ChaseDirection = target - Position;
 			//Up = target.RotationMatrix.Up;
 		}
@@ -484,7 +441,7 @@ namespace HLSLTest
 		/// カメラをアニメーション表示します。カメラのアニメーションは、
 		/// カメラに取り付けられ、かつ目的位置に固定された単純な物理スプリングによって制御されます。
 		/// </summary>
-		public void Update(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -514,10 +471,60 @@ namespace HLSLTest
 		}
 		#endregion
 
+		/// <summary>
+		/// Targetの設定を含む初期化を行う。
+		/// </summary>
+		public void Initialize(Object target)
+		{
+			// カメラのオフセットを設定します
+			DesiredPositionOffset = new Vector3(0.0f, 2000.0f, 3500.0f);
+			//LookAtOffset = new Vector3(0.0f, 150.0f, 0.0f);// 少し上を見るように調整されてあるようだ
+			LookAtOffset = new Vector3(0.0f, 25.0f, 0.0f);
+
+			// カメラの視点を設定します
+			NearPlaneDistance = 10.0f;
+			FarPlaneDistance = 100000.0f;
+			// カメラのアスペクト比を設定します
+			// これは、グラフィック デバイスを初期化する base.Initalize() の
+			// 呼び出しの後で行う必要があります。
+			AspectRatio = (float)game.GraphicsDevice.Viewport.Width /
+				game.GraphicsDevice.Viewport.Height;
+
+			// カメラで初期リセットを実行し、静止位置で開始するようにます。これを行わないと、カメラは原点で開始し
+			// 追尾対象オブジェクトを追ってワールド中を移動します。ここで実行する理由は、Reset でアスペクト比が必要になるためです。
+			UpdateChaseTarget(target);
+			Reset();
+		}
+		public void Initialize(Vector3 target)
+		{
+			// カメラのオフセットを設定します
+			DesiredPositionOffset = new Vector3(0.0f, 2000.0f, 3500.0f);
+			//LookAtOffset = new Vector3(0.0f, 150.0f, 0.0f);// 少し上を見るように調整されてあるようだ
+			LookAtOffset = new Vector3(0.0f, 25.0f, 0.0f);
+
+			// カメラの視点を設定します
+			NearPlaneDistance = 10.0f;
+			FarPlaneDistance = 100000.0f;
+			// カメラのアスペクト比を設定します
+			// これは、グラフィック デバイスを初期化する base.Initalize() の
+			// 呼び出しの後で行う必要があります。
+			AspectRatio = (float)game.GraphicsDevice.Viewport.Width /
+				game.GraphicsDevice.Viewport.Height;
+
+			// カメラで初期リセットを実行し、静止位置で開始するようにます。これを行わないと、カメラは原点で開始し
+			// 追尾対象オブジェクトを追ってワールド中を移動します。ここで実行する理由は、Reset でアスペクト比が必要になるためです。
+			UpdateChaseTarget(target);
+			Reset();
+		}
+		public ArcBallCamera(Vector3 Target)
+		{
+			this.Target = Target;
+			Initialize(Target);
+		}
 		public ArcBallCamera(Vector3 Position, Vector3 Target, Vector3 up)
 		{
 			this.Position = Position;
-			this.ChasePosition = Target;
+			this.Target = Target;
 			this.Up = up;
 
 			LookAt = Target + LookAtOffset;
@@ -525,8 +532,11 @@ namespace HLSLTest
 			//View = Matrix.CreateLookAt(this.Position, this.LookAt, this.t);
 			Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView,
 				AspectRatio, NearPlaneDistance, FarPlaneDistance);
+
+			Initialize(Target);
 		}
 		public ArcBallCamera()
+			:this(Vector3.Zero)
 		{
 		}
 

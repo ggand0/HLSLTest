@@ -83,8 +83,8 @@ namespace HLSLTest
 
 
 			// Initializes camera
-			camera = new ArcBallCamera();
-			camera.Initialize(game, Vector3.Zero);
+			camera = new ArcBallCamera(Vector3.Zero);
+			//camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
 
 			// Set up the reference grid
@@ -429,9 +429,9 @@ namespace HLSLTest
 			/*graphicsDevice.SetRenderTarget(maskLayer);
 			graphicsDevice.Clear(Color.White);
 			foreach (Object o in Models) {
-				//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+				//o.DrawMask(camera.View, camera.Projection, camera.Position, ref maskLayer, sunDepth);
 				if (camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
-					o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+					o.DrawMask(camera.View, camera.Projection, camera.Position, ref maskLayer, sunDepth);
 				}
 			}
 			graphicsDevice.SetRenderTarget(null);*/
@@ -450,9 +450,9 @@ namespace HLSLTest
 			//sun.Draw(true, camera.View, camera.Projection, maskLayer);
 			ResetGraphicDevice();
 			sunCircle.Draw(false, camera.View, camera.Projection);
-			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
-			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
-			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.Position);
+			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.Position);
+			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.Position);
 			//star.Draw(camera.View, camera.Projection);
 
 
@@ -487,7 +487,8 @@ namespace HLSLTest
 			effectManager.Draw(gameTime, camera);
 
 			foreach (EnergyShieldEffect ese in transparentEffects) {
-				ese.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+				//ese.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
+				ese.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			}
 		}
 

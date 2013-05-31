@@ -19,7 +19,7 @@ namespace HLSLTest
 		private static readonly Vector3 initialCameraPosition = new Vector3(0.0f, 50.0f, 5000.0f);
 
 
-		public ArcBallCamera camera { get; protected set; }
+		public Camera camera { get; protected set; }
 		protected Debug debug;
 		protected EffectManager effectManager;
 		protected bool displayGrid;

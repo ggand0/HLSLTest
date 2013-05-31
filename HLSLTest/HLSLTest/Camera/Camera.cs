@@ -9,6 +9,7 @@ namespace HLSLTest
 {
 	public abstract class Camera
 	{
+		public static Game1 game;
 		private Matrix _view, _projection;
 		public Matrix View {
 			get { return _view; }
@@ -29,6 +30,12 @@ namespace HLSLTest
 		public Vector3 Direction { get; protected set; }
 		public Vector3 Position { get; set; }
 		public BoundingFrustum Frustrum { get; private set; }
+		public Vector3 Target { get; set; }
+		/// <summary>
+		/// 少し上からプレイヤーを見下ろす視点にしたい時など、視点の調整に使用。
+		/// </summary>
+		public Vector3 LookAtOffset { get; set; }
+		public Vector3 LookAt { get; set; }
 
 		protected GraphicsDevice GraphicsDevice { get; set; }
 		/// <summary>
@@ -86,6 +93,9 @@ namespace HLSLTest
 				MathHelper.ToRadians(45), aspectRatio, 0.1f, FarPlaneDistance);
 		}
 		public virtual void Update()
+		 {
+		}
+		public virtual void Update(GameTime gameTime)
 		{
 		}
 	}
@@ -95,7 +105,7 @@ namespace HLSLTest
 	public class TargetCamera : Camera
 	{
 		//public Vector3 Position { get; set; }
-		public Vector3 Target { get; set; }
+		//public Vector3 Target { get; set; }
 
 		//public Vector3 Up { get; private set; }
 		//public Vector3 Right { get; private set; }
@@ -107,6 +117,18 @@ namespace HLSLTest
 			this.Position = Position;
 			this.Target = Target;
 			
+		}
+		public override void Update(GameTime gameTime)
+		{
+			Vector3 forward = Target - Position;
+			Vector3 side = Vector3.Cross(forward, Vector3.Up);
+			Vector3 up = Vector3.Cross(forward, side);
+
+			this.Up = up;
+			this.Right = Vector3.Cross(forward, up);
+
+			//up.Normalize();
+			this.View = Matrix.CreateLookAt(Position, Target, up);
 		}
 		public override void Update()
 		{

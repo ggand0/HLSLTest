@@ -82,7 +82,7 @@ namespace HLSLTest
 
 			// Initializes camera
 			camera = new ArcBallCamera();
-			camera.Initialize(game, Vector3.Zero);
+			//camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
 
 			// Set up the reference grid
@@ -322,7 +322,7 @@ namespace HLSLTest
 
 
 			//camera.UpdateChaseTarget(Vector3.Zero);
-			camera.UpdateChaseTarget(tmpCameraPos);
+			//camera.UpdateChaseTarget(tmpCameraPos);
 			camera.Update(gameTime);
 			renderer.Update(gameTime);
 			LightPosition = renderer.Lights[0].Position;
@@ -377,9 +377,9 @@ namespace HLSLTest
 			graphicsDevice.SetRenderTarget(maskLayer);
 			graphicsDevice.Clear(Color.White);
 			foreach (Object o in Models) {
-				//o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+				//o.DrawMask(camera.View, camera.Projection, camera.Position, ref maskLayer, sunDepth);
 				if (camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
-					o.DrawMask(camera.View, camera.Projection, camera.CameraPosition, ref maskLayer, sunDepth);
+					o.DrawMask(camera.View, camera.Projection, camera.Position, ref maskLayer, sunDepth);
 				}
 			}
 			graphicsDevice.SetRenderTarget(null);
@@ -396,17 +396,17 @@ namespace HLSLTest
 			//sun.Draw(false, camera.View, camera.Projection);
 			
 			sunCircle.Draw(false, camera.View, camera.Projection);
-			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
-			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
-			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.Position);
+			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.Position);
+			//if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.Position);
 
 			//star.Draw(camera.View, camera.Projection);
 			foreach (Object o in Models) {
 				if (o.IsActive && camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
 					if (o is ArmedSatellite) {
-						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition);
+						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.Position);
 					} else {
-						o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+						o.Draw(camera.View, camera.Projection, camera.Position);
 					}
 				}
 			}
@@ -419,8 +419,8 @@ namespace HLSLTest
 			}
 
 			//lb.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.CameraPosition);
-			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			//discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
+			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			//bigExplosion.Draw(gameTime, camera);
 

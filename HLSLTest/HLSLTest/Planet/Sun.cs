@@ -91,7 +91,7 @@ namespace HLSLTest
 
 			World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 			//sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), level.camera.View).Z;
-			sunFrontDepth = Vector3.Transform(Position + (Vector3.Normalize(level.camera.CameraPosition - Position) * 200), level.camera.View).Z;
+			sunFrontDepth = Vector3.Transform(Position + (Vector3.Normalize(level.camera.Position - Position) * 200), level.camera.View).Z;
 		}
 		
 
@@ -429,7 +429,7 @@ namespace HLSLTest
 				//float sunDepth = Vector3.Transform(Position, View).Z;
 				Matrix world = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
 				float sunDepth = Vector3.Transform(Vector3.Transform(Position, world), View).Z;
-				float sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.CameraPosition) * 200), world), View).Z;
+				float sunFrontDepth = Vector3.Transform(Vector3.Transform(Position + (Vector3.Normalize(Position - level.camera.Position) * 200), world), View).Z;
 				//graphicsDevice.BlendState = BlendState.Opaque;
 				graphicsDevice.BlendState = BlendState.AlphaBlend;
 				graphicsDevice.DepthStencilState = DepthStencilState.Default;

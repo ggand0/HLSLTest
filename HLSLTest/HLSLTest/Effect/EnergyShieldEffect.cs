@@ -56,7 +56,8 @@ namespace HLSLTest
 
 			Vector3 reflectedCameraPosition = CameraPosition;
 			reflectedCameraPosition.Y = -reflectedCameraPosition.Y + mesh.Position.Y * 2;
-			Vector3 reflectedCameraTarget = level.camera.ChasePosition;
+			//Vector3 reflectedCameraTarget = level.camera.ChasePosition;
+			Vector3 reflectedCameraTarget = level.camera.Target;
 			reflectedCameraTarget.Y = -reflectedCameraTarget.Y - level.camera.LookAtOffset.Y + mesh.Position.Y * 2;
 			TargetCamera reflectionCamera = new TargetCamera(reflectedCameraPosition, reflectedCameraTarget, graphics);
 			reflectionCamera.Update();// 上方ベクトルは-Yになってた

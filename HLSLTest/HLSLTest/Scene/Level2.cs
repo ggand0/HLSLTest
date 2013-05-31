@@ -73,7 +73,7 @@ namespace HLSLTest
 
 			// Initializes camera
 			camera = new ArcBallCamera();
-			camera.Initialize(game, Vector3.Zero);
+			//camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
 
 			// Set up the reference grid
@@ -178,7 +178,7 @@ namespace HLSLTest
 
 			base.Update(gameTime);
 
-			camera.UpdateChaseTarget(Vector3.Zero);
+			//camera.UpdateChaseTarget(Vector3.Zero);
 			camera.Update(gameTime);
 
 			Sky.Update(gameTime);
@@ -212,24 +212,24 @@ namespace HLSLTest
 			
 
 			// Environment
-			Sky.Draw(camera.View, camera.Projection, camera.CameraPosition);
-			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.CameraPosition);
-			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.CameraPosition);
+			Sky.Draw(camera.View, camera.Projection, camera.Position);
+			//planet.Draw(camera.View, Matrix.CreateScale(200) * Matrix.CreateTranslation(new Vector3(-300, 0, -200)), camera.Projection, camera.Position);
+			//planet.Draw(new Vector3(-300, 0, -200), camera.View, camera.Projection, camera.Position);
 
-			if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.CameraPosition);
+			if (planet.IsActive) planet.Draw(camera.View, camera.Projection, camera.Position);
 			star.Draw(camera.View, camera.Projection);
 
 			// Entities
 			foreach (Object o in Models) {
-				//o.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				//o.Draw(camera.View, camera.Projection, camera.Position);
 			}
 			foreach (Object a in asteroids) {
-				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.CameraPosition);
+				if (a.IsActive) a.Draw(camera.View, camera.Projection, camera.Position);
 			}
 
 
-			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
-			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.CameraPosition, camera.Direction, camera.Up, camera.Right);
+			discoidEffect.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
+			//shieldEffect.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			//explosionTest.Draw(gameTime, camera);
 			bigExplosion.Draw(gameTime, camera);
 

@@ -44,7 +44,7 @@ namespace HLSLTest
             // Reflect the camera's properties across the water plane
             Vector3 reflectedCameraPosition = camera.Position;
             reflectedCameraPosition.Y = -reflectedCameraPosition.Y + glassMesh.Position.Y * 2;
-            Vector3 reflectedCameraTarget = camera.ChasePosition;
+            Vector3 reflectedCameraTarget = camera.Target;
             reflectedCameraTarget.Y = -reflectedCameraTarget.Y - camera.LookAtOffset.Y/**/ + glassMesh.Position.Y * 2;
 
             // Create a temporary camera to render the reflected scene
@@ -98,7 +98,7 @@ namespace HLSLTest
                 }
                 // ここでreflectionCameraを設定しているはずなのだが... 
                 //renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
-                //renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
+                //renderable.Draw(camera.View, camera.Projection, camera.Position);// ここでreflectionCameraを設定しているはずなのだが... 
                 renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
                 renderable.SetClipPlane(null);
             }
@@ -117,7 +117,7 @@ namespace HLSLTest
                 }
                 // ここでreflectionCameraを設定しているはずなのだが... 
                 //renderable.Draw(reflectedViewMatrix, reflectionCamera.Projection, reflectedCameraPosition);
-                //renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);// ここでreflectionCameraを設定しているはずなのだが... 
+                //renderable.Draw(camera.View, camera.Projection, camera.Position);// ここでreflectionCameraを設定しているはずなのだが... 
                 renderable.Draw(reflectionCamera.View, reflectionCamera.Projection, reflectedCameraPosition);
 
                 renderable.SetClipPlane(null);
@@ -174,7 +174,7 @@ namespace HLSLTest
                 if (renderable is Object) {
                     (renderable as Object).Update(new GameTime());
                 }
-                renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);
+                renderable.Draw(camera.View, camera.Projection, camera.Position);
                 //renderable.SetClipPlane(null);
             }
             graphics.SetRenderTarget(null);
@@ -189,7 +189,7 @@ namespace HLSLTest
                     (renderable as Object).Update(new GameTime());
                 }
                 // ここでreflectionCameraを設定しているはずなのだが... 
-                renderable.Draw(camera.View, camera.Projection, camera.CameraPosition);
+                renderable.Draw(camera.View, camera.Projection, camera.Position);
                 renderable.SetClipPlane(null);
             }*/
 

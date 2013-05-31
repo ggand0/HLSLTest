@@ -10,7 +10,7 @@ namespace HLSLTest
 {
 	public class ParticleEmitter
 	{
-		public static ArcBallCamera camera;
+		public static Camera camera;
 
 		protected VertexBuffer vertexBuffers;
 		protected IndexBuffer indexBuffers;

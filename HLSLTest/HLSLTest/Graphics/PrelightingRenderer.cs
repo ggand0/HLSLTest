@@ -34,7 +34,7 @@ namespace HLSLTest
 		// List of models, lights, and the camera
 		public List<Object> Models { get; set; }
 		public List<PointLight> Lights { get; set; }
-		public ArcBallCamera Camera { get; set; }
+		public Camera Camera { get; set; }
 		GraphicsDevice graphicsDevice;
 		int viewWidth = 0, viewHeight = 0;
 
@@ -151,8 +151,8 @@ namespace HLSLTest
 				} else {
 					o.SetModelEffect(depthNormalEffect, false);// 空いたスペースで法線マップをDrawする
 				}
-				o.Draw(level.camera.View, level.camera.Projection,
-					level.camera.CameraPosition);
+				//o.Draw(level.camera.View, level.camera.Projection, level.camera.CameraPosition);
+				o.Draw(level.camera.View, level.camera.Projection, level.camera.Position);
 				o.RestoreEffects();// 退避させておいたエフェクトを戻す
 				o.DrawingDepthNormalPass = false;
 			}
