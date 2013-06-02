@@ -111,27 +111,32 @@ namespace HLSLTest
 					}
 					break;*/
 				case 3:
-					if (visibleEnemies.Count > 0) {
+					//if (visibleEnemies.Count > 0) {
 						Vector3 dir = visibleEnemies[r.Next(0, visibleEnemies.Count)].Position;//Vector3.Normalize(new Vector3(3, 2, 1));
 						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, dir, 1,
 							content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 5), 0));/**/
-					}
+					
 					break;
 				case 4:
-					if (visibleEnemies.Count > 0) {
-						Vector3 tmp = SearchTarget(0);
-						Vector3 dir1 = Vector3.Normalize(tmp - Position);
-						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, tmp, dir1, 1,
-							content.Load<Texture2D>("Textures\\Lines\\laser0"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));/**/
-					}
+					//if (visibleEnemies.Count > 0) {
+						//Vector3 tmp = SearchTarget(0);
+					//Vector3 tmp = SearchTarget(1);
+					Drawable tmp = SearchTargetObj(1);
+					//Vector3 dir1 = Vector3.Normalize(tmp - Position);
+					Vector3 dir1 = Vector3.Normalize(tmp.Position - Position);
+						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, this, tmp, dir1, 1,
+							content.Load<Texture2D>("Textures\\Lines\\laser0"), Color.White, BlendState.AlphaBlend, new Vector2(50, 100), 1));/**/ //new Vector2(50, 30)
+						/*level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, tmp, dir1, 1,
+								content.Load<Texture2D>("Textures\\Lines\\laser0"), Color.White, BlendState.AlphaBlend, new Vector2(50, 100), 1));*/
+					
 					break;
 				case 5:
-					if (visibleEnemies.Count > 0) {
+					//if (visibleEnemies.Count > 0) {
 						//Vector3 tmp = SearchTarget(0);
-						Object tmp = SearchTargetObj(0);
-						Vector3 dir1 = Vector3.Normalize(tmp.Position - Position);
-						level.Bullets.Add(new Missile(IFF.Friend, this, tmp, 20.0f, dir1, Position, 1, "Models\\AGM65Missile"));/**/
-					}
+						Object tmp1 = SearchTargetObj(0);
+						Vector3 dir2 = Vector3.Normalize(tmp1.Position - Position);
+						level.Bullets.Add(new Missile(IFF.Friend, this, tmp1, 5.0f, dir2, Position, 1, "Models\\AGM65Missile"));/**/
+					
 					break;
 			}
 		}
@@ -169,32 +174,44 @@ namespace HLSLTest
 				}
 			}
 		}
+		private bool IsInRange()
+		{
+			return visibleEnemies.Count > 0;
+		}
 		public override void Update(GameTime gameTime)
 		{
 			count++;
 			base.Update(gameTime);//RotationMatrix = Matrix.CreateRotationX((float)Math.PI);
 
 			CheckEnemies();
-			if (!canShoot && count > chargeTime) {
+			/*if (!canShoot && count > chargeTime) {
 				canShoot = true;
 				count = 0;
+			}*/
+			if (!canShoot && count > chargeTime) {
+				canShoot = true;
+				//count = 0;
 			}
 
-			if (canShoot && JoyStick.IsOnKeyDown(2) || count % shootRate == 0) {
+			//if (canShoot && JoyStick.IsOnKeyDown(2) || count % shootRate == 0 && IsInRange()) {
+			if (canShoot && IsInRange()) {
 				if (Weapon == SatelliteWeapon.Missile) {
 					Shoot(5);
 				} else {
 					Shoot(4);
 				}
+
 				//shootSound.Play();
 				//shootSoundInstance.Play();
-
 				if (!Level.mute) {
 				    SoundEffectInstance ls = shootSound.CreateInstance();
 				    ls.Volume = 0.1f;
 				    ls.Play();
 				    currentSounds.Add(ls);
 				}
+
+				canShoot = false;
+				count = 0;
 			}
 
 			for (int i = currentSounds.Count - 1; i >= 0; i--) {
@@ -238,7 +255,7 @@ namespace HLSLTest
 		{
 			//random = new Random();
 			this.Weapon = weaponType;
-			chargeTime = random.Next(10, 70);
+			chargeTime = weaponType == SatelliteWeapon.Laser ? random.Next(10, 70) : random.Next(60, 120);
 			shootSound = content.Load<SoundEffect>(SEPath);
 			shieldEffect = new EnergyShieldEffect(content, game.GraphicsDevice, Position, new Vector2(150), 100);//300,250
 			level.transparentEffects.Add(shieldEffect);

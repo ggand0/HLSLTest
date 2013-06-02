@@ -12,7 +12,7 @@ namespace HLSLTest
 	{
 		//public static GraphicsDeviceManager graphics;
 		public static GraphicsDevice graphicsDevice;
-		public static bool mute = true;
+		public static bool mute = false;
 		//public static SpriteBatch spriteBatch;
 		//public static ContentManager content;
 		public static readonly Vector3 PlayfieldSize = new Vector3(100000);

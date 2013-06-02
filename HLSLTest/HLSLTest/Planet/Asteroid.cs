@@ -27,6 +27,9 @@ namespace HLSLTest
 			Position += Velocity;
 
 			UpdateWorldMatrix();
+			transformedBoundingSphere = new BoundingSphere(
+						Position
+						, Model.Meshes[0].BoundingSphere.Radius * Scale);/**/
 		}
 		int blinkCount;
 		float e;

@@ -9,6 +9,7 @@ namespace HLSLTest
 	public class Drawable
 	{
 		public bool IsActive { get; set; }
+		public bool IsAlive { get; set; }
 		public Vector3 Position { get; set; }
 		
 
@@ -37,10 +38,16 @@ namespace HLSLTest
 		{
 			return false;
 		}
+		public virtual void Die()
+		{
+			IsActive = false;
+			IsAlive = false;
+		}
 
 		public Drawable()
 		{
 			IsActive = true;
+			IsAlive = true;
 		}
 	}
 }

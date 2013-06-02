@@ -88,6 +88,7 @@
     <Compile Include="BillboardSystem\ParticleEmitter\BillboardStripVertex.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ParticleSettings.cs" />
     <Compile Include="BillboardSystem\ParticleEmitter\ShockWaveParticleEmitter.cs" />
+    <Compile Include="Core\EnemyManager.cs" />
     <Compile Include="Core\IDamageable.cs" />
     <Compile Include="Entity\ArmedSatellite.cs" />
     <Compile Include="Entity\BillboardBullet.cs" />

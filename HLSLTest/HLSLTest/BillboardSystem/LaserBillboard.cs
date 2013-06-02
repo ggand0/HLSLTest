@@ -28,7 +28,8 @@ namespace HLSLTest
 		protected Effect effect;
 		public bool EnsureOcclusion = true;
 		public enum BillboardMode { Cylindrical, Spherical };
-		public BillboardMode Mode = BillboardMode.Spherical;
+		public BillboardMode RenderMode = BillboardMode.Spherical;
+		public int UpdateMode { get; private set; }
 
 		void GenerateParticles(Vector3[] particlePositions)
 		{
@@ -111,6 +112,7 @@ namespace HLSLTest
 		{
 			this.Start = start;
 			this.End = end;
+			Mid = (Start + End) / 2f;
 
 			for (int i = 0; i < particles.Length; i++) {
 				particles[i].StartPosition = Start;
@@ -128,13 +130,25 @@ namespace HLSLTest
 		/// <param name="gameTime"></param>
 		public void MoveLaser(Vector3 direction, float speed)
 		{
-			for (int i = 0; i < particles.Length; i++) {
-				particles[i].StartPosition += direction * speed;
-				particles[i].DirectedPosition += direction * speed;// これをUpdateしていないせいでは？？？
+			switch (UpdateMode) {
+				default :
+					for (int i = 0; i < particles.Length; i++) {
+						particles[i].StartPosition += direction * speed;
+						particles[i].DirectedPosition += direction * speed;// これをUpdateしていないせいでは？？？
+					}
+
+					Start = particles[0].StartPosition;
+					End = particles[0].DirectedPosition;
+					Mid = (Start + End) / 2f;
+					break;
+				case 1:
+					// 更新されたStart, Endを設定
+					for (int i = 0; i < particles.Length; i++) {
+						particles[i].StartPosition = Start;
+						particles[i].DirectedPosition = End;
+					}
+					break;
 			}
-			Start = particles[0].StartPosition;
-			End = particles[0].DirectedPosition;
-			Mid = (Start + End) / 2f;
 
 			vertexBuffers.SetData<ParticleVertex>(particles);
 			indexBuffers.SetData<int>(indices);
@@ -238,14 +252,20 @@ namespace HLSLTest
 		public Vector3 Start { get; private set; }
 		public Vector3 End { get; private set; }
 		public Vector3 Mid { get; private set; }
+		public void ChangePosition(Vector3 start, Vector3 end)
+		{
+			this.Start = start;
+			this.End = end;
+			Mid = (Start + End) / 2f;
+		}
 
 		public LaserBillboard(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//, Vector3[] particlePositions)
-			:this(graphicsDevice, content, texture, billboardSize, start, end, Color.White,  BlendState.AlphaBlend)
+			:this(graphicsDevice, content, texture, billboardSize, start, end, Color.White,  BlendState.AlphaBlend, 0)
 		{
 		}
-		public LaserBillboard(GraphicsDevice graphicsDevice,
-			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor, BlendState laserBlendState)//, Vector3[] particlePositions)
+		public LaserBillboard(GraphicsDevice graphicsDevice, ContentManager content,
+			Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end, Color laserColor, BlendState laserBlendState, int updateMode)//, Vector3[] particlePositions)
 		{
 			//this.nBillboards = particlePositions.Length;
 			this.nBillboards = 1;
@@ -258,6 +278,7 @@ namespace HLSLTest
 			effect = content.Load<Effect>("Billboard\\LaserBillboardEffectV4");
 			this.LaserColor = laserColor;
 			this.LaserBlendState = laserBlendState;
+			this.UpdateMode = updateMode;
 
 			float debugLength = (end - start).Length();
 			Mid = (start + end) / 2.0f;
@@ -265,7 +286,7 @@ namespace HLSLTest
 
 
 			//GenerateParticles(new Vector3[] { Mid });
-			GenerateParticles(new Vector3[] { Mid });
+			GenerateParticles(new Vector3[] { start });
 		}
 	}
 }

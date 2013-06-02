@@ -29,7 +29,8 @@ namespace HLSLTest
 		ExplosionEffect explosionTest, smallExplosion, bigExplosion, midExplosion;
 		Planet planet;
 		Star star;
-		Sun sun, sunCircle;
+		public Sun sun { get; private set; }
+		private Sun sunCircle;
 		Effect shadowEffect;
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
@@ -50,6 +51,7 @@ namespace HLSLTest
         private Vector3 tmpDirention;
         private Vector3 tmpCameraPos;
         private Matrix RotationMatrix = Matrix.Identity;
+		private EnemyManager enemyManager;
 
         /// <summary>
         /// Utility専用クラスにまとめるべき
@@ -71,6 +73,7 @@ namespace HLSLTest
 		protected override void Initialize()
 		{
 			base.Initialize();
+			enemyManager = new EnemyManager(this);
 			new DebugOverlay(graphicsDevice, content);
 
 			// Entities
@@ -83,6 +86,7 @@ namespace HLSLTest
 
 
 			// Initializes camera
+			//camera = new ArcBallCamera(Vector3.Zero);
 			camera = new ArcBallCamera(Vector3.Zero);
 			//camera.Initialize(game, Vector3.Zero);
 			ParticleEmitter.camera = camera;
@@ -136,10 +140,11 @@ namespace HLSLTest
 			/*foreach (Asteroid o in Asteroids) {
 				Models.Add(o);
 			}*/
-			foreach (Object o in Enemies) {
+			foreach (Object o in Asteroids) {
 				Enemies.Add(o);
 			}
 			spawned = true;
+
 
 			// Load satellites
 			//Satellite = new ArmedSatellite(new Vector3(300, 50, 300), star.Position, 5, "Models\\ISS", "SoundEffects\\laser1");
@@ -149,7 +154,7 @@ namespace HLSLTest
 			Models.Add(new SpaceStation(false, waterPlanet.Position + new Vector3(400, 100, 600), waterPlanet.Position, 100f, "Models\\spacestation4"));
 
 			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\License\\LAAT0"));
-			Models.Add(new ArmedSatellite(SatelliteWeapon.Missile, waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 10f, "Models\\Dawn", "SoundEffects\\License\\LAAT0"));// deepspace,10 / rosetta,10
+			Models.Add(new ArmedSatellite(SatelliteWeapon.Missile, waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 10f, "Models\\Dawn", "SoundEffects\\missile0"));// deepspace,10 / rosetta,10
 
 			
 			//Models.Add(new ArmedSatellite(waterPlanet.Position + new Vector3(400, 50, 0), waterPlanet.Position, 0.01f, "Models\\TDRS", "SoundEffects\\laser0"));
@@ -266,24 +271,29 @@ namespace HLSLTest
 				}
 			}*/
 			foreach (Bullet b in Bullets) {
-				foreach (Object a in Asteroids) {
-					if (b.IsActive && a.IsActive && b.IsHitWith(a)) {
-						a.IsActive = false;
+				//foreach (Object a in Asteroids) {
+				foreach (Object o in Enemies) {
+					if (o is Asteroid && b.IsActive && o.IsActive && b.IsHitWith(o)) {
+						//a.IsActive = false;
 						//b.IsActive = false;
+						if (!(b is LaserBillboardBullet && (b as LaserBillboardBullet).Mode == 1)) b.Die();
+						o.Die();
+						
 
 						//ExplosionEffect e = (random.Next(0, 2) == 0) ? (ExplosionEffect)smallExplosion.Clone() : (ExplosionEffect)bigExplosion.Clone();
 						//ExplosionEffect e = (ExplosionEffect)bigExplosion.Clone();
 						ExplosionEffect e = null;
-						double p = random.NextDouble();
+						/*double p = random.NextDouble();
 						if (p <= 0.5) {
 							e = (ExplosionEffect)smallExplosion.Clone();
 						} else if (p <= 0.9) {
 							e = (ExplosionEffect)midExplosion.Clone();
 						} else {
 							e = (ExplosionEffect)bigExplosion.Clone();
-						}
+						}*/
+						e = (ExplosionEffect)smallExplosion.Clone();
 
-						e.Position = a.Position;
+						e.Position = o.Position;
 						/*foreach (ExplosionParticleEmitter ep in e.emitters) {
 							ep.Position = e.Position;// もう既にparticlesは初期化されてしまってるので手遅れ！
 						}*/
@@ -291,11 +301,13 @@ namespace HLSLTest
 						effectManager.Add(e);
 					}
 
-				}
+				
 
-				foreach (Object o in Enemies) {
-					if ((b is Missile) && b.IsActive && b.Identification == IFF.Friend && b.IsHitWith(o)) {
-						 b.IsActive = false;
+				//foreach (Object o in Enemies) {
+					if (o is Fighter && (b is Missile) && b.IsActive && b.Identification == IFF.Friend && b.IsHitWith(o)) {
+						 //b.IsActive = false;
+						if (!(b is LaserBillboardBullet && (b as LaserBillboardBullet).Mode == 1)) b.Die();
+						o.Die();
 
 						ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();
 						e.Position = o.Position;
@@ -310,7 +322,8 @@ namespace HLSLTest
 				// Collide with waterPlanet
 				foreach (Planet p in Planets) {
 					if (b.Identification == IFF.Foe && b.IsHitWith(p)) {
-						b.IsActive = false;
+						//b.IsActive = false;
+						b.Die();
 
 						// 重い！数が多いのでもっと軽いエフェクトを作ろう
 						/*ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();
@@ -330,7 +343,7 @@ namespace HLSLTest
 			// Remove dead objects
 			if (Asteroids.Count > 0) {
 				for (int j = 0; j < Asteroids.Count; j++) {
-					if (!Asteroids[j].IsActive) {
+					if (!Asteroids[j].IsAlive) {
 						Asteroids.RemoveAt(j);
 					}
 				}
@@ -342,10 +355,14 @@ namespace HLSLTest
 					}
 				}
 			}
-
 			for (int j = 0; j < Models.Count; j++) {
-				if (!Models[j].IsActive) {
+				if (!Models[j].IsAlive) {
 					Models.RemoveAt(j);
+				}
+			}
+			for (int j = 0; j < Enemies.Count; j++) {
+				if (!Enemies[j].IsAlive) {
+					Enemies.RemoveAt(j);
 				}
 			}
 		}
@@ -367,7 +384,7 @@ namespace HLSLTest
 				}
 				spawned = true;
 			}*/
-			if (Asteroids.Count < MAX_SPAWN_NUM) {// = 15 -5
+			/*if (Asteroids.Count < MAX_SPAWN_NUM) {// = 15 -5
 				float radius = 3000;
 				Asteroid a = new Asteroid(new Vector3(NextDouble(random, -radius, radius), 0, NextDouble(random, -radius, radius)), star.Position, 0.05f, "Models\\Asteroid");
 				//Asteroids[i].Scale = 0.02f;//0.1f;
@@ -376,7 +393,8 @@ namespace HLSLTest
 				a.RenderBoudingSphere = false;
 				Asteroids.Add(a);
 				Models.Add(a);
-			}
+			}*/
+			enemyManager.Update(gameTime);
 
 			base.Update(gameTime);
 
@@ -391,13 +409,13 @@ namespace HLSLTest
 			sunCircle.Update(gameTime);
 
 			foreach (Object o in Models) {
-				if (o.IsActive) o.Update(gameTime);
+				if (o.IsAlive) o.Update(gameTime);
 			}
 			foreach (Bullet b in Bullets) {
-				if (b.IsActive) b.Update(gameTime);
+				if (b.IsAlive) b.Update(gameTime);
 			}
 
-			if (planet.IsActive) planet.Update(gameTime);
+			if (planet.IsAlive) planet.Update(gameTime);
 
 
 			//discoidEffect.Update(gameTime);
@@ -458,7 +476,7 @@ namespace HLSLTest
 
 			// Draw objects
 			foreach (Object o in Models) {
-				if (o.IsActive && camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
+				if (o.IsAlive && camera.BoundingVolumeIsInView(o.transformedBoundingSphere)) {
 					if (o is ArmedSatellite) {
 						(o as ArmedSatellite).Draw(gameTime, camera.View, camera.Projection, camera.Position);
 					} else {
@@ -491,6 +509,7 @@ namespace HLSLTest
 				ese.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			}
 		}
+
 
 		public Level4(Scene previousScene)
 			: base(previousScene)

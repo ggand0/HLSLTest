@@ -12,11 +12,22 @@ namespace HLSLTest
 	{
         private int count;
 		protected LaserBillboard laserRenderer;
+		/// <summary>
+		/// 移動する光線タイプか、始点・終点を結ぶタイプか
+		/// </summary>
 		public int Mode { get; private set; }
+
+		public Drawable User { get; private set; }
+		public Drawable Target { get; private set; }
 
 		public override void Update(GameTime gameTime)
 		{
 			count++;
+			if (Mode == 1 && User != null && Target != null) {
+				//laserRenderer.ChangePosition(User.Position, Target.Position);
+				//laserRenderer.UpdatePositions(User.Position, Target.Position);
+			}
+
 			if (Mode == 0) {
 				/*for (int i = 0; i < particles.Length; i++) {
 					particles[i].StartPosition += Direction * Speed;
@@ -26,9 +37,10 @@ namespace HLSLTest
 				vertexBuffers.SetData<ParticleVertex>(particles);
 				indexBuffers.SetData<int>(indices);*/
 				laserRenderer.MoveLaser(Direction, Speed);
-				
 			}
+			
 
+			
 			Position = laserRenderer.Mid;
 			IsActive = IsActiveNow();
 		}
@@ -88,13 +100,14 @@ namespace HLSLTest
 			ContentManager content, Vector3 position, Vector3 direction, float speed, Texture2D texture, Vector2 billboardSize, int mode)
 			//: base(graphicsDevice, content, texture, billboardSize, position, position + direction)
 			//: base(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X)
-			:base(id, position, direction, speed)
+			//:base(id, position, direction, speed)
+			:this(id, graphicsDevice, content, position, position+Vector3.Normalize(direction), direction, speed, texture, Color.White, BlendState.AlphaBlend, billboardSize, 0)
 		{
-			IsActive = true;
+			/*IsActive = true;
 			Direction.Normalize();
 			this.Mode = mode;
 
-			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X);
+			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, position, position + Vector3.Normalize(direction) * billboardSize.X);*/
 		}
 
 		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
@@ -109,6 +122,23 @@ namespace HLSLTest
 
 			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, startPosition, endPosition);
         }
+
+
+		public LaserBillboardBullet(IFF id, GraphicsDevice graphicsDevice,
+			ContentManager content, Drawable user, Drawable target, Vector3 direction, float speed, Texture2D texture, Color laserColor, BlendState laserBlendState, Vector2 billboardSize, int mode)
+			//: base(graphicsDevice, content, texture, billboardSize, startPosition, endPosition, laserColor, laserBlendState)
+			: base(id, user.Position, direction, speed)
+		{
+			MAX_DISTANCE = 2000;
+			IsActive = true;
+			Direction.Normalize();
+			this.Mode = mode;
+			this.User = user;
+			this.Target = target;
+
+			//laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, startPosition, endPosition);
+			laserRenderer = new LaserBillboard(graphicsDevice, content, texture, billboardSize, user.Position, target.Position, Color.White, BlendState.Additive, 1);
+		}
         #endregion
     }
 }

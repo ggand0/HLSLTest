@@ -35,6 +35,8 @@ namespace HLSLTest
         private int count;
         private static readonly int shootRate = 10;//120
         private bool hasBuild, shouldShoot, turned;
+		private SoundEffect shootSound;
+		private List<SoundEffectInstance> currentSounds = new List<SoundEffectInstance>();
 		
 
 		private void Initialize()
@@ -63,6 +65,7 @@ namespace HLSLTest
 		}
 		private void UpdateLocus()
 		{
+			//if (IsActive) {
 			positions.Add(Position);
 			engineTrailEffect.Positions = positions;
 			if (positions.Count >= BillboardStrip.MAX_SIZE) {
@@ -199,6 +202,12 @@ namespace HLSLTest
 					}
 					if (shouldShoot && count % shootRate == 0) {
 						Shoot(2);
+						if (!Level.mute) {
+							SoundEffectInstance ls = shootSound.CreateInstance();
+							ls.Volume = 0.025f;
+							ls.Play();
+							currentSounds.Add(ls);
+						}
 					}
 
 					if ((currentWayPoint - Position).Length() < Velocity.Length() + 1.0f) {
@@ -340,21 +349,38 @@ namespace HLSLTest
 		}
 		public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
 		{
-			CheckObstacles();
-			AvoidCollision();
-			//WayPointMove();
-			AttackMove();
+			if (IsActive) {
+				CheckObstacles();
+				AvoidCollision();
+				//WayPointMove();
+				AttackMove();
+
+				for (int i = currentSounds.Count - 1; i >= 0; i--) {
+					if (currentSounds[i].State != SoundState.Playing) {
+						currentSounds[i].Dispose();
+						currentSounds.RemoveAt(i);
+					}
+				}
 
 
-			Position += Velocity;
-			upPosition += Velocity;
-			UpdateWorldMatrix();
-			transformedBoundingSphere = new BoundingSphere(
-					Position
-					, Model.Meshes[0].BoundingSphere.Radius * Scale);/**/
+				Position += Velocity;
+				upPosition += Velocity;
+				UpdateWorldMatrix();
+				transformedBoundingSphere = new BoundingSphere(
+						Position
+						, Model.Meshes[0].BoundingSphere.Radius * Scale);/**/
 
-			UpdateLocus();
-			engineTrailEffect.Update(gameTime);
+				UpdateLocus();
+				engineTrailEffect.Update(gameTime);
+			} else {
+				positions.RemoveAt(0);
+				if (positions.Count == 0) IsAlive = false;
+			}
+		}
+		public override void Die()
+		{
+			//base.Die();
+			IsActive = false;
 		}
 		public override void Draw(Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
@@ -384,6 +410,7 @@ namespace HLSLTest
 			positions = new List<Vector3>();
 			engineTrailEffect = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line2T1"),
 				new Vector2(10, 100), positions);
+			shootSound = content.Load<SoundEffect>("SoundEffects\\License\\LAAT1");
 
 			Initialize();
 		}

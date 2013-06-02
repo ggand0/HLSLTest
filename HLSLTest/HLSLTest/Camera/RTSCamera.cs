@@ -381,6 +381,19 @@ namespace HLSLTest
 				if (zoomMode == zoomState.Length) zoomMode = 0;
 			}
 			_zoom = zoomState[zoomMode];
+
+
+			float speed = 10;
+			if (JoyStick.stickDirection == HLSLTest.Direction.LEFT) {
+				Target += new Vector3(-speed, 0, 0);
+			} else if (JoyStick.stickDirection == HLSLTest.Direction.RIGHT) {
+				Target += new Vector3(speed, 0, 0);
+			}
+			if (JoyStick.stickDirection == HLSLTest.Direction.UP) {
+				Target += new Vector3(0, 0, speed);
+			} else if (JoyStick.stickDirection == HLSLTest.Direction.DOWN) {
+				Target += new Vector3(0, 0, -speed);
+			}
 		}
 		/// <summary>
 		/// カメラを目的の位置に配置し、移動を停止します。これは、
@@ -478,7 +491,7 @@ namespace HLSLTest
 		/// カメラをアニメーション表示します。カメラのアニメーションは、
 		/// カメラに取り付けられ、かつ目的位置に固定された単純な物理スプリングによって制御されます。
 		/// </summary>
-		public void Update(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
 			float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 

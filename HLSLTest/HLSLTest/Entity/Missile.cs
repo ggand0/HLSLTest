@@ -38,6 +38,12 @@ namespace HLSLTest
 
 		public override void Update(GameTime gameTime)
 		{
+			// とりあえず敵が追跡中に死んだら自分も殺すようにしておく
+			/*if (!Target.IsAlive || !Target.IsActive) {
+				Die();
+				return;
+			}*/
+
 			Direction = Vector3.Normalize(Target.Position - Position);
 			Velocity = Direction * Speed;
 
@@ -56,7 +62,7 @@ namespace HLSLTest
 		public override bool IsActiveNow()
 		{
 			distanceTravelled = Vector3.Distance(StartPosition, Position);
-			if (distanceTravelled > MAX_DISTANCE) {
+			if (distanceTravelled > MAX_DISTANCE || !Target.IsAlive || !Target.IsActive) {
 				return false;
 			} else {
 				return true;
@@ -109,9 +115,11 @@ namespace HLSLTest
 
 			MAX_DISTANCE = 2000;
 			this.Target = target;
+			Position = position;
 			positions = new List<Vector3>();
 			Renderer = new Object(position, scale, filePath);
-			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 30), positions, true);
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content,
+				content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 30), positions, true);
 		}
 	}
 }

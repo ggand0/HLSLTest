@@ -34,6 +34,10 @@ namespace HLSLTest
 				}
 			}
 		}
+		private bool IsInRange()
+		{
+			return visibleEnemies.Count > 0;
+		}
 		private Vector3 SearchTarget(int tactics)
 		{
 			float minDis = 9999;
@@ -56,6 +60,32 @@ namespace HLSLTest
 						}
 					}
 					return min;
+			}
+		}
+		private Object SearchTargetObj(int tactics)
+		{
+			float minDis = 9999;
+			Vector3 min = new Vector3(9999);
+			Object minObj = null;
+
+			/*foreach (Asteroid a in (level as Level4).Asteroids) {
+				if ((Position - a.Position).Length() < minDis) {
+					minDis = (Position - a.Position).Length();
+					min = a.Position;
+				}
+			}*/
+			switch (tactics) {
+				default:
+					return visibleEnemies[r.Next(0, visibleEnemies.Count)];
+				case 1:
+					foreach (Object o in visibleEnemies) {
+						if ((Position - o.Position).Length() < minDis) {
+							minDis = (Position - o.Position).Length();
+							min = o.Position;
+							minObj = o;
+						}
+					}
+					return minObj;
 			}
 		}
 		private void Shoot(int bulletType)
@@ -104,9 +134,10 @@ namespace HLSLTest
 					break;
 				case 4:
 					if (visibleEnemies.Count > 0) {
-						Vector3 tmp = SearchTarget(0);
-						Vector3 dir1 = Vector3.Normalize(tmp - Position);
-						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, Position, tmp, dir1, 1,
+						//Vector3 tmp = SearchTarget(1);
+						Drawable tmp = SearchTargetObj(1);
+						Vector3 dir1 = Vector3.Normalize(tmp.Position - Position);
+						level.Bullets.Add(new LaserBillboardBullet(IFF.Friend, Level.graphicsDevice, content, this, tmp, dir1, 1,
 							content.Load<Texture2D>("Textures\\Lines\\laser0"), Color.White, BlendState.AlphaBlend, new Vector2(50, 30), 1));/**/
 					}
 					break;
@@ -118,22 +149,28 @@ namespace HLSLTest
 			base.Update(gameTime);//RotationMatrix = Matrix.CreateRotationX((float)Math.PI);
 
 			CheckEnemies();
-			if (!canShoot && count > chargeTime) {
+			/*if (!canShoot && count > chargeTime) {
 				canShoot = true;
 				count = 0;
+			}*/
+			if (!canShoot && count > chargeTime) {
+				canShoot = true;
+				//count = 0;
 			}
 
-			if (canShoot && JoyStick.IsOnKeyDown(2) || count % shootRate == 0) {
+			if (canShoot && IsInRange()) {//count % shootRate == 0
 				Shoot(4);
 				//shootSound.Play();
 				//shootSoundInstance.Play();
 
-				if (!Level.mute) {
+				if (!Level.mute && shootSound != null) {
 					SoundEffectInstance ls = shootSound.CreateInstance();
-					ls.Volume = 0.1f;
+					ls.Volume = 0.05f;
 					ls.Play();
 					currentSounds.Add(ls);
 				}
+				canShoot = false;
+				count = 0;
 			}
 
 			for (int i = currentSounds.Count - 1; i >= 0; i--) {
@@ -155,7 +192,9 @@ namespace HLSLTest
 			: base(scale, position)
 		{
 			visibleEnemies = new List<Object>();
+			chargeTime = 60;
 			sensorSphere = new BoundingSphere(position, 1000);
+			shootSound = content.Load<SoundEffect>("SoundEffects\\laser1");
 		}
 		public Turret(Vector3 position, float scale, string fileName)
 			: base(position, scale, fileName)

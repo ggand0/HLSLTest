@@ -125,7 +125,7 @@ namespace HLSLTest
 		public void AddBillboard(GraphicsDevice graphicsDevice, ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//List<Vector3> positions)
 		{
 			//Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, start, end));
-			Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, start, end, Color.White, BlendState.Additive));
+			Billboards.Add(new LaserBillboard(graphicsDevice, content, texture, billboardSize, start, end, Color.White, BlendState.Additive, 0));
 		}
 		/// <summary>
 		/// Billboard stripさせるために、動的にstripの端に新たに２頂点加えて（=quadを１つ加える）、
