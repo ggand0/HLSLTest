@@ -115,7 +115,7 @@ namespace HLSLTest
 			Mid = (Start + End) / 2f;
 
 			for (int i = 0; i < particles.Length; i++) {
-				particles[i].StartPosition = Start;
+				particles[i].StartPosition = Mid;
 				particles[i].DirectedPosition = End;
 			}
 
@@ -285,8 +285,8 @@ namespace HLSLTest
 			//generateParticles(particlePositions);
 
 
-			//GenerateParticles(new Vector3[] { Mid });
-			GenerateParticles(new Vector3[] { start });
+			GenerateParticles(new Vector3[] { Mid });
+			//GenerateParticles(new Vector3[] { start });
 		}
 	}
 }

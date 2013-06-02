@@ -25,7 +25,7 @@ namespace HLSLTest
 			count++;
 			if (Mode == 1 && User != null && Target != null) {
 				//laserRenderer.ChangePosition(User.Position, Target.Position);
-				//laserRenderer.UpdatePositions(User.Position, Target.Position);
+				laserRenderer.UpdatePositions(User.Position, Target.Position);
 			}
 
 			if (Mode == 0) {
