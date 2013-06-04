@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace HLSLTest
 {
-	public class WaterPlanet : Planet
+	public class WaterPlanet : DamageablePlanet//Planet
 	{
 		protected override void LoadContent(ContentManager content)
 		{

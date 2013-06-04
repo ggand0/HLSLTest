@@ -33,7 +33,6 @@ namespace HLSLTest
 					particles[i].StartPosition += Direction * Speed;
 					particles[i].DirectedPosition += Direction * Speed;// これをUpdateしていないせいでは？？？
 				}
-
 				vertexBuffers.SetData<ParticleVertex>(particles);
 				indexBuffers.SetData<int>(indices);*/
 				laserRenderer.MoveLaser(Direction, Speed);

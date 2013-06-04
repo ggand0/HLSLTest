@@ -106,6 +106,7 @@
     <Compile Include="Graphics\DrawFPS.cs" />
     <Compile Include="Graphics\FullScreenQuadRenderer.cs" />
     <Compile Include="Graphics\PointLightCircle.cs" />
+    <Compile Include="Graphics\Primitives2D.cs" />
     <Compile Include="Graphics\QuadRenderer.cs" />
     <Compile Include="Planet\Asteroid.cs" />
     <Compile Include="Camera\ArcBallCamera.cs" />

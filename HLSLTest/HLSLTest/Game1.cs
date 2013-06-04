@@ -40,10 +40,13 @@ namespace HLSLTest
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 
-			Width = this.graphics.PreferredBackBufferWidth;
-			Height = graphics.PreferredBackBufferHeight;
-			//this.graphics.PreferredBackBufferWidth = 1920;
-			//this.graphics.PreferredBackBufferHeight = 1080;
+			//Width = this.graphics.PreferredBackBufferWidth;
+			//Height = graphics.PreferredBackBufferHeight;
+
+			Width = 960;
+			Height = 540;
+			this.graphics.PreferredBackBufferWidth = (int)Width;
+			this.graphics.PreferredBackBufferHeight = (int)Height;
 			//this.graphics.PreferredBackBufferWidth = 600;
 			//this.graphics.PreferredBackBufferHeight = 400;
 		}
@@ -64,6 +67,7 @@ namespace HLSLTest
 			
 			PointLight.game = this;
 			Object.content = Content;
+			
 			Bullet.content = Content;
 
 			base.Initialize();
@@ -81,6 +85,7 @@ namespace HLSLTest
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			Debug.game = this;
 			Debug.spriteBatch = this.spriteBatch;
+			Object.spriteBatch = spriteBatch;
 
 			Level.graphicsDevice = GraphicsDevice;
 			Level.content = Content;

@@ -9,6 +9,8 @@ namespace HLSLTest
 {
 	public class PauseMenu : MenuScene
 	{
+		Camera camera;
+
 		public PauseMenu(Level privousScene)
 			: base(privousScene)
 		{
@@ -24,6 +26,7 @@ namespace HLSLTest
 				button[i].name = menuString[i];
 			}
 			//SoundControl.Pause();
+			this.camera = privousScene.camera;
 
 			Load();
 		}
@@ -35,13 +38,18 @@ namespace HLSLTest
 				//if (!game.isMuted) cancel.Play(SoundControl.volumeAll, 0f, 0f);
 			}
 		}
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
+			camera.Update(gameTime);
+		}
 
 		public override void Draw(GameTime gameTime)
 		{
 			higherScene.Draw(gameTime);
 
 			spriteBatch.Begin();
-			spriteBatch.Draw(mask, new Rectangle(0, 0, 640, 480), new Color(0, 0, 0, 100));
+			spriteBatch.Draw(mask, new Rectangle(0, 0, (int)game.Width, (int)game.Height), new Color(0, 0, 0, 100));
 			spriteBatch.End();
 			base.Draw(gameTime);
 		}

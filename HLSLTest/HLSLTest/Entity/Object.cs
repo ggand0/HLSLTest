@@ -14,6 +14,7 @@ namespace HLSLTest
 		public static Game1 game;
 		public static Level level;
 		public static ContentManager content;
+		public static SpriteBatch spriteBatch;
 
 		public Effect maskEffect;
 		protected Vector3 _direction, _up, _down, _right;
