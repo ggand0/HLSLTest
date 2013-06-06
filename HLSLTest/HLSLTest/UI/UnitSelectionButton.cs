@@ -5,7 +5,12 @@ using System.Text;
 
 namespace HLSLTest
 {
-	public class UnitSelectionButton
+	public class UnitSelectionButton : UIObject
 	{
+
+
+		public UnitSelectionButton()
+		{
+		}
 	}
 }

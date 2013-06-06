@@ -39,8 +39,7 @@ namespace HLSLTest
 		/// </summary>
 		private static KeyboardState prev;
 		private static int keyNum = (int)Keys.OemClear;//Enum.GetValues(typeof(Keys)).Length;
-		
-		// プロパティ
+
 		static bool[] Key = new bool[keyNum];										// キーが押されているか
 		public static bool KEY(Keys key) { return Key[(int)key]; }
 

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Input;
 
 namespace HLSLTest
 {
@@ -52,6 +53,7 @@ namespace HLSLTest
         private Vector3 tmpCameraPos;
         private Matrix RotationMatrix = Matrix.Identity;
 		private EnemyManager enemyManager;
+		private UIManager uiManager = new UIManager();
 
         /// <summary>
         /// Utility専用クラスにまとめるべき
@@ -220,10 +222,70 @@ namespace HLSLTest
 
 			lb = new LaserBillboard(graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(300, 50), new Vector3(0, 50, 0), new Vector3(100, 60, -100));
 		}
+
+		Vector3 GetRayPlaneIntersectionPoint(Ray ray, Plane plane)//Nullable<Vector3>
+		{
+			float? distance = ray.Intersects(plane);
+			//return distance.HasValue ? ray.Position + ray.Direction * distance.Value : null;
+			return distance.HasValue ? ray.Position + ray.Direction * distance.Value : Vector3.Zero;
+		}
+		Vector2 mouseOrgPos, curPos, prevPos;
+		float leftrightRot, updownRot;
 		protected override void HandleInput()
 		{
 			base.HandleInput();
 
+			MouseState ms = Mouse.GetState();
+			ButtonState bs = ms.LeftButton;
+			if (MouseInput.IsOnButtonDownL()) {
+				Vector2 mousePos = MouseInput.GetMousePositiion();
+
+				// rayとplaneのintersection pointを計算する
+				Vector3 nearsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 0f);
+				Vector3 farsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 1f);
+
+				Matrix world = Matrix.CreateTranslation(0, 0, 0);
+				Vector3 nearPoint = graphicsDevice.Viewport.Unproject(nearsource, camera.Projection, camera.View, world);
+				Vector3 farPoint = graphicsDevice.Viewport.Unproject(farsource, camera.Projection, camera.View, world);
+				// Create a ray from the near clip plane to the far clip plane.
+				Vector3 direction = farPoint - nearPoint;
+				direction.Normalize();
+				Ray pickRay = new Ray(nearPoint, direction);
+				Plane planeXZ = new Plane(Vector3.Up, 0);
+				Plane planeGround = new Plane(Vector3.Up, -500);
+
+				Vector3 intersectionPoint = GetRayPlaneIntersectionPoint(pickRay, planeGround);
+				//Models.Add(new ArmedSatellite(intersectionPoint, 10, "Models\\ISS"));
+				Models.Add(new Object(intersectionPoint, 20, "Models\\cube"));
+				Models[Models.Count - 1].RenderBoudingSphere = false;
+			}
+
+			/*if (MouseInput.IsOnButtonDownR()) {
+				mouseOrgPos = MouseInput.GetMousePositiion();
+				leftrightRot = updownRot = 0;
+			}
+			if (MouseInput.BUTTONR()) {
+				float rotationSpeed = 5;
+				Vector2 mousePos = MouseInput.GetMousePositiion();
+
+				// rayとplaneのintersection pointを計算する
+				Vector3 nearsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 0f);
+				Vector3 farsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 1f);
+
+				Matrix world = Matrix.CreateTranslation(0, 0, 0);
+				Vector3 nearPoint = graphicsDevice.Viewport.Unproject(nearsource, camera.Projection, camera.View, world);
+				Vector3 farPoint = graphicsDevice.Viewport.Unproject(farsource, camera.Projection, camera.View, world);
+				// Create a ray from the near clip plane to the far clip plane.
+				Vector3 direction = farPoint - nearPoint;
+				direction.Normalize();
+
+				float xDifference = curPos.X - mouseOrgPos.X;
+				float yDifference = curPos.Y - mouseOrgPos.Y;
+				leftrightRot -= rotationSpeed * xDifference;// * amount
+				updownRot -= rotationSpeed * yDifference;
+				Mouse.SetPosition((int)mouseOrgPos.X, (int)mouseOrgPos.Y);
+			}
+*/
 			float stickSensitivity = 0.2f;
 			//  スティックが倒されていればDirectionを再計算する
 			if (JoyStick.Vector.Length() > stickSensitivity) {
@@ -508,6 +570,10 @@ namespace HLSLTest
 				//ese.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 				ese.Draw(gameTime, camera.View, camera.Projection, camera.Position, camera.Direction, camera.Up, camera.Right);
 			}
+
+
+			// Draw UIs
+			uiManager.Draw(gameTime);
 		}
 
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace HLSLTest
 {
@@ -369,8 +370,47 @@ namespace HLSLTest
 			Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView,
 				AspectRatio, NearPlaneDistance, FarPlaneDistance);
 		}
+
+		Vector2 mouseOrgPos, curPos, prevPos;
+		float leftrightRot, updownRot;
 		private void HandleInput()
 		{
+			if (MouseInput.IsOnButtonDownR()) {
+				mouseOrgPos = MouseInput.GetMousePositiion();
+				leftrightRot = updownRot = 0;
+			}
+			if (MouseInput.BUTTONR()) {
+				float rotationSpeed = 0.1f;//5
+				Vector2 mousePos = MouseInput.GetMousePositiion();
+				
+
+				// rayとplaneのintersection pointを計算する
+				Vector3 nearsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 0f);
+				Vector3 farsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 1f);
+
+				Matrix world = Matrix.CreateTranslation(0, 0, 0);
+				Vector3 nearPoint = Level.graphicsDevice.Viewport.Unproject(nearsource, Projection, View, world);
+				Vector3 farPoint = Level.graphicsDevice.Viewport.Unproject(farsource, Projection, View, world);
+				// Create a ray from the near clip plane to the far clip plane.
+				Vector3 direction = farPoint - nearPoint;
+				direction.Normalize();
+
+				curPos = MouseInput.GetMousePositiion();
+				float xDifference = curPos.X - mouseOrgPos.X;
+				float yDifference = curPos.Y - mouseOrgPos.Y;
+				//leftrightRot -= rotationSpeed * xDifference;// * amount
+				//updownRot -= rotationSpeed * yDifference;
+				_horizontalAngle -= MathHelper.ToRadians(rotationSpeed * xDifference);
+				_verticalAngle -= MathHelper.ToRadians(rotationSpeed * yDifference);
+				Mouse.SetPosition((int)mouseOrgPos.X, (int)mouseOrgPos.Y);
+
+				//HorizontalAngle = MathHelper.ToRadians(leftrightRot);
+				//VerticalAngle = MathHelper.ToRadians(updownRot);
+
+			}
+
+
+
 			if (JoyStick.vectorOther.Length() > 0.2) {
 				_verticalAngle += MathHelper.ToRadians(JoyStick.vectorOther.Y);
 				_horizontalAngle += MathHelper.ToRadians(JoyStick.vectorOther.X);

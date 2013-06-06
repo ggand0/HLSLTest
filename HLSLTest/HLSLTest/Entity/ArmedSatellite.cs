@@ -237,9 +237,9 @@ namespace HLSLTest
 
 		#region Constructors
 		public ArmedSatellite(Vector3 position, float scale, string fileName)
-			:base(position, scale, fileName)
+			: this(position, Vector3.Zero, scale, fileName)
 		{
-			shootSound = content.Load<SoundEffect>("SoundEffects\\laser0");
+			//shootSound = content.Load<SoundEffect>("SoundEffects\\laser0");
 		}
 
 		public ArmedSatellite(Vector3 position, Vector3 center, float scale, string fileName)
@@ -265,6 +265,7 @@ namespace HLSLTest
 
 			visibleEnemies = new List<Object>();
 			sensorSphere = new BoundingSphere(Position, 1000);
+			RenderBoudingSphere = false;
 		}
 		#endregion
 	}

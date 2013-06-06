@@ -67,7 +67,7 @@ namespace HLSLTest
 			
 			PointLight.game = this;
 			Object.content = Content;
-			
+			UIObject.content = Content;
 			Bullet.content = Content;
 
 			base.Initialize();
@@ -86,6 +86,7 @@ namespace HLSLTest
 			Debug.game = this;
 			Debug.spriteBatch = this.spriteBatch;
 			Object.spriteBatch = spriteBatch;
+			UIObject.spriteBatch = spriteBatch;
 
 			Level.graphicsDevice = GraphicsDevice;
 			Level.content = Content;
@@ -156,8 +157,10 @@ namespace HLSLTest
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				this.Exit();
 
+			// check input
 			JoyStick.Update(1);
             KeyInput.Update();
+			MouseInput.Update();
 
 			// scene translation management
 			currentScene = scenes.Peek();

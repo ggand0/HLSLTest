@@ -80,6 +80,11 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Misc\MouseInput.cs" />
+    <Compile Include="UI\MouseCursor.cs" />
+    <Compile Include="UI\UIManager.cs" />
+    <Compile Include="UI\UIObject.cs" />
+    <Compile Include="UI\UnitSelectionButton.cs" />
     <None Include="Backups\Planet_bak0.cs" />
     <None Include="Backups\BillboardStrip_bak0.cs" />
     <None Include="Backups\LaserBillboardBullet_bak0.cs" />
