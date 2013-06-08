@@ -32,7 +32,7 @@ namespace HLSLTest
 		private BillboardStrip engineTrailEffect;
 		private List<Vector3> positions;
         protected Vector3 upPosition;
-        private int count;
+        private int count, stripCount;
         private static readonly int shootRate = 10;//120
         private bool hasBuild, shouldShoot, turned;
 		private SoundEffect shootSound;
@@ -370,7 +370,9 @@ namespace HLSLTest
 						Position
 						, Model.Meshes[0].BoundingSphere.Radius * Scale);/**/
 
-				UpdateLocus();
+				stripCount++;
+				//if (stripCount % 5 == 0)
+					UpdateLocus();
 				engineTrailEffect.Update(gameTime);
 			} else {
 				positions.RemoveAt(0);
@@ -408,7 +410,7 @@ namespace HLSLTest
 			this.State = FighterState.MoveToAttack;
 
 			positions = new List<Vector3>();
-			engineTrailEffect = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line2T1"),
+			engineTrailEffect = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line2T1"),//"Textures\\Lines\\Line2T1"
 				new Vector2(10, 100), positions);
 			shootSound = content.Load<SoundEffect>("SoundEffects\\License\\LAAT1");
 

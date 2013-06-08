@@ -337,6 +337,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <None Include="Backup\BillboardStripEffect_bak0.fx">
+      <Name>BillboardStripEffect_bak0</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
     <None Include="CellularNoise.vsi">
       <Name>CellularNoise</Name>
       <Importer>EffectImporter</Importer>

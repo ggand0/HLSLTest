@@ -106,7 +106,7 @@ namespace HLSLTest
 
 			// 最初に表示するシーンを追加
 			PushScene(new Level4(null));
-			//PushScene(new Level1(null));
+			//PushScene(new Level0(null));
 			//PushScene(Levels[LevelNum]);
 		}
 

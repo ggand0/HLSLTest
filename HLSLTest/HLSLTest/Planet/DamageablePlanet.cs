@@ -57,6 +57,7 @@ namespace HLSLTest
 			spriteBatch.End();
 
 
+            // 指示線の描画：DrawPrimitivesを使う
 			Matrix projectionMatrix = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width,
 				graphicsDevice.Viewport.Height, 0, 0, 1f);
 			/// these wont change, so we can set them now
@@ -70,6 +71,8 @@ namespace HLSLTest
 			vertices[1] = new VertexPositionColor(new Vector3(drawPos.X+( - lifeBar.Width / 2f - 5 - leng1) * lengthRatio, drawPos.Y, 0), Color.Green);
 			vertices[2] = new VertexPositionColor(new Vector3(drawPos.X+( - lifeBar.Width / 2f - 5 - leng1) * lengthRatio, drawPos.Y, 0), Color.Green);
 			vertices[3] = new VertexPositionColor(new Vector3(drawPos.X+( - lifeBar.Width / 2f - 5 - leng1 - leng2) * lengthRatio, drawPos.Y + leng2 * lengthRatio, 0), Color.Green);
+            //int[] indices = new int[] { 0, 1, 1, 2 };
+
 			foreach (EffectPass p in basicEffect.CurrentTechnique.Passes) {
 				p.Apply();
 				graphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineList, vertices, 0, 2);

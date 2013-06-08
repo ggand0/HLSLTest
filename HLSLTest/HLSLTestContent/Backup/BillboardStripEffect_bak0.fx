@@ -50,42 +50,31 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	VertexShaderOutput output;
 	float3 position = input.Position;
 
-	
-	// (new ver) nVidiaのpaperに沿った実装
-	float4 posStart = mul(input.Position, mul(View, Projection));
-	float4 posEnd = mul(input.DirectedPosition, mul(View, Projection));
-	float2 startPos2d = posStart.xy / posStart.w;
-	float2 endPos2d = posEnd.xy / posEnd.w;
-	float2 lineDir2d = normalize(startPos2d - endPos2d);/**/
-
-	float offset = -(input.UV.y - 0.5f) * 2.0f;// 1 or -1
-	lineDir2d *= offset * 50;
-	posEnd.x += lineDir2d.y;		
-	posEnd.y -= lineDir2d.x;
-	output.Position = posEnd;
-
-
-	/*float3 middlepoint = normalize((posStart.xyz + posEnd.xyz)/2.0);
+	/*float4 posStart = mul(input.Position, mul(View, Projection));
+	float4 posEnd = mul(input.Position, mul(View, Projection));
+	float3 middlepoint = normalize((posStart.xyz + posEnd.xyz)/2.0);
 	float3 lineoffset = posEnd.xyz - posStart.xyz;
 	float3 linedir = normalize(lineoffset);
 	float texcoef = abs(dot(linedir, middlepoint));*/
 
-	// (old ver)スクリーン座標に射影する
-	/*float3 startPos = input.Position.xyz / input.Position.w;
+	// スクリーン座標に射影する
+	float3 startPos = input.Position.xyz / input.Position.w;
 	float3 endPos = input.DirectedPosition.xyz / input.DirectedPosition.w;
-	startPos.z = 0; endPos.z = 0;
 	float3 lineDir = normalize( endPos - startPos );
-	//startPos.z = 0; endPos.z = 0;
 	float3 pvUp = normalize(cross(lineDir , cross(Up, Side)));
-	pvUp = normalize(pvUp);
-	//pvUp.z = 0;
+
 	float3 size = endPos - startPos;
 	float3 leng = sqrt(size.x * size.x + size.y * size.y + size.z * size.z);
-	float offset = -(input.UV.y - 0.5f) * 2.0f;//input.UV.y * 2 - 1;
 
+	
+	//float offset = (input.Right == 1.0f) ? 1 : -1;
+	//float offset = (input.Right - 1.0f <= 0.1f) ? 1 : -1;
+	float offset = -(input.UV.y - 0.5f) * 2.0f;//input.UV.y * 2 - 1;
+	//position += offset.x * leng.x * lineDir + offset.y * Size.y * pvUp;
 
 	// 前の2頂点は既にstripの後ろに割り当てられているはずなので、endPosを左右に振り分けてpositionを決定
 	float width = input.Id / MAX_LENGTH;
+	//position = endPos + offset * Size.y * pvUp;
 
 	// 始点と終点が近すぎる時に補正
 	float param = 50;
@@ -95,13 +84,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 		position = input.DirectedPosition + offset * width * Size.y * pvUp;
 	} else {
 		position = input.DirectedPosition + offset * Size.y * pvUp;
-		//position = endPos + offset * Size.y * pvUp;
 	}
+	
+
+
 	// Transform the position by view and projection
 	output.Position = mul(float4(position, 1), mul(View, Projection));
-	//output.Position = mul(float4(position.x, position.y,0, 1),
-	//	mul(View, Projection));*/
-
+	//output.Position = mul(float4(position.x, position.y,0, 1), mul(View, Projection));
 
 	// UV座標はC#側で予め正しい値を設定しておくのでここでは何もしない
 	output.UV = input.UV;

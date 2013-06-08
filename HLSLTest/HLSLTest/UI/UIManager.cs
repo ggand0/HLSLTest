@@ -12,6 +12,14 @@ namespace HLSLTest
 	{
 		public List<UIObject> interfaces = new List<UIObject>();
 
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
+
+			foreach (UIObject ui in interfaces) {
+				ui.Update(gameTime);
+			}
+		}
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);

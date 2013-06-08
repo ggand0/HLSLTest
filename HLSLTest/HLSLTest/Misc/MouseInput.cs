@@ -26,7 +26,7 @@ namespace HLSLTest
 		/// </summary>
 		private static MouseState prev;
 		private static int buttonNum = Enum.GetValues(typeof(MouseButton)).Length;
-
+		public static Vector2 Position { get; set; }
 
 		static bool[] Button = new bool[buttonNum];										// ボタンが押されているか
 		public static bool BUTTON(MouseButton button) { return Button[(int)button]; }
@@ -57,14 +57,30 @@ namespace HLSLTest
 		public static bool IsOnButtonUpR() { return onButtonUpR; }
 
 
-		public static Vector2 GetMousePositiion()
+		public static Vector2 GetMousePosition()//bool cache
 		{
 			return new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+			//return Position;
 		}
+		public static Vector2 GetCachedPosition()//bool cache
+		{
+			return Position;
+		}
+		public static void SetCachedPosition(Vector2 value)
+		{
+			Position = value;
+		}
+
 		private static void GetMouseState()
 		{
 
 		}
+		public static void SetMousePosition(Vector2 position)
+		{
+			//Position = position;
+			Mouse.SetPosition((int)Position.X, (int)Position.Y);
+		}
+
 		/// <summary>
 		/// 入力状態の更新するメソッド。今のところキーボードのみの対応。
 		/// </summary>

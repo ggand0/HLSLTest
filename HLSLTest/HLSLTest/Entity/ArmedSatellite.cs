@@ -157,6 +157,7 @@ namespace HLSLTest
             billboardStrip.Positions = positions;
 			if (positions.Count >= BillboardStrip.MAX_SIZE) {//120
 				positions.RemoveAt(0);
+				billboardStrip.Positions = positions;
             } else if (positions.Count > 0) {//positions.Count >= 2
 				//billboardStrip.AddBillboard(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Mercury\\Laser"), new Vector2(10, 40), positions[positions.Count - 2], positions[positions.Count - 1]);
 				//billboardStrip.AddBillboard(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Laser2"), new Vector2(10, 40), positions[positions.Count - 2], positions[positions.Count - 1]);
@@ -223,9 +224,12 @@ namespace HLSLTest
 
 			shieldEffect.Position = Position;
 			shieldEffect.Update(gameTime);
-			UpdateLocus();
+			stripCount++;
+			//if (stripCount % 15 == 0)
+				UpdateLocus();
 			billboardStrip.Update(gameTime);
 		}
+		int stripCount;
 		public void Draw(GameTime gameTime, Matrix View, Matrix Projection, Vector3 CameraPosition)
 		{
 			base.Draw(View, Projection, CameraPosition);
@@ -261,7 +265,7 @@ namespace HLSLTest
 			level.transparentEffects.Add(shieldEffect);
 
 			positions = new List<Vector3>();
-			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line1T1"), new Vector2(10, 200), positions);
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 200), positions);//Line1T1
 
 			visibleEnemies = new List<Object>();
 			sensorSphere = new BoundingSphere(Position, 1000);

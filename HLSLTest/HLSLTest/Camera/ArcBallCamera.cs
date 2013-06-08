@@ -372,16 +372,16 @@ namespace HLSLTest
 		}
 
 		Vector2 mouseOrgPos, curPos, prevPos;
-		float leftrightRot, updownRot;
+		float leftrightRot, updownRot, prevScroll, curScroll;
 		private void HandleInput()
 		{
 			if (MouseInput.IsOnButtonDownR()) {
-				mouseOrgPos = MouseInput.GetMousePositiion();
+				mouseOrgPos = MouseInput.GetMousePosition();
 				leftrightRot = updownRot = 0;
 			}
 			if (MouseInput.BUTTONR()) {
 				float rotationSpeed = 0.1f;//5
-				Vector2 mousePos = MouseInput.GetMousePositiion();
+				Vector2 mousePos = MouseInput.GetMousePosition();
 				
 
 				// rayとplaneのintersection pointを計算する
@@ -395,7 +395,7 @@ namespace HLSLTest
 				Vector3 direction = farPoint - nearPoint;
 				direction.Normalize();
 
-				curPos = MouseInput.GetMousePositiion();
+				curPos = MouseInput.GetMousePosition();
 				float xDifference = curPos.X - mouseOrgPos.X;
 				float yDifference = curPos.Y - mouseOrgPos.Y;
 				//leftrightRot -= rotationSpeed * xDifference;// * amount
@@ -403,6 +403,7 @@ namespace HLSLTest
 				_horizontalAngle -= MathHelper.ToRadians(rotationSpeed * xDifference);
 				_verticalAngle -= MathHelper.ToRadians(rotationSpeed * yDifference);
 				Mouse.SetPosition((int)mouseOrgPos.X, (int)mouseOrgPos.Y);
+				MouseInput.SetCachedPosition(mouseOrgPos);
 
 				//HorizontalAngle = MathHelper.ToRadians(leftrightRot);
 				//VerticalAngle = MathHelper.ToRadians(updownRot);
@@ -427,9 +428,11 @@ namespace HLSLTest
 			if (JoyStick.KEY(5)) {
 				_zoom -= 20;
 			}
+			curScroll = Mouse.GetState().ScrollWheelValue;
+			_zoom -= (curScroll - prevScroll);
+			prevScroll = curScroll;
 
-
-			/*//float speed = 10;
+			/*//
 			float stickSensitivity = 0.2f;
 			//  スティックが倒されていればDirectionを再計算する
 			if (JoyStick.Vector.Length() > stickSensitivity) {
@@ -448,16 +451,18 @@ namespace HLSLTest
 
 				tmpCameraPos += tmpVelocity;
 			}*/
-			/*if (JoyStick.stickDirection == HLSLTest.Direction.LEFT) {
-				Target += new Vector3(-speed, 0, 0);
+
+			float speed = 10;
+			if (JoyStick.stickDirection == HLSLTest.Direction.LEFT) {
+				target += new Vector3(-speed, 0, 0);
 			} else if (JoyStick.stickDirection == HLSLTest.Direction.RIGHT) {
-				Target += new Vector3(speed, 0, 0);
+				target += new Vector3(speed, 0, 0);
 			}
 			if (JoyStick.stickDirection == HLSLTest.Direction.UP) {
-				Target += new Vector3(0, 0, speed);
+				target += new Vector3(0, 0, speed);
 			} else if (JoyStick.stickDirection == HLSLTest.Direction.DOWN) {
-				Target += new Vector3(0, 0, -speed);
-			}*/
+				target += new Vector3(0, 0, -speed);
+			}/**/
 
 		}
 		/// <summary>
@@ -507,6 +512,7 @@ namespace HLSLTest
 		}
 
 
+		Vector3 target;
 		/// <summary>
 		/// カメラの現在位置から、追跡されるオブジェクトの背後の目的のオフセットに向かって
 		/// カメラをアニメーション表示します。カメラのアニメーションは、
@@ -520,7 +526,7 @@ namespace HLSLTest
 				throw new ArgumentNullException("gameTime is null.");
 			}
 
-			UpdateChaseTarget(Vector3.Zero);
+			UpdateChaseTarget(target);
 			HandleInput();
 			UpdateWorldPositions();
 

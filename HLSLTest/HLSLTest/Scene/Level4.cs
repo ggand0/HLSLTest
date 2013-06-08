@@ -238,7 +238,7 @@ namespace HLSLTest
 			MouseState ms = Mouse.GetState();
 			ButtonState bs = ms.LeftButton;
 			if (MouseInput.IsOnButtonDownL()) {
-				Vector2 mousePos = MouseInput.GetMousePositiion();
+				Vector2 mousePos = MouseInput.GetMousePosition();
 
 				// rayとplaneのintersection pointを計算する
 				Vector3 nearsource = new Vector3((float)mousePos.X, (float)mousePos.Y, 0f);
@@ -492,6 +492,7 @@ namespace HLSLTest
 			Collide();
 
 			effectManager.Update(gameTime);
+			uiManager.Update(gameTime);
 		}
 		public override void Draw(GameTime gameTime)
 		{

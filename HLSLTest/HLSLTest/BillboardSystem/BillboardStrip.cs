@@ -1,4 +1,5 @@
 ﻿using System;
+//using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -150,6 +151,10 @@ namespace HLSLTest
 				indices[x++] = i + 1;
 				indices[x++] = i + 0;
 			}*/
+			if (Positions.Count <= 1) {
+				return;
+			}
+
 
 			// 要デバッグ
 			Vector3 z = Vector3.Zero;
@@ -160,9 +165,9 @@ namespace HLSLTest
             //nBillboards = Positions.Count;
 
             // 頂点の情報(特にUV座標など)はUpdatePositionで更新するので、インデックス付けが重要
-            if (Positions.Count == 1) {
-                particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
-                particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
+            if (Positions.Count <= 1) {
+                //particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
+                //particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
             } else {
                 particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
                 particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
@@ -174,9 +179,11 @@ namespace HLSLTest
             indices.Add((nBillboards-1) * 2 + 2);
             indices.Add((nBillboards-1) * 2 + 1);
             indices.Add((nBillboards-1) * 2 + 0);*/
+
 			// 一番最初に呼ばれるときは頂点が２つしかなく、quadを作れないので何もしない
 			// (無理に呼ぶと原点を結ぶ謎のtriangleが出来る)
-			if (Positions.Count > 1) {
+			//if (Positions.Count > 1) {
+			if (Positions.Count > 2) {
 				indices.Add((nBillboards - 1) * 2 + 0);
 				indices.Add((nBillboards - 1) * 2 + 1);
 				indices.Add((nBillboards - 1) * 2 + 2);
@@ -192,7 +199,8 @@ namespace HLSLTest
 			}
 
 			
-			if (Positions.Count > 1) {
+			//if (Positions.Count > 1) {
+			if (Positions.Count > 2) {
 				vertexBuffers = new VertexBuffer(graphicsDevice,
 					typeof(BillboardStripVertex),
 					nBillboards * 4, BufferUsage.WriteOnly);
@@ -210,7 +218,7 @@ namespace HLSLTest
 		private void UpdatePositions()
 		{
 			int posIndex = 0;
-			for (int i = 0; i < particles.Count; i += 2) {
+			/*for (int i = 0; i < particles.Count; i += 2) {
 				// 各頂点のPositionには、positions[i]とpositions[i+1]の中点を与える？
 				Vector3 pos = Vector3.Zero;
 
@@ -227,8 +235,26 @@ namespace HLSLTest
 						Positions[posIndex + 1], posIndex + 1, 0);
                     posIndex++;
                 }
-				
+			}*/
+			// 必ず方向が計算できるように設定する
+			for (int i = 0; i < particles.Count; i += 2) {
+				// 各頂点のPositionには、positions[i]とpositions[i+1]の中点を与える？
+				Vector3 pos = Vector3.Zero;
+
+				particles[i] = new BillboardStripVertex(Positions[posIndex], new Vector2(posIndex / (float)Positions.Count, 0), Vector3.Zero, 0, 0, 0,
+					Positions[posIndex + 1], posIndex + 1, 1);
+				particles[i + 1] = new BillboardStripVertex(Positions[posIndex], new Vector2(posIndex / (float)Positions.Count, 1), Vector3.Zero, 0, 0, 0,
+					Positions[posIndex + 1], posIndex + 1, 0);
+
+				posIndex++;
 			}
+
+			/*using (System.IO.StreamWriter w = new System.IO.StreamWriter(@"billboardstrip.txt")) {
+				//w.Write("書式指定出力もできます → n = {0}, x = {1}", n, x);
+				foreach (BillboardStripVertex v in particles) {
+					w.WriteLine(v.StartPosition + " " + v.DirectedPosition + " " + v.Id + " " + v.UV);
+				}
+			}*/
 
 			foreach (BillboardStripVertex bp in particles) {
 				if (bp.StartPosition == Vector3.Zero || bp.DirectedPosition == Vector3.Zero) {
@@ -256,10 +282,42 @@ namespace HLSLTest
 			}
 
 			// new
-            if (nBillboards >= 1 && Positions.Count >= 2) {
+            //if (nBillboards >= 1 && Positions.Count >= 2) {
+			if (nBillboards >= 1 && Positions.Count >= 3) {
                 UpdatePositions();
             }
 		}
+        BasicEffect basicEffect;
+        private void DrawDebugLine(Matrix view, Matrix projection)
+        {
+            Matrix projectionMatrix = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width,
+                graphicsDevice.Viewport.Height, 0, 0, 1f);
+            /// these wont change, so we can set them now
+            /// and not have to set them in every Draw() call
+            basicEffect.World = Matrix.Identity;
+			basicEffect.View = view;//Matrix.Identity;
+			basicEffect.Projection = projection;//projectionMatrix;
+            basicEffect.VertexColorEnabled = true;
+            VertexPositionColor[] vertices = new VertexPositionColor[(Positions.Count-1) * 2];//+2
+            Color lineColor = Color.White;
+            /*vertices[0] = new VertexPositionColor(, lineColor);
+            vertices[1] = new VertexPositionColor(, lineColor);
+            vertices[2] = new VertexPositionColor(, lineColor);
+            vertices[3] = new VertexPositionColor(, lineColor);*/
+			vertices[0] = new VertexPositionColor(Positions[0], lineColor);
+			
+            for (int i = 1, j = 1; i < vertices.Length-1; i+=2, j++) {
+                vertices[i] = new VertexPositionColor(Positions[j], lineColor);// 終点
+                vertices[i + 1] = new VertexPositionColor(Positions[j], lineColor);// 始点
+            }
+			vertices[vertices.Length-1] = new VertexPositionColor(Positions[Positions.Count-1], lineColor);
+            //int[] indices = new int[] { 0, 1, 1, 2 };
+
+            foreach (EffectPass p in basicEffect.CurrentTechnique.Passes) {
+                p.Apply();
+                graphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineList, vertices, 0, vertices.Length/2);
+            }
+        }
 		public override void Draw(Camera camera)
 		{
 			this.Draw(camera.View, camera.Projection, camera.Up, camera.Right, camera.Position);
@@ -301,11 +359,14 @@ namespace HLSLTest
 				// Un-set the vertex and index buffer
 				graphicsDevice.SetVertexBuffer(null);
 				graphicsDevice.Indices = null;
+				//DrawDebugLine(View, Projection);
 			}
+			
 		}
 
         private void Initialize()
         {
+			
             int x = 0;
             Vector3 z = Vector3.Zero;
             nBillboards++;
@@ -364,9 +425,10 @@ namespace HLSLTest
 			indices = new List<int>();
 			// とりあえず１つだけBillboardをbufferにセットしておく?
 			//Initialize();
+			basicEffect = new BasicEffect(graphicsDevice);
 		}
 
-
+		// こっちは使ってない
 		public BillboardStrip(GraphicsDevice graphicsDevice,
 			ContentManager content, Texture2D texture, Vector2 billboardSize, Vector3 start, Vector3 end)//, Vector3[] particlePositions)
 			:this(graphicsDevice, content, texture, billboardSize, start, end, Color.White)
