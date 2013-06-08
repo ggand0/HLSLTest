@@ -151,6 +151,8 @@ namespace HLSLTest
 				indices[x++] = i + 1;
 				indices[x++] = i + 0;
 			}*/
+
+			// 
 			if (Positions.Count <= 1) {
 				return;
 			}
@@ -160,18 +162,15 @@ namespace HLSLTest
 			Vector3 z = Vector3.Zero;
             // 2頂点をStripに足すことで、quad(今回はbilboardだが)が1単位追加される
             // quadを構成する残り2頂点は、既存のstripの一番最後の2要素を、前のquadと共有する
-			if (Positions.Count > 1) nBillboards++;
+			//if (Positions.Count > 1) nBillboards++;
+			if (Positions.Count > 2) nBillboards++;
             if (nBillboards > MAX_SIZE) nBillboards = MAX_SIZE;
             //nBillboards = Positions.Count;
 
             // 頂点の情報(特にUV座標など)はUpdatePositionで更新するので、インデックス付けが重要
-            if (Positions.Count <= 1) {
-                //particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
-                //particles.Add(new BillboardStripVertex(Positions[Positions.Count - 1], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
-            } else {
-                particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
-                particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
-            }
+            particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 0), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 1));
+            particles.Add(new BillboardStripVertex(Positions[Positions.Count - 2], new Vector2(0, 1), z, 0, -1, 0, Positions[Positions.Count - 1], 0, 0));
+
             // ここが怪しい
 			/*indices.Add((nBillboards-1) * 2 + 0);
             indices.Add((nBillboards-1) * 2 + 3);
@@ -183,7 +182,7 @@ namespace HLSLTest
 			// 一番最初に呼ばれるときは頂点が２つしかなく、quadを作れないので何もしない
 			// (無理に呼ぶと原点を結ぶ謎のtriangleが出来る)
 			//if (Positions.Count > 1) {
-			if (Positions.Count > 2) {
+			if (Positions.Count > 2) {// particles.Count >= 4のはず
 				indices.Add((nBillboards - 1) * 2 + 0);
 				indices.Add((nBillboards - 1) * 2 + 1);
 				indices.Add((nBillboards - 1) * 2 + 2);
@@ -192,8 +191,8 @@ namespace HLSLTest
 				indices.Add((nBillboards - 1) * 2 + 3);
 			}
 
+			// 保存範囲を超えたら、Quad１つ分の情報を古い順に削除する
 			if (nBillboards > MAX_SIZE) {
-				// Quad１つ分の情報を古い順に削除
 				particles.RemoveRange(0, 2);
 				indices.RemoveRange(0, 6);
 			}
