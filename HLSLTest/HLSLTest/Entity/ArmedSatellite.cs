@@ -135,7 +135,7 @@ namespace HLSLTest
 						//Vector3 tmp = SearchTarget(0);
 						Object tmp1 = SearchTargetObj(0);
 						Vector3 dir2 = Vector3.Normalize(tmp1.Position - Position);
-						level.Bullets.Add(new Missile(IFF.Friend, this, tmp1, 5.0f, dir2, Position, 1, "Models\\AGM65Missile"));/**/
+						level.Bullets.Add(new Missile(IFF.Friend, this, tmp1, 5.0f, dir2, Position, 4, "Models\\AGM65Missile"));/**/
 					
 					break;
 			}
@@ -265,7 +265,7 @@ namespace HLSLTest
 			level.transparentEffects.Add(shieldEffect);
 
 			positions = new List<Vector3>();
-			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\smoke"), new Vector2(10, 200), positions);//Line1T1
+			billboardStrip = new BillboardStrip(Level.graphicsDevice, content, content.Load<Texture2D>("Textures\\Lines\\Line1T1"), new Vector2(10, 200), positions);//Line1T1
 
 			visibleEnemies = new List<Object>();
 			sensorSphere = new BoundingSphere(Position, 1000);

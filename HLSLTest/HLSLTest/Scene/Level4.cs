@@ -35,6 +35,7 @@ namespace HLSLTest
 		Effect shadowEffect;
 		public List<Asteroid> Asteroids { get; private set; }
 		public List<Planet> Planets { get; private set; }
+		public List<DamageablePlanet> TargetPlanets { get; private set; }
 		public List<Satellite> Satellites { get; private set; }
 		public List<Fighter> Fighters { get; private set; }
 
@@ -120,6 +121,7 @@ namespace HLSLTest
 
 			// Load planets
 			Planets = new List<Planet>();
+			TargetPlanets = new List<DamageablePlanet>();
 			//WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-1000, 0, -1000), -LightPosition, device, content);
 			WaterPlanet waterPlanet = new WaterPlanet(new Vector3(-100, 100, -100), LightPosition, graphicsDevice, content);
 			IcePlanet icePlanet = new IcePlanet(new Vector3(-100, 100, -800), LightPosition, graphicsDevice, content);
@@ -131,7 +133,8 @@ namespace HLSLTest
 			//planet = gasGiant;
 			//planet = icePlanet;
 			planet = waterPlanet;
-			Planets.Add(waterPlanet);
+			//Planets.Add(waterPlanet);
+			TargetPlanets.Add(waterPlanet);
 			Planets.Add(icePlanet);
 			Planets.Add(gasGiant);
 
@@ -187,6 +190,11 @@ namespace HLSLTest
 				}
 			}
 			foreach (Planet p in Planets) {
+				p.RenderBoudingSphere = false;
+				//p.SetModelEffect(shadowEffect, true);
+				Models.Add(p);
+			}
+			foreach (DamageablePlanet p in TargetPlanets) {
 				p.RenderBoudingSphere = false;
 				//p.SetModelEffect(shadowEffect, true);
 				Models.Add(p);
@@ -252,7 +260,8 @@ namespace HLSLTest
 				direction.Normalize();
 				Ray pickRay = new Ray(nearPoint, direction);
 				Plane planeXZ = new Plane(Vector3.Up, 0);
-				Plane planeGround = new Plane(Vector3.Up, -500);
+				float spawnHeight = -200;
+				Plane planeGround = new Plane(Vector3.Up, -spawnHeight);
 
 				Vector3 intersectionPoint = GetRayPlaneIntersectionPoint(pickRay, planeGround);
 				//Models.Add(new ArmedSatellite(intersectionPoint, 10, "Models\\ISS"));
@@ -382,10 +391,11 @@ namespace HLSLTest
 				}
 
 				// Collide with waterPlanet
-				foreach (Planet p in Planets) {
+				foreach (DamageablePlanet p in TargetPlanets) {
 					if (b.Identification == IFF.Foe && b.IsHitWith(p)) {
 						//b.IsActive = false;
 						b.Die();
+						p.Damage();
 
 						// 重い！数が多いのでもっと軽いエフェクトを作ろう
 						/*ExplosionEffect e = (ExplosionEffect)smallExplosion.Clone();

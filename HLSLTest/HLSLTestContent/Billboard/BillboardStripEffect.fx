@@ -51,15 +51,18 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	float3 position = input.Position;
 
 	
-	// (new ver) nVidiaのpaperに沿った実装
+	// (new ver) nVidiaのpaperに沿った実装：ViewProjection変換した後に、スクリーン上に点を射影
 	float4 posStart = mul(input.Position, mul(View, Projection));
 	float4 posEnd = mul(input.DirectedPosition, mul(View, Projection));
 	float2 startPos2d = posStart.xy / posStart.w;
 	float2 endPos2d = posEnd.xy / posEnd.w;
-	float2 lineDir2d = normalize(startPos2d - endPos2d);/**/
+	float2 lineDir2d = normalize(startPos2d - endPos2d);
 
+	// 横方向（lineDir2dの法線方向）に配置
 	float offset = -(input.UV.y - 0.5f) * 2.0f;// 1 or -1
-	lineDir2d *= offset * 50;
+
+	float width = AdjustedWidth ? input.Id / MAX_LENGTH : Size.y;
+	lineDir2d *= offset * width;
 	posEnd.x += lineDir2d.y;		
 	posEnd.y -= lineDir2d.x;
 	output.Position = posEnd;

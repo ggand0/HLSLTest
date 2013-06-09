@@ -232,10 +232,10 @@ Content\Models\Dawn.xnb
 Content\Textures\Lines\laser0.xnb
 Content\Textures\Lines\laser1.xnb
 Content\Textures\Lines\smoke.xnb
-Content\Models\AGM65Missile.xnb
 Content\SoundEffects\missile0.xnb
 Content\Textures\UI\LifeBar.xnb
 Content\Textures\UI\LifeBarRed.xnb
 Content\Textures\UI\LifeBar2.xnb
 Content\Textures\UI\LifeBar2Back.xnb
 Content\Textures\UI\cursor.xnb
+Content\Models\AGM65Missile.xnb

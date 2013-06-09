@@ -31,7 +31,7 @@ namespace HLSLTest
 			Viewport viewport = graphicsDevice.Viewport;
 			Vector3 v = viewport.Project(Position + Vector3.Up * (Scale), level.camera.Projection, level.camera.View, Matrix.Identity);
 			Vector2 drawPos = new Vector2(v.X + lengthRatio * 200, v.Y - lengthRatio * 100);//new Vector2(v.X - lifeBar.Width / 2f, v.Y - 50);
-			int endOfLifeBarGreen = (int)(HitPoint / (float)DEF_HIT_POINT) * lifeBar.Width;
+			int endOfLifeBarGreen = (int)((HitPoint / (float)DEF_HIT_POINT) * lifeBar.Width);
 			
 			
 
@@ -40,7 +40,7 @@ namespace HLSLTest
 			//graphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 			graphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 			graphicsDevice.SamplerStates[1] = SamplerState.PointWrap;
-			spriteBatch.Draw(lifeBarBack, drawPos, new Rectangle(0, 0, endOfLifeBarGreen, lifeBar.Height), Color.White, 0, new Vector2(lifeBar.Width / 2f, lifeBar.Height / 2f),
+			spriteBatch.Draw(lifeBarBack, drawPos, new Rectangle(0, 0, lifeBarBack.Width, lifeBarBack.Height), Color.White, 0, new Vector2(lifeBar.Width / 2f, lifeBar.Height / 2f),
 				new Vector2(lengthRatio, defRatio * lengthRatio), SpriteEffects.None, 0);
 			spriteBatch.Draw(lifeBar, drawPos, new Rectangle(0, 0, endOfLifeBarGreen, lifeBar.Height), Color.White, 0, new Vector2(lifeBar.Width / 2f, lifeBar.Height/2f),
 				//new Vector2(1 * (-transformed.Z / level.camera.FarPlaneDistance) * 10000, 0.5f), SpriteEffects.None, 0);

@@ -152,7 +152,7 @@ namespace HLSLTest
 				indices[x++] = i + 0;
 			}*/
 
-			// 
+			// 最低でも２点無いと頂点シェーダで方向ベクトルを計算できないので、頂点追加はしない
 			if (Positions.Count <= 1) {
 				return;
 			}

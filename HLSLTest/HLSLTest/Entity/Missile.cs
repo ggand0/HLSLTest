@@ -18,7 +18,9 @@ namespace HLSLTest
 		//public Model Model { get; private set; }
 		public Object Renderer { get; private set; }
 		public Vector3 Velocity { get; private set; }
+
 		private Matrix _world;
+		private Vector3 upPosition;
 		//private float Scale;
 		private BillboardStrip billboardStrip;
 		private List<Vector3> positions;
@@ -48,11 +50,13 @@ namespace HLSLTest
 			Velocity = Direction * Speed;
 
 			Position += Velocity;
+			upPosition += Velocity;
+
 			UpdateWorldMatrix();
 			boundingSphere = new BoundingSphere(Position, Renderer.Model.Meshes[0].BoundingSphere.Radius * Renderer.Scale);
 
 			Renderer.Position = Position;
-			Renderer.World = _world;
+			//Renderer.World = _world;
 			UpdateLocus();
 			billboardStrip.Update(gameTime);
 
@@ -70,15 +74,24 @@ namespace HLSLTest
 		}
 		protected void UpdateWorldMatrix()
 		{
-			_world = Matrix.Identity;
+			/*_world = Matrix.Identity;
 			_world *= Matrix.CreateScale(Renderer.Scale);
 			_world *= Matrix.CreateTranslation(Position);
 			Vector3 workVector = _world.Translation;
-			workVector.Normalize();
+			workVector.Normalize();*/
 
-			/*_world.Forward *= Direction;
-			_world.Up *= Vector3.Normalize(Vector3.Cross(_world.Forward, workVector));
-			_world.Right *= Vector3.Normalize(Vector3.Cross(_world.Forward, _world.Up));*/
+			Vector3 up = Vector3.Normalize(upPosition - Position);
+			up.Normalize();
+			Vector3 right = Vector3.Cross(Direction, up);
+			right.Normalize();
+
+			_world = Matrix.Identity;
+			_world.Forward = Direction;
+			_world.Up = up; ;
+			_world.Right = right;/**/
+			_world *= Matrix.CreateScale(Renderer.Scale);
+			_world *= Matrix.CreateTranslation(Position);
+			Renderer.World = _world;
 		}
 		public override bool IsHitWith(Object o)
 		{
@@ -116,6 +129,8 @@ namespace HLSLTest
 			MAX_DISTANCE = 2000;
 			this.Target = target;
 			Position = position;
+			upPosition = position + Vector3.Up;
+
 			positions = new List<Vector3>();
 			Renderer = new Object(position, scale, filePath);
 			billboardStrip = new BillboardStrip(Level.graphicsDevice, content,
